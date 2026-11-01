@@ -57,7 +57,7 @@ void initialize_adjacency_matrix(adjacency_matrix *g) {
 
     for (i = 1; i <= MAXV; i++) {
         for (j = 1; j <= MAXV; j++) {
-            g->weight[i][j] = MAXINT;
+            g->weight[i][j] = (i == j) ? 0 : MAXINT;
         }
     }
 }
@@ -73,6 +73,7 @@ void read_adjacency_matrix(adjacency_matrix *g, bool directed) {
 
     for (i = 1; i <= m; i++) {
         scanf("%d %d %d\n", &x, &y, &w);
+        if (x == y && w > g->weight[x][y]) continue;
         g->weight[x][y] = w;
 
         if (!directed) {
