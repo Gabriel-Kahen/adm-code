@@ -1,4 +1,4 @@
-void augment_path(flow_graph *g, int start, int end, int volume) {
+void augment_path(flow_graph *g, int start, int end, long long volume) {
     edgenode *e;    /* edge in question */
 
     if (start == end) {

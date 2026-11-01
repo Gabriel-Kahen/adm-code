@@ -41,9 +41,9 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 typedef struct {
 	int v;				/* neighboring vertex */
-	int capacity;			/* capacity of edge */
-	int flow;			/* flow through edge */
-	int residual;			/* residual capacity of edge */
+	long long capacity;			/* capacity of edge */
+	long long flow;			/* flow through edge */
+	long long residual;			/* residual capacity of edge */
 } edge;
 
 typedef struct {
@@ -59,7 +59,7 @@ main()
 {
 	flow_graph g;			/* graph to analyze */
 	int source, sink;		/* source and sink vertices */
-	int flow;			/* total flow */
+	long long flow;			/* total flow */
 	int i;				/* counter */
 
 	scanf("%d %d",&source,&sink);
@@ -73,7 +73,7 @@ main()
 	for (i=0; i<g.nvertices; i++)
 		flow += g.edges[source][i].flow;
 
-	printf("total flow = %d\n",flow);
+	printf("total flow = %lld\n",flow);
 }
 
 
@@ -107,8 +107,19 @@ bool directed;				/* is this graph directed? */
 	}
 }
 
+edge *find_edge(flow_graph *g, int x, int y);
+
 insert_flow_edge(flow_graph *g, int x, int y, bool directed, int w)
 {
+	edge *existing = find_edge(g, x, y);
+    /* Parallel arcs share a single residual-capacity entry. */
+    if (existing != NULL) {
+        existing->capacity += w;
+        existing->residual += w;
+        if (!directed) insert_flow_edge(g, y, x, TRUE, w);
+        return;
+    }
+
 	if (g->degree[x] > MAXDEGREE)
 		printf("Warning: insertion(%d,%d) exceeds degree bound\n",x,y);
 
@@ -155,7 +166,7 @@ print_flow_graph(flow_graph *g)
 	for (i=1; i<=g->nvertices; i++) {
 		printf("%d: ",i);
 		for (j=0; j<g->degree[i]; j++)
-			printf(" %d(%d,%d,%d)",g->edges[i][j].v,
+			printf(" %d(%lld,%lld,%lld)",g->edges[i][j].v,
 				g->edges[i][j].capacity,
 				g->edges[i][j].flow,
 				g->edges[i][j].residual);
@@ -249,7 +260,7 @@ int parents[];				/* array of parent pointers */
 	}
 }
 
-int path_volume(flow_graph *g, int start, int end, int parents[])
+long long path_volume(flow_graph *g, int start, int end, int parents[])
 {
 	edge *e;			/* edge in question */
 	edge *find_edge();
@@ -265,7 +276,7 @@ int path_volume(flow_graph *g, int start, int end, int parents[])
 }
 
 
-augment_path(flow_graph *g, int start, int end, int parents[], int volume)
+augment_path(flow_graph *g, int start, int end, int parents[], long long volume)
 {
 	edge *e;			/* edge in question */
 	edge *find_edge();
@@ -285,7 +296,7 @@ augment_path(flow_graph *g, int start, int end, int parents[], int volume)
 
 netflow(flow_graph *g, int source, int sink)
 {
-	int volume;			/* weight of the augmenting path */
+	long long volume;			/* weight of the augmenting path */
 
 	add_residual_edges(g);
 
