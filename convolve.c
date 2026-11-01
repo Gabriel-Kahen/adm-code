@@ -33,19 +33,27 @@ int min(int x, int y) {
 
 int main(void) {
     int i, j;                       /* counters */
-    int a[MAXN],b[MAXN],c[MAXN];    /* sequences */
+    int a[MAXN],b[MAXN],c[2*MAXN-1];    /* sequences */
     int n, m;                       /* sequence lengths */
 
     for (i = 0; i < MAXN; i++) {
-        a[i] = b[i] = c[i] = 0;
+        a[i] = b[i] = 0;
     }
 
-    scanf("%d",&m);
+    for (i = 0; i < 2*MAXN-1; i++) {
+        c[i] = 0;
+    }
+
+    if (scanf("%d", &m) != 1 || m < 1 || m > MAXN) {
+        return 1;
+    }
     for (i=0; i < m; i++) {
 	scanf("%d",&a[i]);
     }
 
-    scanf("%d",&n);
+    if (scanf("%d", &n) != 1 || n < 1 || n > MAXN) {
+        return 1;
+    }
     for (i=0; i < n; i++) {
         scanf("%d",&b[i]);
     }
