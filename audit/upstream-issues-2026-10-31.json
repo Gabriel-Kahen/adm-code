@@ -1,0 +1,50 @@
+[
+  {
+    "body": "In [`hill_climbing()`](https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/blob/9bdfcc0203956c354cfc9715559a8671a73684cb/annealing.c#L86-L100), the final condition should be `while (!stuck)` instead of `while (stuck)`.\n\n`stuck` starts as `true` and becomes `false` when an improving move is found, so the loop should repeat while improvements are found. The current condition stops after an improving pass and can loop forever when no improvement is available.\n",
+    "number": 9,
+    "title": "annealing.c: hill_climbing loop condition is reversed",
+    "url": "https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/issues/9"
+  },
+  {
+    "body": "i know delete_edge doesnt appear in the book but i pointed someone to your website and i think lines 108-110 should read something like this (i dont know how to write c)\n\n```\n        } else {\n            p_back = p;\n            p = p->next;\n        }\n```\n\nfrom what i can tell delete_edge will lose track of all pointers in the list before a match for y",
+    "number": 8,
+    "title": "graph.c delete_edge - p_back is always NULL",
+    "url": "https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/issues/8"
+  },
+  {
+    "body": "Hey @SkienaBook Sir,\r\nI have been following CSE-373 lectures on YouTube. I even did the bandwidth challenge :)\r\nAfter scratching my head a lot, I cannot understand the \"Longest Common Subsequence\" problem.\r\n\r\nIn a lecture, the book and you mention that it is a modification of the original edit distance problem, which allows substitution, insertion, and deletion. \r\n\r\n> The longest common subsequence (LCS) distance allows only insertion and deletion, not substitution.\r\n\r\nMy Doubts:\r\n\r\n1. I am confused as to why it does not allow substitution. As far as I understand the algorithm, if there is a character that can be **potentially** matched to a character in the target string, it won't be substituted or deleted, **it would be simply matched**.\r\n\r\n2. Why does it allow deletion and insertion? Can't it happen that a matching character is deleted because it occurs later in the target string? Let's say an `h` matches another `h` in the other string, but that `h` arrives later, so our current `h` is deleted and the other matching character is inserted. \r\n\r\nWould appreciate it if you could help me with these doubts.\r\n\r\nThanks,\r\nVyom",
+    "number": 7,
+    "title": "Unable to understand \"Longest Common Subsequence\" Problem",
+    "url": "https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/issues/7"
+  },
+  {
+    "body": "https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/blob/9bdfcc0203956c354cfc9715559a8671a73684cb/dijkstra.c#L36-L81\r\n\r\nThe algorithm returns `weight`. Now nowhere in the book is clarified what is this `weight`. The `weight`  that this algorithm returns relates to no sort of weight. It is not the weight of the MST. It is not the weight of all the edges that the Dijkstra graph uses, i.e. shortest path edges.\r\n\r\nThe book states that:\r\n\r\n> Below, we give an implementation of Dijkstra's algorithm based on changing exactly four lines from our Prim's implementation..........\r\n\r\n**This gives the reader a false sense that the algorithm is capable of both:**\r\n\r\n- Finding the shortest path from a single source\r\n- Weight of the MST of the given graph\r\n\r\nhttps://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/blob/9bdfcc0203956c354cfc9715559a8671a73684cb/dijkstra.c#L57-L60\r\n\r\nThis weight addition is pointless. If the intention is to find the weight of the MST, then this is wrong. It is not possible to find the weight of MST in Dijkstra's algorithm (unless you add extra conditions) due to what the `distance[]` array represents.\r\n\r\nhttps://stackoverflow.com/a/65319310/15412365 gives a good example illustrating why we can't find a relation between Dijsktra's graph and MST.\r\n\r\n---\r\n\r\nI feel these points should have been covered in the book. \r\n\r\nCc @SkienaBook, sir, please take a look.\r\n\r\nThanks and Regards,\r\nVyom",
+    "number": 6,
+    "title": "Wrong implementation of Dijkstra's trying to return weight",
+    "url": "https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/issues/6"
+  },
+  {
+    "body": "In DFS:\r\nhttps://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/blob/9bdfcc0203956c354cfc9715559a8671a73684cb/bfs-dfs.c#L143-L144\r\n\r\n`time` is incremented and then added to `exit_time` array.\r\n\r\nBut in Psuedo Code on page 221:\r\n\r\n```\r\nexit[u] = time\r\ntime = time + 1\r\n```\n![20230829_231818.jpg](https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/assets/73882557/7e4312fb-19bc-48b0-b191-86fe12648f57)\n\n\r\n\r\nThe problem of how many descendants can be still solved, but this looks odd and buggy.\r\n\r\nThoughts @SkienaBook Sir?\r\n",
+    "number": 5,
+    "title": "Slight logical difference between psuedo code and C code in DFS",
+    "url": "https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/issues/5"
+  },
+  {
+    "body": "This may be a typo or lack of understanding. I posted this on SO.\r\n\r\nFrom https://stackoverflow.com/q/76985913/15412365:\r\n\r\n> I am following Skiena's Algorithm Design Manual v3.\r\n> \r\n> I have seen a few questions stating that there are certain **typos** in the book, and I am not sure whether this is one or just because I cannot understand it.\r\n> \r\n> Consider the following:\r\n> \r\n> ```C\r\n> typedef struct edgenode {\r\n>     int y;                   /* adjacency info */\r\n>     int weight;              /* edge weight, if any */\r\n>     struct edgenode *next;   /* next edge in list */\r\n> } edgenode;\r\n> \r\n> typedef struct {\r\n>     edgenode *edges[MAXV+1];  /* adjacency info */\r\n>     int degree[MAXV+1];       /* outdegree of each vertex */\r\n>     int nvertices;            /* number of vertices in the graph */\r\n>     int nedges;               /* number of edges in the graph */\r\n>     int directed;             /* is the graph directed? */\r\n> } graph;\r\n> \r\n> void insert_edge(graph *g, int x, int y, bool directed) {\r\n>     edgenode *p;        /* temporary pointer */\r\n> \r\n>     p = malloc(sizeof(edgenode));    /* allocate edgenode storage */\r\n> \r\n>     p->weight = 0;\r\n>     p->y = y;\r\n>     p->next = g->edges[x];\r\n> \r\n>     g->edges[x] = p;    /* insert at head of list */\r\n> \r\n>     g->degree[x]++;\r\n> \r\n>     if (!directed) {\r\n>         insert_edge(g, y, x, true);\r\n>     } else {\r\n>         g->nedges++;\r\n>     }\r\n> }\r\n> ```\r\n> \r\n> As far as I understand, `void insert_edge(graph *g, int x, int y, bool directed)` connects two nodes at array index `x` and `y` by adding them to `edges` array.\r\n> \r\n> The following snippet confuses me:\r\n> \r\n> ```C\r\n> p->y = y;\r\n> p->next = g->edges[x];\r\n> \r\n> g->edges[x] = p;    /* insert at head of list */\r\n> ```\r\n> \r\n> How is this working? Suppose my input is `x = 3, y = 4`, and this is the first input.\r\n> \r\n> I would expect something like `3 -> 4` for a directed graph.\r\n> \r\n> 1. `p->y = y;` makes perfect sense, the adjacent of `x` is `y`.\r\n> 2. `p->next = g->edges[x];` But the `edges` array is initialized to null. Won't this make `3.next == NULL` instead of `3.next == 4`?\r\n> 3. `g->edges[x] = p;` What? `edges[x] == x Node`, this confuses me.\r\n> \r\n> The complete code can be found at [graph.c](https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/blob/main/graph.c) and [graph.h](https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/blob/main/graph.h).\r\n> \r\n> I think `p.next = y;` somehow and `y.next = NULL` as of now i.e. the first insertion. Maybe it's my rusty C but need some help on this.\r\n\r\n@SkienaBook Can you please clarify this?\r\n\r\nThanks!",
+    "number": 4,
+    "title": "Creating a graph using adjacency list",
+    "url": "https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/issues/4"
+  },
+  {
+    "body": "![image](https://user-images.githubusercontent.com/56295323/153712168-b68a0061-673b-4aad-abb6-5915194191a8.png)\r\n",
+    "number": 2,
+    "title": "just a tiny mistake in the code description of fib.c",
+    "url": "https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/issues/2"
+  },
+  {
+    "body": "time is counted twice in dfs, is it an intentional behavior? Thanks!\r\n\r\nIn regular-tree-dfs-demo-out\r\n```\r\nentered vertex 1 at time 2\r\ntree edge (1,3)\r\nentered vertex 3 at time 4\r\ntree edge (3,7)\r\n```\r\n\r\nIn bfs-dfs.c\r\n```C\r\nvoid dfs(graph *g, int v) {\r\n   ...\r\n    discovered[v] = true;\r\n    time = time + 1;\r\n    entry_time[v] = time;\r\n\r\n    process_vertex_early(v);\r\n   ...\r\n```\r\nIn dfs-demo.c\r\n```C\r\nvoid process_vertex_early(int v) {\r\n    time = time + 1;\r\n    entry_time[v] = time;\r\n    printf(\"entered vertex %d at time %d\\n\",v, entry_time[v]);\r\n}\r\n``` \r\n\r\n\r\n",
+    "number": 1,
+    "title": "time is counted twice in dfs?",
+    "url": "https://github.com/SkienaBook/Algorithm-Design-Manual-Programs-V3/issues/1"
+  }
+]
