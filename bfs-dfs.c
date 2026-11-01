@@ -147,12 +147,17 @@ void dfs(graph *g, int v) {
 /* ]]] */
 
 /* [[[ find_path_cut */
-void find_path(int start, int end, int parents[]) {
-    if ((start == end) || (end == -1)) {
+int find_path(int start, int end, int parents[]) {
+    if (end == -1) {
+        printf("\nNo path");
+        return 0;
+    }
+    if (start == end) {
         printf("\n%d", start);
     } else {
-        find_path(start, parents[end], parents);
+        if (!find_path(start, parents[end], parents)) return 0;
         printf(" %d", end);
     }
+    return 1;
 }
 /* ]]] */

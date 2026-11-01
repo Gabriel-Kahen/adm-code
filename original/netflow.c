@@ -247,17 +247,22 @@ int x,y;                                /* edge to process */
 
 
 
-find_path(start,end,parents)
+int find_path(start,end,parents)
 int start;				/* first vertex on path */
 int end;				/* last vertex on path */
 int parents[];				/* array of parent pointers */
 {
-	if ((start == end) || (end == -1))
-		printf("\n%d",start);
-	else {
-		find_path(start,parents[end],parents);
-		printf(" %d",end);
-	}
+    if (end == -1) {
+        printf("\nNo path");
+        return 0;
+    }
+    if (start == end) {
+        printf("\n%d", start);
+    } else {
+        if (!find_path(start, parents[end], parents)) return 0;
+        printf(" %d", end);
+    }
+    return 1;
 }
 
 long long path_volume(flow_graph *g, int start, int end, int parents[])
