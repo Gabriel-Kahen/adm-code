@@ -47,7 +47,8 @@ printf("n=%d  k=%d \n",n,k);
     }
 
 for (i = 0; i <= n; i++) {    /* print table */
-   printf("i=%d  s[i]=%d : ",i,s[i]);
+   printf("i=%d: ",i);
+   if (i > 0) printf("item=%d: ",s[i-1]);
    for (j = 0; j <= k; j++) {
 	printf(" %d ",sum[i][j]);
    }

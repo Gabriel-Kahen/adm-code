@@ -47,7 +47,8 @@ bool subset_sum(int s[], int n, int k) {
     }
 
 for (i = 0; i <= n; i++) {    
-   printf("i=%d  s[i]=%d : ",i,s[i]);
+   printf("i=%d: ",i);
+   if (i > 0) printf("item=%d: ",s[i-1]);
    for (j = 0; j <= k; j++) {
 	printf(" %d ",sum[i][j]);
    }
@@ -55,7 +56,8 @@ for (i = 0; i <= n; i++) {
 }
 
 for (i = 0; i <= n; i++) { 
-   printf("i=%d  s[i]=%d : ",i,s[i]);
+   printf("i=%d: ",i);
+   if (i > 0) printf("item=%d: ",s[i-1]);
    for (j = 0; j <= k; j++) {
         printf(" %d ",parent[i][j]);
    }
