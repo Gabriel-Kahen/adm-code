@@ -85,12 +85,24 @@ main()
         	}
 		s[j] = '\0';
 
-		for (j=0; j<nmergers; j=j+1) 
-			while ((pos=findmatch(mergers[j][0],s)) != -1) {
-			   replace_x_with_y(s, pos,
-				strlen(mergers[j][0]), mergers[j][1]);
-			   /*printf("PARTIAL: %s\n",s);*/
-			}
+		for (j = 0; j < nmergers; j++) {
+            int cursor = 0;
+            int oldlen = strlen(mergers[j][0]);
+            int newlen = strlen(mergers[j][1]);
+            if (oldlen == 0) {
+                fputs("A name to replace must not be empty.\n", stderr);
+                return 1;
+            }
+            while ((pos = findmatch(mergers[j][0], s + cursor)) != -1) {
+                pos += cursor;
+                if (strlen(s) - oldlen + newlen >= MAXLEN) {
+                    fputs("Renamed text exceeds the line capacity.\n", stderr);
+                    return 1;
+                }
+                replace_x_with_y(s, pos, oldlen, mergers[j][1]);
+                cursor = pos + newlen;
+            }
+        }
 	
 		printf("%s\n",s);
 	}
