@@ -21,7 +21,7 @@ long long dijkstra(graph *g, int start) {
         intree[v] = true;
         if (v != start) {
             printf("edge (%d,%d) in tree \n",parent[v],v);
-            weight = weight + dist;
+            weight += distance[v] - distance[parent[v]];
         }
         p = g->edges[v];
         while (p != NULL) {
