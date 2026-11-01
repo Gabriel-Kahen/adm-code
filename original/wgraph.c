@@ -114,9 +114,9 @@ graph *g;                               /* graph to print */
 	}
 }
 
-bool processed[MAXV];		/* which vertices have been processed */
-bool discovered[MAXV];          /* which vertices have been found */
-int parent[MAXV];		/* discovery relation */
+bool processed[MAXV+1];		/* which vertices have been processed */
+bool discovered[MAXV+1];          /* which vertices have been found */
+int parent[MAXV+1];		/* discovery relation */
 
 
 initialize_search(g)

@@ -46,7 +46,7 @@ compute_indegrees(graph *g, int in[])
 
 topsort(graph *g, int sorted[])
 {
-	int indegree[MAXV];		/* indegree of each vertex */
+	int indegree[MAXV+1];		/* indegree of each vertex */
 	queue zeroin;			/* vertices of indegree 0 */
 	int x, y;			/* current and next vertex */
 	int i, j;			/* counters */
@@ -76,7 +76,7 @@ topsort(graph *g, int sorted[])
 main()
 {
 	graph g;
-	int out[MAXV];
+	int out[MAXV+1];
 	int i;
 
 	read_graph(&g,TRUE);

@@ -31,9 +31,9 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "graph.h"
 #include "queue.h"
 
-bool processed[MAXV];	/* which vertices have been processed */
-bool discovered[MAXV];  /* which vertices have been found */
-int parent[MAXV];	/* discovery relation */
+bool processed[MAXV+1];	/* which vertices have been processed */
+bool discovered[MAXV+1];  /* which vertices have been found */
+int parent[MAXV+1];	/* discovery relation */
 
 bool finished = FALSE;	/* if true, cut off search immediately */
 

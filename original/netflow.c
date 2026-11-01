@@ -47,8 +47,8 @@ typedef struct {
 } edge;
 
 typedef struct {
-	edge edges[MAXV][MAXDEGREE];	/* adjacency info */
-	int degree[MAXV];		/* outdegree of each vertex */
+	edge edges[MAXV+1][MAXDEGREE];	/* adjacency info */
+	int degree[MAXV+1];		/* outdegree of each vertex */
 	int nvertices;			/* number of vertices in the graph */
 	int nedges;			/* number of edges in the graph */
 } flow_graph;
@@ -86,7 +86,7 @@ flow_graph *g;				/* graph to initialize */
 	g -> nvertices = 0;
 	g -> nedges = 0;
 
-	for (i=0; i<MAXV; i++) g->degree[i] = 0;
+	for (i=0; i<=MAXV; i++) g->degree[i] = 0;
 }
 
 read_flow_graph(g,directed)
@@ -174,9 +174,9 @@ print_flow_graph(flow_graph *g)
 	}
 }
 
-bool processed[MAXV];		/* which vertices have been processed */
-bool discovered[MAXV];          /* which vertices have been found */
-int parent[MAXV];		/* discovery relation */
+bool processed[MAXV+1];		/* which vertices have been processed */
+bool discovered[MAXV+1];          /* which vertices have been found */
+int parent[MAXV+1];		/* discovery relation */
 
 bool finished = FALSE;          /* if true, cut off search immediately */
 
