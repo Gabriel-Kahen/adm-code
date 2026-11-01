@@ -4,8 +4,10 @@ Small, standalone implementations from Steven S. Skiena's *The Algorithm Design
 Manual* and *Programming Challenges*. Use them to study an algorithm, inspect its
 invariants, and experiment with small inputs.
 
-Start with the C programs in the repository root. Historical implementations and
-unfinished experiments are kept separately for reference.
+The root C programs are accompanied by complete algorithm libraries in **C++17,
+Java 17, and Python 3.10+**. Start with the [multilanguage guide](docs/MULTILANGUAGE.md)
+for the new APIs, coverage map, and shared correctness tests. Historical
+implementations and unfinished experiments are kept separately for reference.
 
 ## Build and run
 
@@ -57,8 +59,10 @@ make test
 ./test-script.sh
 ```
 
-The suite needs Python 3.10 or newer, GCC, Clang, and their sanitizer runtimes. It compiles the
-actual C implementations and checks counterexamples, boundaries, invariants, and
+The full suite needs Python 3.10 or newer, GCC, Clang, their sanitizer runtimes,
+a C++17 compiler, and JDK 17 or newer. Run `make test-c` for the C suites or
+`make test-ports` for the C++, Java, and Python suites. The tests compile the
+actual implementations and check counterexamples, boundaries, invariants, and
 independent reference results. [Testing](docs/TESTING.md) explains how to select a
 suite, understand sanitizer output, and add a useful regression.
 
@@ -71,6 +75,7 @@ and upstream issue links are recorded in [AUDIT_FIXES.md](AUDIT_FIXES.md).
 | Location | Purpose |
 |---|---|
 | Root `*.c` and `*.h` | Current educational programs and shared implementations |
+| `cpp/`, `java/`, `python/` | Readable, independently callable ports of every current algorithm family |
 | `tests/` | Supported automated tests and their C compilation helpers |
 | `datafiles/` | Sample inputs and archived outputs; some historical source examples |
 | `code-fragments/` | Saved book excerpts, mostly generated from marked source blocks |

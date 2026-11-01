@@ -133,7 +133,17 @@ tsp-astar: tsp-pq.o
 war: queue.o random.o
 
 # Each suite runs in its own process so direct test-script imports stay simple.
-test: test-regressions test-algorithms test-tooling
+test: test-c test-ports
+
+.PHONY: test-c ports test-ports
+test-c: test-regressions test-algorithms test-tooling
+
+# C++17, JDK17, and Python3.10+; compiler outputs stay under build/ports.
+ports:
+	$(PYTHON) tools/ports.py build all
+
+test-ports:
+	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests/ports -p 'test_*.py' -v
 
 test-regressions:
 	CC="$(CC)" PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests/regressions -p 'test_*.py' -v
@@ -162,8 +172,12 @@ test-tooling:
 
 check: check-format check-fragments test
 
-clean:
+clean: clean-ports
 	rm -f $(PROGRAMS) $(OBJECTS) $(DEPENDENCIES) core a.out tests/*.o
+
+.PHONY: clean-ports
+clean-ports:
+	rm -rf build/ports
 
 # Legacy distribution utilities; regular development uses all, test, and clean.
 lint:

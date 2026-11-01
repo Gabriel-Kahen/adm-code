@@ -7,7 +7,8 @@ between the implementation, its mathematical state, and the book excerpts.
 ## Development setup
 
 The programs need a C99 compiler and GNU Make. Tests additionally need Python 3.10 or newer,
-GCC, Clang, and sanitizer runtimes. Formatting tools are optional for running the
+GCC, Clang, and sanitizer runtimes. The full suite also needs a C++17 compiler
+and JDK 17 or newer. Formatting tools are optional for running the
 programs and required for maintenance checks.
 
 ```sh
@@ -92,3 +93,17 @@ and any changed input/output contract. For a style-only change, state that its
 algorithm behavior is unchanged and keep semantic edits separately reviewable.
 The [fix index](AUDIT_FIXES.md) records existing audit regressions and upstream
 issue links; new work should use the same evidence-based approach.
+
+## Multilanguage changes
+
+Keep the C++, Java, and Python libraries independently callable. Add shared
+behavior to `tests/ports/test_conformance.py` with an independent oracle or a
+checked witness, and add native checks for language-specific APIs. Update
+`docs/PORT_COVERAGE.json` when a current C source is introduced. Preserve algorithm
+variants that teach different methods; a shared interface should not turn every
+method into a wrapper around one implementation. Prefer explicit state, named
+intermediate results, and ordinary control flow over compact expressions.
+
+Run `make test-ports` after changing a port and `make test-c` after changing C.
+`make test` runs both. See `docs/MULTILANGUAGE.md` for toolchains and arithmetic
+and indexing contracts.

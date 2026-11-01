@@ -1,5 +1,7 @@
 *.o
 __pycache__/
+/build/
+*.class
 
 # Generated programs; build them from current sources.
 /10055

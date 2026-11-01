@@ -11,7 +11,7 @@ import tokenize
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-C_EXTENSIONS = {".c", ".h", ".cc", ".java"}
+C_EXTENSIONS = {".c", ".h", ".cc", ".cpp", ".hpp", ".java"}
 HISTORICAL_C = {
     "tmp/binomial.v1",
     "tmp/sudoku-v2",
