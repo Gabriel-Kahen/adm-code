@@ -129,7 +129,7 @@ void backtrack(int a[], int k, paths_data *input) {
 }
 
 int main(void) {
-    int a[NMAX];    /* solution vector */
+    int a[NMAX+1];    /* solution vector */
     int i;          /* counter */
     paths_data *g;
 

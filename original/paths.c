@@ -66,10 +66,10 @@ unmake_move(int a[], int k, int n)
 construct_candidates(int a[], int k, int n, int c[], int *ncandidates)
 {
 	int i,j;			/* counters */
-	bool in_sol[NMAX];		/* what's already in the solution? */
+	bool in_sol[NMAX+1];		/* what's already in the solution? */
 	int last;			/* last vertex on current path */
 
-        for (i=1; i<NMAX; i++) in_sol[i] = FALSE;
+        for (i=1; i<=NMAX; i++) in_sol[i] = FALSE;
 	for (i=1; i<k; i++) in_sol[ a[i] ] = TRUE;
 
 	if (k==1) {			/* always start from vertex 1 */
@@ -91,7 +91,7 @@ construct_candidates(int a[], int k, int n, int c[], int *ncandidates)
 
 main()
 {
-	int a[NMAX];			/* solution vector */
+	int a[NMAX+1];			/* solution vector */
 	int i;				/* counter */
 
         read_graph(&g,FALSE);
