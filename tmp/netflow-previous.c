@@ -41,9 +41,9 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 /* [[ netflow_edgenode_cut */
 typedef struct {
     int v;                  /* neighboring vertex */
-    int capacity;           /* capacity of edge */
-    int flow;               /* flow through edge */
-    int residual;           /* residual capacity of edge */
+    long long capacity;           /* capacity of edge */
+    long long flow;               /* flow through edge */
+    long long residual;           /* residual capacity of edge */
     struct edgenode *next;  /* next edge in list */
 } edgenode;
 /* ]] */
@@ -70,9 +70,18 @@ void initialize_graph(flow_graph *g) { /* graph to initialize */
     }
 }
 
+edgenode *find_edge(flow_graph *g, int x, int y);
+
 void insert_flow_edge(flow_graph *g, int x, int y, bool directed, int w) {
     edgenode *p;    /* temporary pointer */
-
+    edgenode *existing = find_edge(g, x, y);
+    /* Parallel arcs share a single residual-capacity entry. */
+    if (existing != NULL) {
+        existing->capacity += w;
+        existing->residual += w;
+        if (!directed) insert_flow_edge(g, y, x, TRUE, w);
+        return;
+    }
     p = malloc(sizeof(edgenode));   /* allocate storage for edgenode */
 
     p->v = y;
@@ -147,7 +156,7 @@ void print_flow_graph(flow_graph *g) {
         printf("%d: ", i);
         p = g->edges[i];
         while (p != NULL) {
-            printf(" %d(%d,%d,%d)",p->v, p->capacity, p->flow, p->residual);
+            printf(" %d(%lld,%lld,%lld)",p->v, p->capacity, p->flow, p->residual);
             p = (edgenode*)p->next;
         }
         printf("\n");
@@ -235,7 +244,7 @@ void find_path(int start, int end, int parents[]) {
 }
 
 /* [[ path_volume_cut */
-int path_volume(flow_graph *g, int start, int end, int parents[]) {
+long long path_volume(flow_graph *g, int start, int end, int parents[]) {
     edgenode *e;    /* edge in question */
     edgenode *find_edge();
 
@@ -254,7 +263,7 @@ int path_volume(flow_graph *g, int start, int end, int parents[]) {
 /* ]] */
 
 /* [[ augment_path_cut */
-void augment_path(flow_graph *g, int start, int end, int parents[], int volume) {
+void augment_path(flow_graph *g, int start, int end, int parents[], long long volume) {
     edgenode *e;    /* edge in question */
     edgenode *find_edge();
 
@@ -275,7 +284,7 @@ void augment_path(flow_graph *g, int start, int end, int parents[], int volume) 
 
 /* [[ netflow_cut */
 void netflow(flow_graph *g, int source, int sink) {
-    int volume;    /* weight of the augmenting path */
+    long long volume;    /* weight of the augmenting path */
 
     add_residual_edges(g);
 
@@ -296,7 +305,7 @@ void netflow(flow_graph *g, int source, int sink) {
 int main(void) {
     flow_graph g;        /* graph to analyze */
     int source, sink;    /* source and sink vertices */
-    int flow;            /* total flow */
+    long long flow;            /* total flow */
     edgenode *p;         /* temporary pointer */
 
     scanf("%d %d", &source, &sink);
@@ -313,7 +322,7 @@ int main(void) {
         p = (edgenode*)p->next;
     }
 
-    printf("total flow = %d\n", flow);
+    printf("total flow = %lld\n", flow);
 
     return 0;
 }

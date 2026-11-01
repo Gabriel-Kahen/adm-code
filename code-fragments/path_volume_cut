@@ -1,4 +1,4 @@
-int path_volume(flow_graph *g, int start, int end) {
+long long path_volume(flow_graph *g, int start, int end) {
     edgenode *e;    /* edge in question */
 
     if (parent[end] == -1) {
