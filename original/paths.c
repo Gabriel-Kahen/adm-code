@@ -29,78 +29,65 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "backtrack.h"
 #include "bool.h"
 
-int solution_count;			/* how many solutions are there? */
+int solution_count; /* how many solutions are there? */
 
-graph g;				/* graph to traverse */
+graph g; /* graph to traverse */
 
-process_solution(int a[], int k)
-{
-	int i;				/* counter */
+process_solution(int a[], int k) {
+    int i; /* counter */
 
-	solution_count ++;
+    solution_count++;
 
-        printf("{");
-        for (i=1; i<=k; i++)
-                printf(" %d",a[i]);
-        printf(" }\n");
-
+    printf("{");
+    for (i = 1; i <= k; i++)
+        printf(" %d", a[i]);
+    printf(" }\n");
 }
 
-is_a_solution(int a[], int k, int t)
-{
-	return (k > 0 && a[k] == t);
+is_a_solution(int a[], int k, int t) {
+    return (k > 0 && a[k] == t);
 }
 
-make_move(int a[], int k, int n)
-{
-}
+make_move(int a[], int k, int n) {}
 
-unmake_move(int a[], int k, int n)
-{
-}
-
+unmake_move(int a[], int k, int n) {}
 
 /*	What are possible elements of the next slot in the path
 */
 
-construct_candidates(int a[], int k, int n, int c[], int *ncandidates)
-{
-	int i,j;			/* counters */
-	bool in_sol[NMAX+1];		/* what's already in the solution? */
-	int last;			/* last vertex on current path */
+construct_candidates(int a[], int k, int n, int c[], int *ncandidates) {
+    int i, j;              /* counters */
+    bool in_sol[NMAX + 1]; /* what's already in the solution? */
+    int last;              /* last vertex on current path */
 
-        for (i=1; i<=NMAX; i++) in_sol[i] = FALSE;
-	for (i=1; i<k; i++) in_sol[ a[i] ] = TRUE;
+    for (i = 1; i <= NMAX; i++)
+        in_sol[i] = FALSE;
+    for (i = 1; i < k; i++)
+        in_sol[a[i]] = TRUE;
 
-	if (k==1) {			/* always start from vertex 1 */
-		c[0] = 1;
-		*ncandidates = 1;
-	}
-	else	{
-		*ncandidates = 0;
-		last = a[k-1];
-		for (i=0; i<g.degree[last]; i++)
-			if (!in_sol[ g.edges[last][i] ]) {
-				c[*ncandidates] = g.edges[last][i];
-                        	*ncandidates = *ncandidates + 1;
-			}
-	}
+    if (k == 1) { /* always start from vertex 1 */
+        c[0] = 1;
+        *ncandidates = 1;
+    } else {
+        *ncandidates = 0;
+        last = a[k - 1];
+        for (i = 0; i < g.degree[last]; i++)
+            if (!in_sol[g.edges[last][i]]) {
+                c[*ncandidates] = g.edges[last][i];
+                *ncandidates = *ncandidates + 1;
+            }
+    }
 }
 
+main() {
+    int a[NMAX + 1]; /* solution vector */
+    int i;           /* counter */
 
+    read_graph(&g, FALSE);
+    print_graph(&g);
 
-main()
-{
-	int a[NMAX+1];			/* solution vector */
-	int i;				/* counter */
-
-        read_graph(&g,FALSE);
-        print_graph(&g);
-
-	for (i=1; i<=g.nvertices; i++) {
-		printf("\nPaths from 1 to %d:\n",i);
-		backtrack(a,0,i);
-	}
-
+    for (i = 1; i <= g.nvertices; i++) {
+        printf("\nPaths from 1 to %d:\n", i);
+        backtrack(a, 0, i);
+    }
 }
-

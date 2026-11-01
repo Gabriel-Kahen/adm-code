@@ -19,7 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 void swap(int *a, int *b);
 int random_int(int low, int high);
 void random_permutation(int a[], int n);

@@ -27,79 +27,72 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
-
 #include "bool.h"
 #include "queue.h"
 #include "graph.h"
 
-initialize_graph(graph *g)
-{
-	int i;				/* counter */
+initialize_graph(graph *g) {
+    int i; /* counter */
 
-	g -> nvertices = 0;
-	g -> nedges = 0;
+    g->nvertices = 0;
+    g->nedges = 0;
 
-	for (i=1; i<=MAXV; i++) g->degree[i] = 0;
+    for (i = 1; i <= MAXV; i++)
+        g->degree[i] = 0;
 }
 
-read_graph(graph *g, bool directed)
-{
-	int i;				/* counter */
-	int m;				/* number of edges */
-	int x, y;			/* vertices in edge (x,y) */
+read_graph(graph *g, bool directed) {
+    int i;    /* counter */
+    int m;    /* number of edges */
+    int x, y; /* vertices in edge (x,y) */
 
-	initialize_graph(g);
+    initialize_graph(g);
 
-	scanf("%d %d",&(g->nvertices),&m);
+    scanf("%d %d", &(g->nvertices), &m);
 
-	for (i=1; i<=m; i++) {
-		scanf("%d %d",&x,&y);
-		insert_edge(g,x,y,directed);
-	}
+    for (i = 1; i <= m; i++) {
+        scanf("%d %d", &x, &y);
+        insert_edge(g, x, y, directed);
+    }
 }
 
-insert_edge(graph *g, int x, int y, bool directed)
-{
-	if (g->degree[x] > MAXDEGREE)
-	    printf("Warning: insertion(%d,%d) exceeds max degree\n",x,y);
+insert_edge(graph *g, int x, int y, bool directed) {
+    if (g->degree[x] > MAXDEGREE)
+        printf("Warning: insertion(%d,%d) exceeds max degree\n", x, y);
 
-	g->edges[x][g->degree[x]] = y;
-	g->degree[x] ++;
+    g->edges[x][g->degree[x]] = y;
+    g->degree[x]++;
 
-	if (directed == FALSE)
-		insert_edge(g,y,x,TRUE);
-	else
-		g->nedges ++;
+    if (directed == FALSE)
+        insert_edge(g, y, x, TRUE);
+    else
+        g->nedges++;
 }
 
+delete_edge(graph *g, int x, int y, bool directed) {
+    int i; /* counter */
 
-delete_edge(graph *g, int x, int y, bool directed)
-{
-	int i;				/* counter */
+    for (i = 0; i < g->degree[x]; i++)
+        if (g->edges[x][i] == y) {
+            g->degree[x]--;
+            g->edges[x][i] = g->edges[x][g->degree[x]];
 
-	for (i=0; i<g->degree[x]; i++) 
-		if (g->edges[x][i] == y) {
-			g->degree[x] --;
-			g->edges[x][i] = g->edges[x][g->degree[x]];
+            if (directed == FALSE)
+                delete_edge(g, y, x, TRUE);
 
-			if (directed == FALSE)
-				delete_edge(g,y,x,TRUE);
+            return;
+        }
 
-			return;
-		}
-
-	printf("Warning: deletion(%d,%d) not found in g.\n",x,y);
+    printf("Warning: deletion(%d,%d) not found in g.\n", x, y);
 }
 
-print_graph(graph *g)
-{
-	int i,j;			/* counters */
+print_graph(graph *g) {
+    int i, j; /* counters */
 
-	for (i=1; i<=g->nvertices; i++) {
-		printf("%d: ",i);
-		for (j=0; j<g->degree[i]; j++)
-			printf(" %d",g->edges[i][j]);
-		printf("\n");
-	}
+    for (i = 1; i <= g->nvertices; i++) {
+        printf("%d: ", i);
+        for (j = 0; j < g->degree[i]; j++)
+            printf(" %d", g->edges[i][j]);
+        printf("\n");
+    }
 }
-

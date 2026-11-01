@@ -19,33 +19,30 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include "bfs-dfs.h"
 #include "stack.h"
 
-extern bool processed[];    /* which vertices have been processed */
-extern bool discovered[];   /* which vertices have been found */
-extern int parent[];        /* discovery relation */
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
-extern int entry_time[];    /* time of vertex entry */
-extern int exit_time[];     /* time of vertex exit */
+extern int entry_time[]; /* time of vertex entry */
+extern int exit_time[];  /* time of vertex exit */
 
-extern bool finished;       /* if true, cut off search immediately */
-
+extern bool finished; /* if true, cut off search immediately */
 
 /* [[[ sc_arrays2_cut */
-int low[MAXV+1];    /* oldest vertex surely in component of v */
-int scc[MAXV+1];    /* strong component number for each vertex */
+int low[MAXV + 1]; /* oldest vertex surely in component of v */
+int scc[MAXV + 1]; /* strong component number for each vertex */
 /* ]]] */
 
-stack dfs1order;         /* stack for reverse finishing order */
+stack dfs1order; /* stack for reverse finishing order */
 
-stack active;            /* active vertices of unassigned component */
-int components_found;    /* number of strong components identified */
+stack active;         /* active vertices of unassigned component */
+int components_found; /* number of strong components identified */
 
 void process_vertex_early2(int v);
 void process_vertex_late2(int v);
@@ -54,11 +51,11 @@ void process_edge2(int x, int y);
 /* replicate dfs call so it can use different process vertex functions */
 
 void dfs2(graph *g, int v) {
-    edgenode *p;        /* temporary pointer */
-    int y;              /* successor vertex */
+    edgenode *p; /* temporary pointer */
+    int y;       /* successor vertex */
 
     if (finished) {
-        return;         /* allow for search termination */
+        return; /* allow for search termination */
     }
 
     discovered[v] = true;
@@ -93,28 +90,21 @@ void dfs2(graph *g, int v) {
     processed[v] = true;
 }
 
-
-
 /* [[[ strong_dfs1_cut */
 /* [[[ pvearly_strong12_cut */
-void process_vertex_early(int v) {
-    
-}
+void process_vertex_early(int v) {}
 /* ]]] */
 
 /* [[[ pvlate_strong12_cut */
 void process_vertex_late(int v) {
-    push(&dfs1order,v);
+    push(&dfs1order, v);
 }
 /* ]]] */
 
 /* [[[ pedge_strong12_cut */
-void process_edge(int x, int y) {
-
-}
+void process_edge(int x, int y) {}
 /* ]]] */
 /* ]]] */
-
 
 /* [[[ strong_dfs2_cut */
 /* [[[ pvearly_strong22_cut */
@@ -124,24 +114,19 @@ void process_vertex_early2(int v) {
 /* ]]] */
 
 /* [[[ pvlate_strong22_cut */
-void process_vertex_late2(int v) {
-
-}
+void process_vertex_late2(int v) {}
 /* ]]] */
 
 /* [[[ pedge_strong22_cut */
-void process_edge2(int x, int y) {
-
-}
+void process_edge2(int x, int y) {}
 /* ]]] */
 /* ]]] */
-
 
 /* [[[ strong_comp2_cut */
 void strong_components(graph *g) {
-    graph *gt;           /* transpose of graph g */
-    int i;               /* counter */
-    int v;               /* vertex in component */
+    graph *gt; /* transpose of graph g */
+    int i;     /* counter */
+    int v;     /* vertex in component */
 
     init_stack(&dfs1order);
     initialize_search(g);
@@ -158,7 +143,7 @@ void strong_components(graph *g) {
     while (!empty_stack(&dfs1order)) {
         v = pop(&dfs1order);
         if (!discovered[v]) {
-            components_found ++;
+            components_found++;
             printf("Component %d:", components_found);
             dfs2(gt, v);
             printf("\n");
@@ -167,8 +152,7 @@ void strong_components(graph *g) {
 }
 /* ]]] */
 
-int main(void) 
-{
+int main(void) {
     graph g;
 
     read_graph(&g, true);
@@ -178,4 +162,3 @@ int main(void)
 
     return 0;
 }
-

@@ -1,6 +1,5 @@
 #include <iostream.h>
 
-
 int main(void) {
     long long a, b, c;
 

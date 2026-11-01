@@ -26,53 +26,39 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
-
 #include "bool.h"
 #include "graph.h"
 
-extern bool processed[];	/* which vertices have been processed */
-extern bool discovered[];	/* which vertices have been found */
-extern int parent[];		/* discovery relation */
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
-extern bool finished;		/* flag for early search cutoff */
+extern bool finished; /* flag for early search cutoff */
 
+process_vertex_early(int v) {}
 
-process_vertex_early(int v)
-{
+process_vertex_late(int v) {}
+
+process_edge(int x, int y) {
+    if (parent[y] != x) { /* found back edge! */
+        printf("Cycle from %d to %d:", y, x);
+        find_path(y, x, parent);
+        printf("\n\n");
+        finished = TRUE;
+    }
 }
 
-process_vertex_late(int v)
-{
+bool valid_edge(int e) {
+    return (TRUE);
 }
 
-process_edge(int x, int y)
-{
-	if (parent[y] != x) {	/* found back edge! */
-		printf("Cycle from %d to %d:",y,x);
-		find_path(y,x,parent);
-		printf("\n\n");
-		finished = TRUE;
-	}
+main() {
+    graph g;
+    int i;
+
+    read_graph(&g, FALSE);
+    print_graph(&g);
+
+    initialize_search(&g);
+    dfs(&g, 1);
 }
-
-bool valid_edge(int e)
-{
-        return (TRUE);
-}
-
-
-
-main()
-{
-	graph g;
-	int i;
-
-	read_graph(&g,FALSE);
-	print_graph(&g);
-
-	initialize_search(&g);
-	dfs(&g,1);
-}
-
-
-

@@ -29,23 +29,23 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "bool.h"
 #include "graph.h"
 
-#define MAXCANDIDATES   100    /* max possible next extensions */
-#define NMAX            100    /* maximum solution size */
+#define MAXCANDIDATES 100 /* max possible next extensions */
+#define NMAX 100          /* maximum solution size */
 
 bool finished = FALSE;
-int solution_count;            /* how many solutions are there? */
+int solution_count; /* how many solutions are there? */
 
-graph g;                       /* graph to traverse */
+graph g; /* graph to traverse */
 
 /* [[[ process_solution_paths_cut */
 void process_solution(int a[], int k, int input) {
-    int i;    /* counter */
+    int i; /* counter */
 
-    solution_count ++;
+    solution_count++;
 
     printf("{");
     for (i = 1; i <= k; i++) {
-        printf(" %d",a[i]);
+        printf(" %d", a[i]);
     }
     printf(" }\n");
 }
@@ -57,23 +57,19 @@ int is_a_solution(int a[], int k, int t) {
 }
 /* ]]] */
 
-void make_move(int a[], int k, int n) {
+void make_move(int a[], int k, int n) {}
 
-}
-
-void unmake_move(int a[], int k, int n) {
-
-}
+void unmake_move(int a[], int k, int n) {}
 
 /*    
     What are possible elements of the next slot in the path
 */
 /* [[[ construct_candidates_paths_cut */
 void construct_candidates(int a[], int k, int n, int c[], int *nc) {
-    int i;                /* counters */
-    bool in_sol[NMAX+1];    /* what's already in the solution? */
-    edgenode *p;          /* temporary pointer */
-    int last;             /* last vertex on current path */
+    int i;                 /* counters */
+    bool in_sol[NMAX + 1]; /* what's already in the solution? */
+    edgenode *p;           /* temporary pointer */
+    int last;              /* last vertex on current path */
 
     for (i = 1; i <= NMAX; i++) {
         in_sol[i] = FALSE;
@@ -83,17 +79,17 @@ void construct_candidates(int a[], int k, int n, int c[], int *nc) {
         in_sol[a[i]] = TRUE;
     }
 
-    if (k == 1) {    /* always start from vertex 1 */
+    if (k == 1) { /* always start from vertex 1 */
         c[0] = 1;
         *nc = 1;
     } else {
         *nc = 0;
-        last = a[k-1];
+        last = a[k - 1];
         p = g.edges[last];
         while (p != NULL) {
-            if (!in_sol[ p->y ]) {
+            if (!in_sol[p->y]) {
                 c[*nc] = p->y;
-                *nc= *nc+ 1;
+                *nc = *nc + 1;
             }
             p = p->next;
         }
@@ -102,12 +98,12 @@ void construct_candidates(int a[], int k, int n, int c[], int *nc) {
 /* ]]] */
 
 void backtrack(int a[], int k, int input) {
-    int c[MAXCANDIDATES];           /* candidates for next position */
-    int ncandidates;                /* next position candidate count */
-    int i;                          /* counter */
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int ncandidates;      /* next position candidate count */
+    int i;                /* counter */
 
     if (is_a_solution(a, k, input)) {
-            process_solution(a, k, input);
+        process_solution(a, k, input);
     } else {
         k = k + 1;
         construct_candidates(a, k, input, c, &ncandidates);
@@ -118,15 +114,15 @@ void backtrack(int a[], int k, int input) {
             unmake_move(a, k, input);
 
             if (finished == TRUE) {
-                return;    /* terminate early */
+                return; /* terminate early */
             }
         }
     }
 }
 
 int main(void) {
-    int a[NMAX+1];    /* solution vector */
-    int i;          /* counter */
+    int a[NMAX + 1]; /* solution vector */
+    int i;           /* counter */
 
     read_graph(&g, FALSE);
     print_graph(&g);

@@ -19,12 +19,11 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include "item.h"
 
 /* [[[ list_cut */
 typedef struct list {
-    item_type item;         /* data item */
-    struct list *next;      /* point to successor */
+    item_type item;    /* data item */
+    struct list *next; /* point to successor */
 } list;
 /* ]]] */

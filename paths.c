@@ -19,37 +19,35 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
 #include "graph.h"
 
-#define MAXCANDIDATES   100    /* max possible next extensions */
-#define NMAX            100    /* maximum solution size */
+#define MAXCANDIDATES 100 /* max possible next extensions */
+#define NMAX 100          /* maximum solution size */
 
 bool finished = false;
-int solution_count;            /* how many solutions are there? */
+int solution_count; /* how many solutions are there? */
 
 /* [[[ paths_data_cut */
 typedef struct {
-    int s;                     /* source vertex */
-    int t;                     /* destination vertex */
-    graph g;                   /* graph to find paths in */
+    int s;   /* source vertex */
+    int t;   /* destination vertex */
+    graph g; /* graph to find paths in */
 } paths_data;
 /* ]]] */
 
 /* [[[ process_solution_paths_cut */
 void process_solution(int a[], int k, paths_data *input) {
-    int i;    /* counter */
+    int i; /* counter */
 
-    solution_count ++;
+    solution_count++;
 
     printf("{");
     for (i = 1; i <= k; i++) {
-        printf(" %d",a[i]);
+        printf(" %d", a[i]);
     }
     printf(" }\n");
 }
@@ -61,23 +59,19 @@ int is_a_solution(int a[], int k, paths_data *g) {
 }
 /* ]]] */
 
-void make_move(int a[], int k, paths_data *input) {
+void make_move(int a[], int k, paths_data *input) {}
 
-}
-
-void unmake_move(int a[], int k, paths_data *input) {
-
-}
+void unmake_move(int a[], int k, paths_data *input) {}
 
 /*    
     What are possible elements of the next slot in the path
 */
 /* [[[ construct_candidates_paths_cut */
 void construct_candidates(int a[], int k, paths_data *g, int c[], int *nc) {
-    int i;                /* counters */
-    bool in_sol[NMAX+1];  /* what's already in the solution? */
-    edgenode *p;          /* temporary pointer */
-    int last;             /* last vertex on current path */
+    int i;                 /* counters */
+    bool in_sol[NMAX + 1]; /* what's already in the solution? */
+    edgenode *p;           /* temporary pointer */
+    int last;              /* last vertex on current path */
 
     for (i = 1; i <= g->g.nvertices; i++) {
         in_sol[i] = false;
@@ -88,16 +82,16 @@ void construct_candidates(int a[], int k, paths_data *g, int c[], int *nc) {
     }
 
     if (k == 1) {
-        c[0] = g->s;      /* always start from vertex s */
+        c[0] = g->s; /* always start from vertex s */
         *nc = 1;
     } else {
         *nc = 0;
-        last = a[k-1];
+        last = a[k - 1];
         p = g->g.edges[last];
         while (p != NULL) {
-            if (!in_sol[ p->y ]) {
+            if (!in_sol[p->y]) {
                 c[*nc] = p->y;
-                *nc= *nc + 1;
+                *nc = *nc + 1;
             }
             p = p->next;
         }
@@ -106,12 +100,12 @@ void construct_candidates(int a[], int k, paths_data *g, int c[], int *nc) {
 /* ]]] */
 
 void backtrack(int a[], int k, paths_data *input) {
-    int c[MAXCANDIDATES];           /* candidates for next position */
-    int ncandidates;                /* next position candidate count */
-    int i;                          /* counter */
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int ncandidates;      /* next position candidate count */
+    int i;                /* counter */
 
     if (is_a_solution(a, k, input)) {
-            process_solution(a, k, input);
+        process_solution(a, k, input);
     } else {
         k = k + 1;
         construct_candidates(a, k, input, c, &ncandidates);
@@ -122,22 +116,21 @@ void backtrack(int a[], int k, paths_data *input) {
             unmake_move(a, k, input);
 
             if (finished) {
-                return;    /* terminate early */
+                return; /* terminate early */
             }
         }
     }
 }
 
 int main(void) {
-    int a[NMAX+1];    /* solution vector */
-    int i;          /* counter */
+    int a[NMAX + 1]; /* solution vector */
+    int i;           /* counter */
     paths_data *g;
 
     g = malloc(sizeof(paths_data));
 
     read_graph(&(g->g), false);
     print_graph(&(g->g));
-
 
     for (i = 1; i <= g->g.nvertices; i++) {
         g->s = 1;

@@ -21,17 +21,16 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 
-#define	MAXN    100    /* largest n or k */
+#define MAXN 100 /* largest n or k */
 
 /* compute n choose k */
 
 /* [[[ binomial_coeff_cut */
 /* Returns -1 with errno set for invalid arguments or an unrepresentable result. */
 long binomial_coefficient(int n, int k) {
-    long bc[MAXN+1] = {0};
+    long bc[MAXN + 1] = {0};
     int i, j, last;
 
     errno = 0;
@@ -39,18 +38,18 @@ long binomial_coefficient(int n, int k) {
         errno = EDOM;
         return -1;
     }
-    if (k > n-k) {
-        k = n-k;
+    if (k > n - k) {
+        k = n - k;
     }
     bc[0] = 1;
     for (i = 1; i <= n; i++) {
         last = i < k ? i : k;
         for (j = last; j > 0; j--) {
-            if (bc[j] > LONG_MAX-bc[j-1]) {
+            if (bc[j] > LONG_MAX - bc[j - 1]) {
                 errno = ERANGE;
                 return -1;
             }
-            bc[j] += bc[j-1];
+            bc[j] += bc[j - 1];
         }
     }
     return bc[k];
@@ -63,7 +62,7 @@ int main(void) {
 
     scanf("%d", &n);
 
-    for (i=0; i<n; i++) {
+    for (i = 0; i < n; i++) {
         scanf("%d %d", &a, &b);
         coefficient = binomial_coefficient(a, b);
         if (coefficient < 0) {

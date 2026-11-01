@@ -35,20 +35,20 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 #define MAXINT (LLONG_MAX / 4)
 
-int parent[MAXV+1];    /* discovery relation */
+int parent[MAXV + 1]; /* discovery relation */
 
 /* WAS prim(g,start) */
 
-long long totalweight=0;
+long long totalweight = 0;
 
 void dijkstra(graph *g, int start) {
-    int i;                  /* counter */
-    edgenode *p;            /* temporary pointer */
-    bool intree[MAXV+1];    /* is the vertex in the tree yet? */
-    long long distance[MAXV+1];   /* distance vertex is from start */
-    int v;                  /* current vertex to process */
-    int w;                  /* candidate next vertex */
-    long long weight;	            /* edge weight */
+    int i;                        /* counter */
+    edgenode *p;                  /* temporary pointer */
+    bool intree[MAXV + 1];        /* is the vertex in the tree yet? */
+    long long distance[MAXV + 1]; /* distance vertex is from start */
+    int v;                        /* current vertex to process */
+    int w;                        /* candidate next vertex */
+    long long weight;             /* edge weight */
     long long dist;               /* best current distance from start */
 
     for (i = 1; i <= g->nvertices; i++) {
@@ -63,14 +63,15 @@ void dijkstra(graph *g, int start) {
 
     while (intree[v] == FALSE) {
         intree[v] = TRUE;
-        if (v != start) totalweight += distance[v] - distance[parent[v]];
+        if (v != start)
+            totalweight += distance[v] - distance[parent[v]];
         p = g->edges[v];
         while (p != NULL) {
             w = p->y;
             weight = p->weight;
-            if (distance[w] > (distance[v]+weight)) { /* CHANGED */
-                distance[w] = distance[v]+weight;     /* CHANGED */
-                parent[w] = v;                        /* CHANGED */
+            if (distance[w] > (distance[v] + weight)) { /* CHANGED */
+                distance[w] = distance[v] + weight;     /* CHANGED */
+                parent[w] = v;                          /* CHANGED */
             }
             p = p->next;
         }
@@ -93,7 +94,7 @@ int main(void) {
     read_graph(&g, FALSE);
     dijkstra(&g, 1);
 
-printf("total SPST edgeweight = %lld\n",totalweight);
+    printf("total SPST edgeweight = %lld\n", totalweight);
 
     for (i = 1; i <= g.nvertices; i++) {
         find_path(1, i, parent);
@@ -102,4 +103,3 @@ printf("total SPST edgeweight = %lld\n",totalweight);
 
     return 0;
 }
-

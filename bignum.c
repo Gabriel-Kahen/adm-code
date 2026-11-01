@@ -18,17 +18,16 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 
-#define	MAXDIGITS   100     /* maximum length bignum */ 
-#define PLUS        1       /* positive sign bit */
-#define MINUS       -1      /* negative sign bit */
+#define MAXDIGITS 100 /* maximum length bignum */
+#define PLUS 1        /* positive sign bit */
+#define MINUS -1      /* negative sign bit */
 
 typedef struct {
     char digits[MAXDIGITS]; /* represent the number */
-    int signbit;            /* 1 if positive, -1 if negative */ 
+    int signbit;            /* 1 if positive, -1 if negative */
     int lastdigit;          /* index of high-order digit */
 } bignum;
 
@@ -36,7 +35,6 @@ static void bignum_capacity_error(void) {
     fprintf(stderr, "bignum capacity exceeded\n");
     exit(EXIT_FAILURE);
 }
-
 
 void add_bignum(bignum *a, bignum *b, bignum *c);
 
@@ -48,25 +46,25 @@ void print_bignum(bignum *n) {
     }
 
     for (i = n->lastdigit; i >= 0; i--) {
-        printf("%c",'0'+ n->digits[i]);
+        printf("%c", '0' + n->digits[i]);
     }
 
     printf("\n");
 }
 
 void zero_justify(bignum *n) {
-    while ((n->lastdigit > 0) && (n->digits[ n->lastdigit ] == 0)) {
+    while ((n->lastdigit > 0) && (n->digits[n->lastdigit] == 0)) {
         n->lastdigit--;
     }
 
     if ((n->lastdigit == 0) && (n->digits[0] == 0)) {
-        n->signbit = PLUS;	/* hack to avoid -0 */
+        n->signbit = PLUS; /* hack to avoid -0 */
     }
 }
 
 void int_to_bignum(int s, bignum *n) {
-    int i;    /* counter */
-    unsigned int t;    /* int to work with */
+    int i;          /* counter */
+    unsigned int t; /* int to work with */
 
     if (s >= 0) {
         n->signbit = PLUS;
@@ -75,7 +73,7 @@ void int_to_bignum(int s, bignum *n) {
     }
 
     for (i = 0; i < MAXDIGITS; i++) {
-        n->digits[i] = (char) 0;
+        n->digits[i] = (char)0;
     }
 
     n->lastdigit = -1;
@@ -83,10 +81,10 @@ void int_to_bignum(int s, bignum *n) {
     t = s < 0 ? 0u - (unsigned int)s : (unsigned int)s;
 
     while (t > 0) {
-        n->lastdigit ++;
+        n->lastdigit++;
         n->digits[n->lastdigit] = (t % 10);
         t = t / 10;
-	}
+    }
 
     if (s == 0) {
         n->lastdigit = 0;
@@ -99,20 +97,20 @@ void initialize_bignum(bignum *n) {
 
 int max(int a, int b) {
     if (a > b) {
-        return(a);
+        return (a);
     }
-    return(b);
+    return (b);
 }
 
 int compare_bignum(bignum *a, bignum *b) {
-    int i;    /* counter */
+    int i; /* counter */
 
     if ((a->signbit == MINUS) && (b->signbit == PLUS)) {
-        return(PLUS);
+        return (PLUS);
     }
 
     if ((a->signbit == PLUS) && (b->signbit == MINUS)) {
-        return(MINUS);
+        return (MINUS);
     }
 
     if (b->lastdigit > a->lastdigit) {
@@ -125,20 +123,20 @@ int compare_bignum(bignum *a, bignum *b) {
 
     for (i = a->lastdigit; i >= 0; i--) {
         if (a->digits[i] > b->digits[i]) {
-            return(MINUS * a->signbit);
+            return (MINUS * a->signbit);
         }
         if (b->digits[i] > a->digits[i]) {
-            return(PLUS * a->signbit);
+            return (PLUS * a->signbit);
         }
-	}
+    }
 
-    return(0);
+    return (0);
 }
 
 void subtract_bignum(bignum *a, bignum *b, bignum *c) {
-    int borrow;         /* has anything been borrowed? */
-    int v;              /* placeholder digit */
-    int i;              /* counter */
+    int borrow; /* has anything been borrowed? */
+    int v;      /* placeholder digit */
+    int i;      /* counter */
 
     initialize_bignum(c);
 
@@ -167,7 +165,7 @@ void subtract_bignum(bignum *a, bignum *b, bignum *c) {
             v = v + 10;
             borrow = 1;
         }
-        c->digits[i] = (char) v % 10;
+        c->digits[i] = (char)v % 10;
     }
 
     zero_justify(c);
@@ -176,9 +174,9 @@ void subtract_bignum(bignum *a, bignum *b, bignum *c) {
 /*	c = a +- b;	*/
 
 void add_bignum(bignum *a, bignum *b, bignum *c) {
-    int carry;          /* carry digit */
+    int carry; /* carry digit */
     int sum;
-    int i;              /* counter */
+    int i; /* counter */
 
     initialize_bignum(c);
 
@@ -200,13 +198,13 @@ void add_bignum(bignum *a, bignum *b, bignum *c) {
     c->lastdigit = max(a->lastdigit, b->lastdigit);
     carry = 0;
     for (i = 0; i <= c->lastdigit; i++) {
-        sum = carry + (i <= a->lastdigit ? a->digits[i] : 0)
-                    + (i <= b->lastdigit ? b->digits[i] : 0);
+        sum =
+            carry + (i <= a->lastdigit ? a->digits[i] : 0) + (i <= b->lastdigit ? b->digits[i] : 0);
         c->digits[i] = sum % 10;
         carry = sum / 10;
     }
     if (carry) {
-        if (c->lastdigit == MAXDIGITS-1) {
+        if (c->lastdigit == MAXDIGITS - 1) {
             bignum_capacity_error();
         }
         c->digits[++c->lastdigit] = carry;
@@ -218,13 +216,13 @@ void add_bignum(bignum *a, bignum *b, bignum *c) {
 /* multiply n by 10^d */
 
 void digit_shift(bignum *n, int d) {
-    int i;    /* counter */
+    int i; /* counter */
 
     if ((n->lastdigit == 0) && (n->digits[0] == 0)) {
         return;
     }
 
-    if (d < 0 || d > MAXDIGITS-1-n->lastdigit) {
+    if (d < 0 || d > MAXDIGITS - 1 - n->lastdigit) {
         bignum_capacity_error();
     }
 
@@ -240,9 +238,9 @@ void digit_shift(bignum *n, int d) {
 }
 
 void multiply_bignum(bignum *a, bignum *b, bignum *c) {
-    bignum row;         /* represent shifted row */
-    bignum tmp;         /* placeholder bignum */
-    int i, j;           /* counters */
+    bignum row; /* represent shifted row */
+    bignum tmp; /* placeholder bignum */
+    int i, j;   /* counters */
 
     initialize_bignum(c);
 
@@ -264,10 +262,10 @@ void multiply_bignum(bignum *a, bignum *b, bignum *c) {
 }
 
 void divide_bignum(bignum *a, bignum *b, bignum *c) {
-    bignum row;                     /* represent shifted row */
-    bignum tmp;                     /* placeholder bignum */
-    int asign, bsign;               /* temporary signs */
-    int i;                          /* counters */
+    bignum row;       /* represent shifted row */
+    bignum tmp;       /* placeholder bignum */
+    int asign, bsign; /* temporary signs */
+    int i;            /* counters */
 
     initialize_bignum(c);
 
@@ -289,7 +287,7 @@ void divide_bignum(bignum *a, bignum *b, bignum *c) {
         row.digits[0] = a->digits[i];
         c->digits[i] = 0;
         while (compare_bignum(&row, b) != PLUS) {
-            c->digits[i] ++;
+            c->digits[i]++;
             subtract_bignum(&row, b, &tmp);
             row = tmp;
         }
@@ -302,10 +300,10 @@ void divide_bignum(bignum *a, bignum *b, bignum *c) {
 }
 
 int main(void) {
-    int a,b;
+    int a, b;
     bignum n1, n2, n3, zero;
 
-    while (scanf("%d %d\n",&a,&b) != EOF) {
+    while (scanf("%d %d\n", &a, &b) != EOF) {
         printf("a = %d    b = %d\n", a, b);
         int_to_bignum(a, &n1);
         int_to_bignum(b, &n2);
@@ -335,4 +333,3 @@ int main(void) {
         printf("--------------------------\n");
     }
 }
-

@@ -7,7 +7,6 @@
 	begun: April 1, 2002
 */
 
-
 /*
 Copyright 2003 by Steven S. Skiena; all rights reserved. 
 
@@ -27,118 +26,102 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
+#define NFLOORS 25    /* the height of the building in floors */
+#define MAX_RIDERS 50 /* what is the capacity of the elevator? */
 
-#define	NFLOORS		25	/* the height of the building in floors */
-#define MAX_RIDERS	50	/* what is the capacity of the elevator? */
+#define MAXINT 100007
 
-#define MAXINT  100007
+int stops[MAX_RIDERS + 1]; /* what floor does everyone get off at? */
+int nriders;               /* number of riders */
+int nstops;                /* number of allowable stops */
 
+int m[NFLOORS + 1][MAX_RIDERS + 1]; /* dynamic programming cost table */
+int p[NFLOORS + 1][MAX_RIDERS + 1]; /* dynamic programming parent table */
 
-
-int stops[MAX_RIDERS+1];		/* what floor does everyone get off at? */
-int nriders;			/* number of riders */
-int nstops;			/* number of allowable stops */
-
-int m[NFLOORS+1][MAX_RIDERS+1];	/* dynamic programming cost table */
-int p[NFLOORS+1][MAX_RIDERS+1];	/* dynamic programming parent table */
-
-
-
-int min(int a, int b)
-{
-	if (a < b)  return(a); else return(b);
+int min(int a, int b) {
+    if (a < b)
+        return (a);
+    else
+        return (b);
 }
 
 /*	m[i][j] denotes the cost of serving all the riders using j stops,
 	the last of which is at floor i.  Zero is the originating floor.
 */
 
-int optimize_floors()
-{
-	int i,j,k;		/* counters */
-	int cost;		/* costs placeholder */
-	int laststop;		/* the elevator's last stop */
+int optimize_floors() {
+    int i, j, k;  /* counters */
+    int cost;     /* costs placeholder */
+    int laststop; /* the elevator's last stop */
 
-    if (nriders < 0 || nriders > MAX_RIDERS ||
-        nstops < 0 || nstops > MAX_RIDERS) {
+    if (nriders < 0 || nriders > MAX_RIDERS || nstops < 0 || nstops > MAX_RIDERS) {
         return -1;
     }
 
-	for (i=0; i<=NFLOORS; i++) {
-		m[i][0] = floors_walked(0,MAXINT);
-		p[i][0] = -1;
-	}
+    for (i = 0; i <= NFLOORS; i++) {
+        m[i][0] = floors_walked(0, MAXINT);
+        p[i][0] = -1;
+    }
 
-	for (j=1; j<=nstops; j++) 
-		for (i=0; i<=NFLOORS; i++) {
-			m[i][j] = MAXINT;
-			for (k=0; k<=i; k++) {
-			     cost = m[k][j-1] - floors_walked(k,MAXINT) +
-				floors_walked(k,i) + floors_walked(i,MAXINT);
-			     if (cost < m[i][j]) {
-			     	m[i][j] = cost;
-				p[i][j] = k;
-			     }    
-			}
-		}
-
-	laststop = 0;
-	for (i=1; i<=NFLOORS; i++) 
-		if (m[i][nstops] < m[laststop][nstops])
-			laststop = i;
-	
-	return(laststop);
-}
-
-
-
-
-floors_walked(int previous, int current)
-{
-	int nsteps=0;		/* total distance traveled */
-	int i;			/* counter */
-
-	for (i=1; i<=nriders; i++)
-		if ((stops[i] > previous) && (stops[i] <= current))
-			nsteps += min(stops[i]-previous, current-stops[i]);
-
-	return(nsteps);
-}
-
-
-reconstruct_path(int lastfloor, int stops_to_go)
-{
-	if (stops_to_go > 1)
-		reconstruct_path( p[lastfloor][stops_to_go], stops_to_go-1);
-
-	printf("%d\n",lastfloor);
-}
-
-print_matrix(m)
-int m[NFLOORS+1][MAX_RIDERS+1];
-{
-	int i,j;                        /* counters */
-
-        for (j=0; j<=nstops; j++) {
-                for (i=0; i<=NFLOORS; i++)
-                        printf("%3d",m[i][j]);
-                printf("\n");
+    for (j = 1; j <= nstops; j++)
+        for (i = 0; i <= NFLOORS; i++) {
+            m[i][j] = MAXINT;
+            for (k = 0; k <= i; k++) {
+                cost = m[k][j - 1] - floors_walked(k, MAXINT) + floors_walked(k, i) +
+                       floors_walked(i, MAXINT);
+                if (cost < m[i][j]) {
+                    m[i][j] = cost;
+                    p[i][j] = k;
+                }
+            }
         }
+
+    laststop = 0;
+    for (i = 1; i <= NFLOORS; i++)
+        if (m[i][nstops] < m[laststop][nstops])
+            laststop = i;
+
+    return (laststop);
 }
 
+floors_walked(int previous, int current) {
+    int nsteps = 0; /* total distance traveled */
+    int i;          /* counter */
 
-int main(void)
+    for (i = 1; i <= nriders; i++)
+        if ((stops[i] > previous) && (stops[i] <= current))
+            nsteps += min(stops[i] - previous, current - stops[i]);
+
+    return (nsteps);
+}
+
+reconstruct_path(int lastfloor, int stops_to_go) {
+    if (stops_to_go > 1)
+        reconstruct_path(p[lastfloor][stops_to_go], stops_to_go - 1);
+
+    printf("%d\n", lastfloor);
+}
+
+print_matrix(m) int m[NFLOORS + 1][MAX_RIDERS + 1];
 {
-	int i,j;			/* counters */
-	int laststop;
+    int i, j; /* counters */
 
-    if (scanf("%d %d", &nriders, &nstops) != 2 ||
-        nriders < 0 || nriders > MAX_RIDERS ||
+    for (j = 0; j <= nstops; j++) {
+        for (i = 0; i <= NFLOORS; i++)
+            printf("%3d", m[i][j]);
+        printf("\n");
+    }
+}
+
+int main(void) {
+    int i, j; /* counters */
+    int laststop;
+
+    if (scanf("%d %d", &nriders, &nstops) != 2 || nriders < 0 || nriders > MAX_RIDERS ||
         nstops < 0 || nstops > MAX_RIDERS) {
         fprintf(stderr, "invalid elevator dimensions\n");
         return 1;
     }
-
 
     for (i = 1; i <= nriders; i++) {
         if (scanf("%d", &stops[i]) != 1 || stops[i] < 0 || stops[i] > NFLOORS) {
@@ -147,19 +130,18 @@ int main(void)
         }
     }
 
-        for (i=1; i<=nriders; i++)
-                printf("%d\n",stops[i]);
+    for (i = 1; i <= nriders; i++)
+        printf("%d\n", stops[i]);
 
-	laststop = optimize_floors();
+    laststop = optimize_floors();
 
-	print_matrix(m);
-	printf("\n");
-	print_matrix(p);
+    print_matrix(m);
+    printf("\n");
+    print_matrix(p);
 
-	printf("cost = %d\n",m[laststop][nstops]);
+    printf("cost = %d\n", m[laststop][nstops]);
 
-	reconstruct_path(laststop,nstops);
+    reconstruct_path(laststop, nstops);
 
     return 0;
-
 }

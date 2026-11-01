@@ -19,15 +19,13 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 
 #include "set_union.h"
 
 /* [[[ set_union_init_cut */
 void union_find_init(union_find *s, int n) {
-    int i;    /* counter */
+    int i; /* counter */
 
     for (i = 1; i <= n; i++) {
         s->p[i] = i;
@@ -40,21 +38,21 @@ void union_find_init(union_find *s, int n) {
 /* [[[ set_union_find_cut */
 int find(union_find *s, int x) {
     if (s->p[x] == x) {
-        return(x);
+        return (x);
     }
-    return(find(s, s->p[x]));
+    return (find(s, s->p[x]));
 }
 /* ]]] */
 
 /* [[[ set_union_union_sets_cut */
 void union_sets(union_find *s, int s1, int s2) {
-    int r1, r2;    /* roots of sets */
+    int r1, r2; /* roots of sets */
 
     r1 = find(s, s1);
     r2 = find(s, s2);
 
     if (r1 == r2) {
-        return;    /* already in same set */
+        return; /* already in same set */
     }
 
     if (s->size[r1] >= s->size[r2]) {
@@ -74,7 +72,7 @@ bool same_component(union_find *s, int s1, int s2) {
 /* ]]] */
 
 void print_union_find(union_find *s) {
-    int i;    /* counter */
+    int i; /* counter */
 
     for (i = 1; i <= s->n; i++) {
         printf("%i  set=%d size=%d \n", i, s->p[i], s->size[i]);

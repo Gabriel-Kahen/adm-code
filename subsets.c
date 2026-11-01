@@ -19,19 +19,17 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdbool.h>
 
 bool finished = false;
-#define MAXCANDIDATES   100    /* max possible next extensions */
-#define NMAX            100    /* maximum solution size */
+#define MAXCANDIDATES 100 /* max possible next extensions */
+#define NMAX 100          /* maximum solution size */
 
 /* [[[ process_solution_cut */
 void process_solution(int a[], int k, int input) {
-    int i;    /* counter */
-    
+    int i; /* counter */
+
     printf("{");
     for (i = 1; i <= k; i++) {
         if (a[i] == true) {
@@ -43,16 +41,11 @@ void process_solution(int a[], int k, int input) {
 }
 /* ]]] */
 
-void make_move(int a[], int k, int n) {
+void make_move(int a[], int k, int n) {}
 
-}
-
-void unmake_move(int a[], int k, int n) {
-
-}
+void unmake_move(int a[], int k, int n) {}
 
 /*    What are possible elements of the next slot in the permutation?  */
-
 
 /* [[[ subset_part_cut */
 /* [[[ is_a_solution_cut */
@@ -71,9 +64,9 @@ void construct_candidates(int a[], int k, int n, int c[], int *nc) {
 /* ]]] */
 
 void backtrack(int a[], int k, int input) {
-    int c[MAXCANDIDATES];           /* candidates for next position */
-    int ncandidates;                /* next position candidate count */
-    int i;                          /* counter */
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int ncandidates;      /* next position candidate count */
+    int i;                /* counter */
 
     if (is_a_solution(a, k, input)) {
         process_solution(a, k, input);
@@ -87,7 +80,7 @@ void backtrack(int a[], int k, int input) {
             unmake_move(a, k, input);
 
             if (finished) {
-                return;    /* terminate early */
+                return; /* terminate early */
             }
         }
     }
@@ -95,7 +88,7 @@ void backtrack(int a[], int k, int input) {
 
 /* [[[ generate_subsets_cut */
 void generate_subsets(int n) {
-    int a[NMAX+1];                    /* solution vector */
+    int a[NMAX + 1]; /* solution vector */
 
     backtrack(a, 0, n);
 }

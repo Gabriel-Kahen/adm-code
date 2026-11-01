@@ -19,25 +19,23 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
 
 /************************************************************/
 
-#define	MAXV        100     /* maximum number of vertices */
-#define MAXDEGREE   50      /* maximum outdegree of a vertex */
-#define MAXINT      100007
+#define MAXV 100     /* maximum number of vertices */
+#define MAXDEGREE 50 /* maximum outdegree of a vertex */
+#define MAXINT 100007
 
 typedef struct {
-    int m[MAXV+1][MAXV+1];  /* adjacency/weight info */
-    int rows;               /* number of rows */
-    int columns;            /* number of columns */
+    int m[MAXV + 1][MAXV + 1]; /* adjacency/weight info */
+    int rows;                  /* number of rows */
+    int columns;               /* number of columns */
 } matrix;
 
 void initialize_matrix(matrix *m) {
-    int i, j;    /* counters */
+    int i, j; /* counters */
 
     for (i = 1; i <= m->rows; i++) {
         for (j = 1; j <= m->columns; j++) {
@@ -47,7 +45,7 @@ void initialize_matrix(matrix *m) {
 }
 
 void read_matrix(matrix *m) {
-    int i, j;    /* counters */
+    int i, j; /* counters */
 
     scanf("%d %d\n", &(m->rows), &(m->columns));
 
@@ -59,11 +57,11 @@ void read_matrix(matrix *m) {
 }
 
 void print_matrix(matrix *g) {
-    int i, j;    /* counters */
+    int i, j; /* counters */
 
     for (i = 1; i <= g->rows; i++) {
         for (j = 1; j <= g->columns; j++) {
-            printf(" %d",g->m[i][j]);
+            printf(" %d", g->m[i][j]);
         }
         printf("\n");
     }
@@ -71,7 +69,7 @@ void print_matrix(matrix *g) {
 }
 
 void multiply(matrix *a, matrix *b, matrix *c) {
-    int i, j, k;    /* dimension counters */
+    int i, j, k; /* dimension counters */
 
     if (a->columns != b->rows) {
         printf("Error: bounds dont match!\n");
@@ -80,7 +78,7 @@ void multiply(matrix *a, matrix *b, matrix *c) {
 
     c->rows = a->rows;
     c->columns = b->columns;
-/* [[[ matrix_cut */
+    /* [[[ matrix_cut */
     for (i = 1; i <= a->rows; i++) {
         for (j = 1; j <= b->columns; j++) {
             c->m[i][j] = 0;
@@ -89,7 +87,7 @@ void multiply(matrix *a, matrix *b, matrix *c) {
             }
         }
     }
-/* ]]] */
+    /* ]]] */
 }
 
 int main(void) {

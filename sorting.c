@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,27 +28,27 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "queue.h"
 #include "random.h"
 
-#define NELEM        100 /* size of test arrays */
-#define LESS_THAN    -1
-#define EQUAL_TO     0
+#define NELEM 100 /* size of test arrays */
+#define LESS_THAN -1
+#define EQUAL_TO 0
 #define GREATER_THAN 1
 
 int compare(item_type a, item_type b) {
     if (a < b) {
-        return(LESS_THAN);
+        return (LESS_THAN);
     }
 
     if (a > b) {
-        return(GREATER_THAN);
+        return (GREATER_THAN);
     }
 
-    return(EQUAL_TO);
+    return (EQUAL_TO);
 }
 
 /*    Swap the ith and jth elements of array s.    */
 
 void newswap(item_type s[], int i, int j) {
-    item_type tmp;    /* placeholder */
+    item_type tmp; /* placeholder */
 
     tmp = s[i];
     s[i] = s[j];
@@ -59,24 +57,24 @@ void newswap(item_type s[], int i, int j) {
 
 /* [[[ insertion_cut */
 void insertion_sort(item_type s[], int n) {
-    int i, j;    /* counters */
+    int i, j; /* counters */
 
-/* [[[ insertion_inner_cut */
+    /* [[[ insertion_inner_cut */
     for (i = 1; i < n; i++) {
         j = i;
         while ((j > 0) && (s[j] < s[j - 1])) {
             swap(&s[j], &s[j - 1]);
-            j = j-1;
+            j = j - 1;
         }
     }
-/* ]]] */
+    /* ]]] */
 }
 /* ]]] */
 
 /* [[[ selection_cut */
 void selection_sort(item_type s[], int n) {
-    int i, j;   /* counters */
-    int min;    /* index of minimum */
+    int i, j; /* counters */
+    int min;  /* index of minimum */
 
     for (i = 0; i < n; i++) {
         min = i;
@@ -92,13 +90,13 @@ void selection_sort(item_type s[], int n) {
 
 /* [[[ partition_cut */
 int partition(item_type s[], int l, int h) {
-    int i;          /* counter */
-    int p;          /* pivot element index */
-    int firsthigh;  /* divider position for pivot element */
+    int i;         /* counter */
+    int p;         /* pivot element index */
+    int firsthigh; /* divider position for pivot element */
 
-    p = h;          /* select last element as pivot */
+    p = h; /* select last element as pivot */
     firsthigh = l;
-    for (i = l; i < h; i++) { 
+    for (i = l; i < h; i++) {
         if (s[i] < s[p]) {
             swap(&s[i], &s[firsthigh]);
             firsthigh++;
@@ -106,14 +104,14 @@ int partition(item_type s[], int l, int h) {
     }
     swap(&s[p], &s[firsthigh]);
 
-    return(firsthigh);
+    return (firsthigh);
 }
 /* ]]] */
 
 /*    quicksort array s from the index l to index h.    */
 /* [[[ quicksort_cut */
 void quicksort(item_type s[], int l, int h) {
-    int p;    /* index of partition */
+    int p; /* index of partition */
 
     if (l < h) {
         p = partition(s, l, h);
@@ -125,8 +123,8 @@ void quicksort(item_type s[], int l, int h) {
 
 /* [[[ heapsort_cut */
 void heapsort_(item_type s[], int n) {
-    int i;               /* counters */
-    priority_queue q;    /* heap for heapsort */
+    int i;            /* counters */
+    priority_queue q; /* heap for heapsort */
 
     make_heap(&q, s, n);
 
@@ -138,22 +136,22 @@ void heapsort_(item_type s[], int n) {
 
 /* [[[ binary_search_cut */
 int binary_search(item_type s[], item_type key, int low, int high) {
-    int middle;    /* index of middle element */
+    int middle; /* index of middle element */
 
     if (low > high) {
-        return (-1);    /* key not found */
+        return (-1); /* key not found */
     }
 
     middle = (low + high) / 2;
 
     if (s[middle] == key) {
-        return(middle);
+        return (middle);
     }
-    
+
     if (s[middle] > key) {
-        return(binary_search(s, key, low, middle - 1));
+        return (binary_search(s, key, low, middle - 1));
     } else {
-        return(binary_search(s, key, middle + 1, high));
+        return (binary_search(s, key, middle + 1, high));
     }
 }
 /* ]]] */
@@ -166,8 +164,10 @@ void merge(item_type s[], int low, int middle, int high) {
     init_queue(&buffer1);
     init_queue(&buffer2);
 
-    for (i = low; i <= middle; i++) enqueue(&buffer1, s[i]);
-    for (i = middle + 1; i <= high; i++) enqueue(&buffer2, s[i]);
+    for (i = low; i <= middle; i++)
+        enqueue(&buffer1, s[i]);
+    for (i = middle + 1; i <= high; i++)
+        enqueue(&buffer2, s[i]);
 
     i = low;
     while (!(empty_queue(&buffer1) || empty_queue(&buffer2))) {
@@ -190,7 +190,7 @@ void merge(item_type s[], int low, int middle, int high) {
 
 /* [[[ mergesort_cut */
 void merge_sort(item_type s[], int low, int high) {
-    int middle;    /* index of middle element */
+    int middle; /* index of middle element */
 
     if (low < high) {
         middle = (low + high) / 2;
@@ -203,8 +203,8 @@ void merge_sort(item_type s[], int low, int high) {
 /* ]]] */
 
 int main(void) {
-    int s[NELEM+2];
-    int i;         /* counter */
+    int s[NELEM + 2];
+    int i; /* counter */
 
     for (i = 0; i < NELEM; i++) {
         s[i] = NELEM - i;

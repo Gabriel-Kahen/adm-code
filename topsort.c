@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -29,8 +27,8 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 /* [[[ compute_indegree_cut */
 void compute_indegrees(graph *g, int in[]) {
-    int i;          /* counter */
-    edgenode *p;    /* temporary pointer */
+    int i;       /* counter */
+    edgenode *p; /* temporary pointer */
 
     for (i = 1; i <= g->nvertices; i++) {
         in[i] = 0;
@@ -48,11 +46,11 @@ void compute_indegrees(graph *g, int in[]) {
 
 /* [[[ topsort_swallow_cut */
 void topsort(graph *g, int sorted[]) {
-    int indegree[MAXV+1];    /* indegree of each vertex */
-    queue zeroin;            /* vertices of indegree 0 */
-    int x, y;                /* current and next vertex */
-    int i, j;                /* counters */
-    edgenode *p;             /* temporary pointer */
+    int indegree[MAXV + 1]; /* indegree of each vertex */
+    queue zeroin;           /* vertices of indegree 0 */
+    int x, y;               /* current and next vertex */
+    int i, j;               /* counters */
+    edgenode *p;            /* temporary pointer */
 
     compute_indegrees(g, indegree);
     init_queue(&zeroin);
@@ -86,7 +84,7 @@ void topsort(graph *g, int sorted[]) {
 
 int main(void) {
     graph g;
-    int out[MAXV+1];
+    int out[MAXV + 1];
     int i;
 
     read_graph(&g, true);

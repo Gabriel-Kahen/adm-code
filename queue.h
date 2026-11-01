@@ -19,17 +19,15 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include "item.h"
 
 #define QUEUESIZE 1000
 
 typedef struct {
-    item_type q[QUEUESIZE+1];           /* body of queue */
-    int first;                          /* position of first element */
-    int last;                           /* position of last element */
-    int count;                          /* number of queue elements */
+    item_type q[QUEUESIZE + 1]; /* body of queue */
+    int first;                  /* position of first element */
+    int last;                   /* position of last element */
+    int count;                  /* number of queue elements */
 } queue;
 
 void init_queue(queue *q);

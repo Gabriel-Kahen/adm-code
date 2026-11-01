@@ -19,14 +19,12 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #define STACKSIZE 1000
 
 typedef struct {
-    int s[STACKSIZE+1];     /* body of queue */
-    int top;                /* position of top element */
-    int count;              /* number of stack elements */
+    int s[STACKSIZE + 1]; /* body of queue */
+    int top;              /* position of top element */
+    int count;            /* number of stack elements */
 } stack;
 
 void init_stack(stack *s);
@@ -34,4 +32,3 @@ void push(stack *s, int x);
 int pop(stack *s);
 void print_stack(stack *s);
 int empty_stack(stack *s);
-

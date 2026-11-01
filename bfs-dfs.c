@@ -18,7 +18,6 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -26,20 +25,20 @@ or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "queue.h"
 
 /* [[[ graph_arrays_cut */
-bool processed[MAXV+1];     /* which vertices have been processed */
-bool discovered[MAXV+1];    /* which vertices have been found */
-int parent[MAXV+1];         /* discovery relation */
+bool processed[MAXV + 1];  /* which vertices have been processed */
+bool discovered[MAXV + 1]; /* which vertices have been found */
+int parent[MAXV + 1];      /* discovery relation */
 /* ]]] */
 
-int entry_time[MAXV+1];     /* time of vertex entry */
-int exit_time[MAXV+1];      /* time of vertex exit */
-int time;                   /* current event time */
+int entry_time[MAXV + 1]; /* time of vertex entry */
+int exit_time[MAXV + 1];  /* time of vertex exit */
+int time;                 /* current event time */
 
-bool finished = false;      /* if true, cut off search immediately */
+bool finished = false; /* if true, cut off search immediately */
 
 /* [[[ init_search_cut */
 void initialize_search(graph *g) {
-    int i;                  /* counter */
+    int i; /* counter */
 
     time = 0;
 
@@ -53,10 +52,10 @@ void initialize_search(graph *g) {
 
 /* [[[ bfs_cut */
 void bfs(graph *g, int start) {
-    queue q;            /* queue of vertices to visit */
-    int v;              /* current vertex */
-    int y;              /* successor vertex */
-    edgenode *p;        /* temporary pointer */
+    queue q;     /* queue of vertices to visit */
+    int v;       /* current vertex */
+    int y;       /* successor vertex */
+    edgenode *p; /* temporary pointer */
 
     init_queue(&q);
     enqueue(&q, start);
@@ -73,10 +72,10 @@ void bfs(graph *g, int start) {
                 process_edge(v, y);
             }
             if (!discovered[y]) {
-                enqueue(&q,y);
+                enqueue(&q, y);
                 discovered[y] = true;
                 parent[y] = v;
-	    }
+            }
             p = p->next;
         }
         process_vertex_late(v);
@@ -87,19 +86,19 @@ void bfs(graph *g, int start) {
 /* [[[ eclass_cut */
 int edge_classification(int x, int y) {
     if (parent[y] == x) {
-        return(TREE);
+        return (TREE);
     }
 
     if (discovered[y] && !processed[y]) {
-        return(BACK);
+        return (BACK);
     }
 
-    if (processed[y] && (entry_time[y]>entry_time[x])) {
-        return(FORWARD);
+    if (processed[y] && (entry_time[y] > entry_time[x])) {
+        return (FORWARD);
     }
 
-    if (processed[y] && (entry_time[y]<entry_time[x])) {
-        return(CROSS);
+    if (processed[y] && (entry_time[y] < entry_time[x])) {
+        return (CROSS);
     }
 
     printf("Warning: self loop (%d,%d)\n", x, y);
@@ -110,13 +109,13 @@ int edge_classification(int x, int y) {
 
 /* [[[ dfs_cut */
 void dfs(graph *g, int v) {
-    edgenode *p;        /* temporary pointer */
-    int y;              /* successor vertex */
+    edgenode *p; /* temporary pointer */
+    int y;       /* successor vertex */
     bool parent_edge_seen = false;
     bool self_edge_seen = false;
 
     if (finished) {
-        return;         /* allow for search termination */
+        return; /* allow for search termination */
     }
     discovered[v] = true;
     time = time + 1;
@@ -134,12 +133,14 @@ void dfs(graph *g, int v) {
         } else if ((!processed[y]) || g->directed) {
             if (y == v && !g->directed) {
                 self_edge_seen = !self_edge_seen;
-                if (self_edge_seen) process_edge(v, y);
+                if (self_edge_seen)
+                    process_edge(v, y);
             } else {
                 if (g->directed || y != parent[v] || parent_edge_seen) {
                     process_edge(v, y);
                 }
-                if (y == parent[v]) parent_edge_seen = true;
+                if (y == parent[v])
+                    parent_edge_seen = true;
             }
         }
 
@@ -165,7 +166,8 @@ int find_path(int start, int end, int parents[]) {
     if (start == end) {
         printf("\n%d", start);
     } else {
-        if (!find_path(start, parents[end], parents)) return 0;
+        if (!find_path(start, parents[end], parents))
+            return 0;
         printf(" %d", end);
     }
     return 1;

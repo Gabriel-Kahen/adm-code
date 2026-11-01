@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -30,7 +28,6 @@ void init_stack(stack *s) {
     s->top = -1;
     s->count = 0;
 }
-
 
 void push(stack *s, int x) {
     if (s->count >= STACKSIZE) {
@@ -45,13 +42,14 @@ void push(stack *s, int x) {
 int pop(stack *s) {
     int x;
 
-    if (s->count <= 0) printf("Warning: empty stack pop.\n");
-    
+    if (s->count <= 0)
+        printf("Warning: empty stack pop.\n");
+
     x = s->s[s->top];
     s->top = s->top - 1;
     s->count = s->count - 1;
 
-    return(x);
+    return (x);
 }
 
 int empty_stack(stack *s) {
@@ -59,7 +57,7 @@ int empty_stack(stack *s) {
 }
 
 void print_stack(stack *s) {
-    int i;    /* counter */
+    int i; /* counter */
 
     for (i = (s->count - 1); i >= 0; i--) {
         printf("%d ", s->s[i]);

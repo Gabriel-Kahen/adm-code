@@ -18,59 +18,64 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 
-#define	MAXN    100      /* largest n or m */
+#define MAXN 100 /* largest n or m */
 
 int max(int x, int y) {
-    if (x > y) return(x); else return(y);
+    if (x > y)
+        return (x);
+    else
+        return (y);
 }
 
 int min(int x, int y) {
-    if (x < y) return(x); else return(y);
+    if (x < y)
+        return (x);
+    else
+        return (y);
 }
 
 int main(void) {
-    int i, j;                       /* counters */
-    int a[MAXN],b[MAXN],c[2*MAXN-1];    /* sequences */
-    int n, m;                       /* sequence lengths */
+    int i, j;                              /* counters */
+    int a[MAXN], b[MAXN], c[2 * MAXN - 1]; /* sequences */
+    int n, m;                              /* sequence lengths */
 
     for (i = 0; i < MAXN; i++) {
         a[i] = b[i] = 0;
     }
 
-    for (i = 0; i < 2*MAXN-1; i++) {
+    for (i = 0; i < 2 * MAXN - 1; i++) {
         c[i] = 0;
     }
 
     if (scanf("%d", &m) != 1 || m < 1 || m > MAXN) {
         return 1;
     }
-    for (i=0; i < m; i++) {
-	scanf("%d",&a[i]);
+    for (i = 0; i < m; i++) {
+        scanf("%d", &a[i]);
     }
 
     if (scanf("%d", &n) != 1 || n < 1 || n > MAXN) {
         return 1;
     }
-    for (i=0; i < n; i++) {
-        scanf("%d",&b[i]);
+    for (i = 0; i < n; i++) {
+        scanf("%d", &b[i]);
     }
 
-/* [[[ convolve_cut */
-    for (i = 0; i < n+m-1; i++) {
-        for (j = max(0,i-(n-1)); j <= min(m-1,i); j++) {
-	    c[i] = c[i] + a[j] * b[i-j];
-	}
+    /* [[[ convolve_cut */
+    for (i = 0; i < n + m - 1; i++) {
+        for (j = max(0, i - (n - 1)); j <= min(m - 1, i); j++) {
+            c[i] = c[i] + a[j] * b[i - j];
+        }
     }
-/* ]]] */
+    /* ]]] */
 
-for (i=0; i < m+n-1; i++) {
-	printf("%d ",c[i]);
-}
+    for (i = 0; i < m + n - 1; i++) {
+        printf("%d ", c[i]);
+    }
 
-printf("\n");
+    printf("\n");
 
     return 0;
 }

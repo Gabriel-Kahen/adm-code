@@ -18,23 +18,22 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 #include <stdbool.h>
 
 #include "bfs-dfs.h"
 #include "queue.h"
 
-extern bool processed[];    /* which vertices have been processed */
-extern bool discovered[];   /* which vertices have been found */
-extern int parent[];        /* discovery relation */
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
-extern int entry_time[MAXV+1];  /* time of vertex entry */
-extern int exit_time[MAXV+1];   /* time of vertex exit */
+extern int entry_time[MAXV + 1]; /* time of vertex entry */
+extern int exit_time[MAXV + 1];  /* time of vertex exit */
 
 /* [[[ ratod_cut */
-int reachable_ancestor[MAXV+1]; /* earliest reachable ancestor of v */
-int tree_out_degree[MAXV+1];    /* DFS tree outdegree of v */
+int reachable_ancestor[MAXV + 1]; /* earliest reachable ancestor of v */
+int tree_out_degree[MAXV + 1];    /* DFS tree outdegree of v */
 /* ]]] */
 
 /* [[[ pvearlydfs_cut */
@@ -45,28 +44,28 @@ void process_vertex_early(int v) {
 
 /* [[[ pvlatedfs2_cut */
 void process_vertex_late(int v) {
-    bool root;              /* is parent[v] the root of the DFS tree? */
-    int time_v;             /* earliest reachable time for v */
-    int time_parent;        /* earliest reachable time for parent[v] */
+    bool root;       /* is parent[v] the root of the DFS tree? */
+    int time_v;      /* earliest reachable time for v */
+    int time_parent; /* earliest reachable time for parent[v] */
 
-    if (parent[v] == -1) {  /* test if v is the root */
+    if (parent[v] == -1) { /* test if v is the root */
         if (tree_out_degree[v] > 1) {
-            printf("root articulation vertex: %d \n",v);
+            printf("root articulation vertex: %d \n", v);
         }
         return;
     }
 
-    root = (parent[parent[v]] == -1);       /* is parent[v] the root? */
+    root = (parent[parent[v]] == -1); /* is parent[v] the root? */
 
     if (!root) {
         if (reachable_ancestor[v] == parent[v]) {
             printf("parent articulation vertex: %d \n", parent[v]);
         }
-  
-        if (reachable_ancestor[v] == v) {
-            printf("bridge articulation vertex: %d \n",parent[v]);
 
-            if (tree_out_degree[v] > 0) {    /* is v is not a leaf? */
+        if (reachable_ancestor[v] == v) {
+            printf("bridge articulation vertex: %d \n", parent[v]);
+
+            if (tree_out_degree[v] > 0) { /* is v is not a leaf? */
                 printf("bridge articulation vertex: %d \n", v);
             }
         }
@@ -83,7 +82,7 @@ void process_vertex_late(int v) {
 
 /* [[[ pedgedfs_cut */
 void process_edge(int x, int y) {
-    int class;    /* edge class */
+    int class; /* edge class */
 
     class = edge_classification(x, y);
 
@@ -101,9 +100,9 @@ void process_edge(int x, int y) {
 
 /* [[[ articulation_vertices_cut */
 void articulation_vertices(graph *g) {
-    int i;    /* counter */
+    int i; /* counter */
 
-    for (i = 1; i <= (g->nvertices); i++) { 
+    for (i = 1; i <= (g->nvertices); i++) {
         tree_out_degree[i] = 0;
     }
 

@@ -19,7 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,7 +32,7 @@ extern int solution_count;
 /**********************************************************************/
 
 void read_tsp(tsp_instance *t) {
-    int i, j;    /* counters */
+    int i, j; /* counters */
 
     scanf("%d\n", &(t->n));
 
@@ -43,7 +42,7 @@ void read_tsp(tsp_instance *t) {
 }
 
 void print_tsp(tsp_instance *t) {
-    int i;    /* counter */
+    int i; /* counter */
 
     for (i = 1; i <= (t->n); i++) {
         printf("%d %d %d\n", i, (t->p[i].x), (t->p[i].y));
@@ -51,7 +50,7 @@ void print_tsp(tsp_instance *t) {
 }
 
 int sq(int x) {
-    return(x * x);
+    return (x * x);
 }
 
 double distance(tsp_solution *s, int x, int y, tsp_instance *t) {
@@ -83,19 +82,19 @@ double distance(tsp_solution *s, int x, int y, tsp_instance *t) {
 /**********************************************************************/
 
 double solution_cost(tsp_solution *s, tsp_instance *t) {
-    int i;           /* counter */
-    double cost;     /* cost of solution */
+    int i;       /* counter */
+    double cost; /* cost of solution */
 
     cost = distance(s, t->n, 1, t);
     for (i = 1; i < (t->n); i++) {
         cost = cost + distance(s, i, i + 1, t);
     }
 
-    return(cost);
+    return (cost);
 }
 
 void initialize_solution(int n, tsp_solution *s) {
-    int i;    /* counter */
+    int i; /* counter */
 
     s->n = n;
     for (i = 1; i <= n; i++) {
@@ -104,25 +103,24 @@ void initialize_solution(int n, tsp_solution *s) {
 }
 
 void copy_solution(tsp_solution *s, tsp_solution *t) {
-    int i;    /* counter */
+    int i; /* counter */
     t->n = s->n;
     for (i = 1; i <= (s->n); i++) {
         t->p[i] = s->p[i];
     }
 }
-    
 
 void print_solution(tsp_solution *s) {
-    int i;    /* counter */
+    int i; /* counter */
 
     for (i = 1; i <= (s->n); i++) {
-            printf(" %d", s->p[i]);
+        printf(" %d", s->p[i]);
     }
     printf("\n------------------------------------------------------\n");
 }
 
 void read_solution(tsp_solution *s) {
-    int i;    /* counter */
+    int i; /* counter */
 
     scanf("%d\n", &(s->n));
 
@@ -136,17 +134,17 @@ void random_solution(tsp_solution *s) {
 }
 
 double transition(tsp_solution *s, tsp_instance *t, int i, int j) {
-    double was, willbe;    /* before and after costs */
-    bool neighbors;        /* i,j neighboring tour positions? */
+    double was, willbe; /* before and after costs */
+    bool neighbors;     /* i,j neighboring tour positions? */
 
-    neighbors = false; 
+    neighbors = false;
 
     if (i == j) {
-        return(0.0);
+        return (0.0);
     }
 
     if (i > j) {
-        return(transition(s, t, j, i));
+        return (transition(s, t, j, i));
     }
 
     if (i == (j - 1)) {
@@ -159,78 +157,72 @@ double transition(tsp_solution *s, tsp_instance *t, int i, int j) {
     }
 
     if (neighbors) {
-        was = distance(s, i-1, i, t) + distance(s, j, j+1, t);
+        was = distance(s, i - 1, i, t) + distance(s, j, j + 1, t);
     } else {
-        was = distance(s, i-1, i, t) + distance(s, i, i+1, t)
-           + distance(s, j-1, j, t) + distance(s, j, j+1, t);
+        was = distance(s, i - 1, i, t) + distance(s, i, i + 1, t) + distance(s, j - 1, j, t) +
+              distance(s, j, j + 1, t);
     }
 
     swap(&(s->p[i]), &(s->p[j]));
 
     if (neighbors) {
-        willbe = distance(s, i-1, i, t) + distance(s, j, j+1, t);
+        willbe = distance(s, i - 1, i, t) + distance(s, j, j + 1, t);
     } else {
-        willbe = distance(s, i-1, i, t) + distance(s, i, i+1, t)
-        + distance(s, j-1, j, t) + distance(s, j, j+1, t);
+        willbe = distance(s, i - 1, i, t) + distance(s, i, i + 1, t) + distance(s, j - 1, j, t) +
+                 distance(s, j, j + 1, t);
     }
 
-    return(willbe - was);
+    return (willbe - was);
 }
 
 /**********************************************************************/
 
 int main(void) {
-    tsp_instance t;    /* tsp points */
-    tsp_solution s;    /* tsp solution */
+    tsp_instance t; /* tsp points */
+    tsp_solution s; /* tsp solution */
 
     read_tsp(&t);
 
     read_solution(&s);
-    printf("OPTIMAL SOLUTION COST = %7.1f\n",solution_cost(&s, &t));
+    printf("OPTIMAL SOLUTION COST = %7.1f\n", solution_cost(&s, &t));
     print_solution(&s);
 
-
-//-----------------------------
+    //-----------------------------
 
     initialize_solution(t.n, &s);
-    printf("solution_cost = %7.1f\n",solution_cost(&s,&t));
+    printf("solution_cost = %7.1f\n", solution_cost(&s, &t));
     print_solution(&s);
 
-    solution_count=0;
+    solution_count = 0;
     random_sampling(&t, 10000, &s);
-    printf("random_sampling %d iterations, cost = %7.1f\n",
-            solution_count,solution_cost(&s, &t));
+    printf("random_sampling %d iterations, cost = %7.1f\n", solution_count, solution_cost(&s, &t));
     print_solution(&s);
 
-
-//-----------------------------
+    //-----------------------------
 
     initialize_solution(t.n, &s);
-    printf("solution_cost = %7.1f\n",solution_cost(&s,&t));
+    printf("solution_cost = %7.1f\n", solution_cost(&s, &t));
     print_solution(&s);
 
-    solution_count=0;
+    solution_count = 0;
     repeated_hill_climbing(&t, 40, &s);
-    printf("repeated hill_climbing %d iterations, cost = %7.1f\n",
-            solution_count,solution_cost(&s, &t));
+    printf("repeated hill_climbing %d iterations, cost = %7.1f\n", solution_count,
+           solution_cost(&s, &t));
     print_solution(&s);
 
-
-//-----------------------------
+    //-----------------------------
 
     initialize_solution(t.n, &s);
-    printf("solution_cost = %7.1f\n",solution_cost(&s,&t));
+    printf("solution_cost = %7.1f\n", solution_cost(&s, &t));
     print_solution(&s);
 
-    solution_count=0;
+    solution_count = 0;
     repeated_annealing(&t, 3, &s);
-    printf("repeated annealing %d iterations, cost = %7.1f\n",
-            solution_count,solution_cost(&s, &t));
+    printf("repeated annealing %d iterations, cost = %7.1f\n", solution_count,
+           solution_cost(&s, &t));
     print_solution(&s);
 
-
-//--------------------------------
+    //--------------------------------
 
     return 0;
 }
-

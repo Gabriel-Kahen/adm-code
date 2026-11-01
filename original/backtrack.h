@@ -24,9 +24,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
+#define MAXCANDIDATES 100 /* max possible next extensions */
+#define NMAX 100          /* maximum solution size */
 
-#define MAXCANDIDATES   100		/* max possible next extensions */
-#define NMAX            100		/* maximum solution size */
-
-typedef char* data;			/* type to pass data to backtrack */
-
+typedef char *data; /* type to pass data to backtrack */

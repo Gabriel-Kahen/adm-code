@@ -19,16 +19,14 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include "tsp-astar.h"
 
 #define PQ_SIZE 400000
 
 /* [[[ tsp_priority_queue_struct_cut */
 typedef struct {
-    tsp_solution q[PQ_SIZE+1];	    /* body of queue */
-    int n;                      /* number of queue elements */
+    tsp_solution q[PQ_SIZE + 1]; /* body of queue */
+    int n;                       /* number of queue elements */
 } priority_queue;
 /* ]]] */
 

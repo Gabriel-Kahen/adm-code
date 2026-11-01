@@ -19,16 +19,14 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdbool.h>
 
 #define SET_SIZE 1000
 
 /* [[[ set_union_cut */
 typedef struct {
-    int p[SET_SIZE+1];      /* parent element */
-    int size[SET_SIZE+1];   /* number of elements in subtree i */
+    int p[SET_SIZE + 1];    /* parent element */
+    int size[SET_SIZE + 1]; /* number of elements in subtree i */
     int n;                  /* number of elements in set */
 } union_find;
 /* ]]] */

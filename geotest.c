@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <math.h>
 #include <stdio.h>
 
@@ -45,7 +43,7 @@ int main(void) {
 
         print_line(l1);
         print_line(l2);
-		
+
         printf("slope and line tests\n");
         point_and_slope_to_line(p1, -l1.a, &l3);
         print_line(l3);

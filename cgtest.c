@@ -19,19 +19,17 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <math.h>
 #include <stdio.h>
 
 #include "geometry.h"
-
 
 int main(void) {
     point p1, p2, q1, q2, i;
     line l1, l2;
     segment s1, s2;
 
-    while (scanf("%lf %lf", &p1[X], &p1[Y]) != EOF ) {
+    while (scanf("%lf %lf", &p1[X], &p1[Y]) != EOF) {
         scanf("%lf %lf", &p2[X], &p2[Y]);
         scanf("%lf %lf", &q1[X], &q1[Y]);
         scanf("%lf %lf", &q2[X], &q2[Y]);
@@ -54,6 +52,6 @@ int main(void) {
 
         printf("--------------------------------\n");
     }
-    
+
     return 0;
 }

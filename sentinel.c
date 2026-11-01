@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 
 #define MAXINT 1000000
@@ -51,7 +49,7 @@ int main(void) {
 
     n = 21;
     i = n;
-    a[0] = - MAXINT;
+    a[0] = -MAXINT;
     while (a[i] >= x) {
         a[i + 1] = a[i];
         i = i - 1;

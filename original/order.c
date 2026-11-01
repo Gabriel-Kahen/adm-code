@@ -25,39 +25,33 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
-
 #include "geometry.h"
 
-row_major(int n, int m)
-{
-	int i,j;	/* counters */
+row_major(int n, int m) {
+    int i, j; /* counters */
 
-	for (i=1; i<=n; i++)
-		for (j=1; j<=m; j++)
-			process(i,j);
+    for (i = 1; i <= n; i++)
+        for (j = 1; j <= m; j++)
+            process(i, j);
 }
 
-column_major(int n, int m)
-{
-	int i,j;	/* counters */
+column_major(int n, int m) {
+    int i, j; /* counters */
 
-	for (j=1; j<=m; j++)
-		for (i=1; i<=n; i++)
-			process(i,j);
+    for (j = 1; j <= m; j++)
+        for (i = 1; i <= n; i++)
+            process(i, j);
 }
 
+snake_order(int n, int m) {
+    int i, j; /* counters */
 
-snake_order(int n, int m)
-{
-	int i,j;	/* counters */
-
-	for (i=1; i<=n; i++)
-		for (j=1; j<=m; j++)
-			process(i, j + (m+1-2*j) * ((i+1) % 2));
+    for (i = 1; i <= n; i++)
+        for (j = 1; j <= m; j++)
+            process(i, j + (m + 1 - 2 * j) * ((i + 1) % 2));
 }
 
-diagonal_order(int n, int m)
-{
+diagonal_order(int n, int m) {
     int d, row;
     int first, last;
 
@@ -70,28 +64,23 @@ diagonal_order(int n, int m)
     }
 }
 
-process(int i, int j)
-{
-	printf("(%d,%d)\n",i,j);
+process(int i, int j) {
+    printf("(%d,%d)\n", i, j);
 }
 
-main()
-{
-	printf("row_major\n");
-	row_major(5,5);
+main() {
+    printf("row_major\n");
+    row_major(5, 5);
 
-	printf("\ncolumn_major\n");
-        column_major(3,3);
+    printf("\ncolumn_major\n");
+    column_major(3, 3);
 
-	printf("\nsnake_order\n");
-        snake_order(5,5);
+    printf("\nsnake_order\n");
+    snake_order(5, 5);
 
-	printf("\ndiagonal_order\n");
-        diagonal_order(3,4);
+    printf("\ndiagonal_order\n");
+    diagonal_order(3, 4);
 
-        printf("\ndiagonal_order\n");
-        diagonal_order(4,3);
-
-
+    printf("\ndiagonal_order\n");
+    diagonal_order(4, 3);
 }
-

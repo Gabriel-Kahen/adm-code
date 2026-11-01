@@ -21,8 +21,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,10 +29,10 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "queue.h"
 #include "random.h"
 
-#define NGAMES    50
-#define MAXSTEPS  100000
-#define NCARDS    52    /* number of cards */
-#define NSUITS    4     /* number of suits */
+#define NGAMES 50
+#define MAXSTEPS 100000
+#define NCARDS 52 /* number of cards */
+#define NSUITS 4  /* number of suits */
 
 char values[] = "23456789TJQKA";
 char suits[] = "cdhs";
@@ -42,11 +40,11 @@ char suits[] = "cdhs";
 /*    Return the suit and value of the given card.     */
 
 char suit(int card) {
-    return(suits[card % NSUITS]);
+    return (suits[card % NSUITS]);
 }
 
 char value(int card) {
-    return(values[card/NSUITS]);
+    return (values[card / NSUITS]);
 }
 
 void print_card_queue(queue *q) {
@@ -66,13 +64,13 @@ void print_card_queue(queue *q) {
 /*     Rank the card with given value and suit.    */
 
 int rank_card(char value, char suit) {
-    int i, j;    /* counters */
+    int i, j; /* counters */
 
     for (i = 0; i < (NCARDS / NSUITS); i++) {
         if (values[i] == value) {
             for (j = 0; j < NSUITS; j++) {
                 if (suits[j] == suit) {
-                    return(i * NSUITS + j);
+                    return (i * NSUITS + j);
                 }
             }
         }
@@ -82,23 +80,21 @@ int rank_card(char value, char suit) {
     return -1;
 }
 
-
 void testcards(void) {
-    int i;                   /* counter */
+    int i; /* counter */
 
     for (i = 0; i < NCARDS; i++) {
-        printf(" i=%d card[i]=%c%c rank=%d\n", i, value(i),
-                 suit(i), rank_card(value(i), suit(i)) );
+        printf(" i=%d card[i]=%c%c rank=%d\n", i, value(i), suit(i), rank_card(value(i), suit(i)));
     }
 }
 
 /************************************************************/
 
 void random_init_decks(queue *a, queue *b) {
-    int i;    /* counter */
-    int perm[NCARDS+1];
+    int i; /* counter */
+    int perm[NCARDS + 1];
 
-    for (i = 0; i < NCARDS; i = i+1) {
+    for (i = 0; i < NCARDS; i = i + 1) {
         perm[i] = i;
     }
 
@@ -107,7 +103,7 @@ void random_init_decks(queue *a, queue *b) {
     init_queue(a);
     init_queue(b);
 
-    for (i = 0; i < NCARDS / 2; i = i+1) {
+    for (i = 0; i < NCARDS / 2; i = i + 1) {
         enqueue(a, perm[2 * i]);
         enqueue(b, perm[2 * i + 1]);
     }
@@ -123,31 +119,31 @@ void clear_queue(queue *a, queue *b) {
 }
 
 void war(queue *a, queue *b) {
-    int steps=0;    /* step counter */
-    int x,y;        /* top cards */
-    queue c;        /* cards involved in the war */
-    bool inwar;     /* are we involved in a war? */
+    int steps = 0; /* step counter */
+    int x, y;      /* top cards */
+    queue c;       /* cards involved in the war */
+    bool inwar;    /* are we involved in a war? */
 
     inwar = false;
     init_queue(&c);
 
     while ((!empty_queue(a)) && (!empty_queue(b) && (steps < MAXSTEPS))) {
-	    steps = steps + 1;
-	    x = dequeue(a);
-	    y = dequeue(b);
-	    enqueue(&c, x);
-	    enqueue(&c, y);
-	    if (inwar) {
-	        inwar = false;
-	    } else {
-	        if ((x / NSUITS) > (y / NSUITS)) {
-	            clear_queue(&c,a);
-	        } else if  ((x / NSUITS) < (y / NSUITS)) {
-	            clear_queue(&c,b);
-	        } else if ((y / NSUITS) == (x / NSUITS)) {
-	            inwar = true;
-	        }
-	    }
+        steps = steps + 1;
+        x = dequeue(a);
+        y = dequeue(b);
+        enqueue(&c, x);
+        enqueue(&c, y);
+        if (inwar) {
+            inwar = false;
+        } else {
+            if ((x / NSUITS) > (y / NSUITS)) {
+                clear_queue(&c, a);
+            } else if ((x / NSUITS) < (y / NSUITS)) {
+                clear_queue(&c, b);
+            } else if ((y / NSUITS) == (x / NSUITS)) {
+                inwar = true;
+            }
+        }
     }
 
     if (!empty_queue(a) && empty_queue(b)) {
@@ -155,8 +151,7 @@ void war(queue *a, queue *b) {
     } else if (empty_queue(a) && !empty_queue(b)) {
         printf("b wins in %d steps \n", steps);
     } else if (!empty_queue(a) && !empty_queue(b)) {
-        printf("game tied after %d steps, |a|=%d |b|=%d \n",
-                steps, a->count, b->count);
+        printf("game tied after %d steps, |a|=%d |b|=%d \n", steps, a->count, b->count);
     } else {
         printf("a and b tie in %d steps \n", steps);
     }
@@ -174,13 +169,13 @@ int old_main(void) {
 }
 
 int main(void) {
-    queue decks[2];       /* player's decks */
-    char value, suit, c;  /* input characters */
-    int i;                /* deck counter */
+    queue decks[2];      /* player's decks */
+    char value, suit, c; /* input characters */
+    int i;               /* deck counter */
 
     while (true) {
         for (i = 0; i <= 1; i++) {
-           init_queue(&decks[i]);
+            init_queue(&decks[i]);
 
             while ((c = getchar()) != '\n') {
                 if (c == EOF) {

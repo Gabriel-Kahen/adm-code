@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -29,7 +27,7 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 /* [[[ init_graph_c */
 void initialize_graph(graph *g, bool directed) {
-    int i;    /* counter */
+    int i; /* counter */
 
     g->nvertices = 0;
     g->nedges = 0;
@@ -47,15 +45,15 @@ void initialize_graph(graph *g, bool directed) {
 
 /* [[[ insert_edge_cut */
 void insert_edge(graph *g, int x, int y, bool directed) {
-    edgenode *p;        /* temporary pointer */
+    edgenode *p; /* temporary pointer */
 
-    p = malloc(sizeof(edgenode));    /* allocate edgenode storage */
+    p = malloc(sizeof(edgenode)); /* allocate edgenode storage */
 
     p->weight = 0;
     p->y = y;
     p->next = g->edges[x];
 
-    g->edges[x] = p;    /* insert at head of list */
+    g->edges[x] = p; /* insert at head of list */
 
     g->degree[x]++;
 
@@ -69,9 +67,9 @@ void insert_edge(graph *g, int x, int y, bool directed) {
 
 /* [[[ read_graph_cut */
 void read_graph(graph *g, bool directed) {
-    int i;              /* counter */
-    int m;              /* number of edges */
-    int x, y;           /* vertices in edge (x,y) */
+    int i;    /* counter */
+    int m;    /* number of edges */
+    int x, y; /* vertices in edge (x,y) */
 
     initialize_graph(g, directed);
 
@@ -110,13 +108,13 @@ void delete_edge(graph *g, int x, int y, bool directed) {
             p = p->next;
         }
     }
-    printf("Warning: deletion(%d,%d) not found in g.\n",x,y);
+    printf("Warning: deletion(%d,%d) not found in g.\n", x, y);
 }
 
 /* [[[ print_graph_cut */
 void print_graph(graph *g) {
-    int i;        /* counter */
-    edgenode *p;  /* temporary pointer */
+    int i;       /* counter */
+    edgenode *p; /* temporary pointer */
 
     for (i = 1; i <= g->nvertices; i++) {
         printf("%d: ", i);
@@ -132,12 +130,12 @@ void print_graph(graph *g) {
 
 /* [[[ graph_transpose_cut */
 graph *transpose(graph *g) {
-    graph *gt;    /* transpose of graph g */
-    int x;        /* counter */
-    edgenode *p;  /* temporary pointer */
+    graph *gt;   /* transpose of graph g */
+    int x;       /* counter */
+    edgenode *p; /* temporary pointer */
 
-    gt = (graph *) malloc(sizeof(graph));
-    initialize_graph(gt, true);       /* initialize directed graph */
+    gt = (graph *)malloc(sizeof(graph));
+    initialize_graph(gt, true); /* initialize directed graph */
     gt->nvertices = g->nvertices;
 
     for (x = 1; x <= g->nvertices; x++) {
@@ -148,6 +146,6 @@ graph *transpose(graph *g) {
         }
     }
 
-    return(gt);
+    return (gt);
 }
 /* ]]] */

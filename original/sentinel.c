@@ -6,7 +6,6 @@
 	by: Steven Skiena
 */
 
-
 /*
 Copyright 2003 by Steven S. Skiena; all rights reserved. 
 
@@ -26,38 +25,38 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
-#define MAXINT	1000000
+#define MAXINT 1000000
 int a[100];
 
 main() {
-	int i,n, x;
+    int i, n, x;
 
-	for (i=1; i<=50; i++) a[i]=i;
-	n=50;
-	x = -1;
+    for (i = 1; i <= 50; i++)
+        a[i] = i;
+    n = 50;
+    x = -1;
 
-        i = n;
-        while ((a[i]>=x) && (i>=1)) {
-		a[i] = a[i-1];
-		i=i-1;
-	}
-        a[i+1] = x;
+    i = n;
+    while ((a[i] >= x) && (i >= 1)) {
+        a[i] = a[i - 1];
+        i = i - 1;
+    }
+    a[i + 1] = x;
 
-	printf("without sentinel, i=%d a[1]=%d\n",i,a[1]);
-	for (i=1; i<=10; i++) printf("%d ",a[i]);
-	x = -2;
+    printf("without sentinel, i=%d a[1]=%d\n", i, a[1]);
+    for (i = 1; i <= 10; i++)
+        printf("%d ", a[i]);
+    x = -2;
 
-        i = n;
-        a[0] = - MAXINT;
-        while (a[i] >= x) {
-		a[i] = a[i-1];
-		i=i-1;
-	}
-        a[i+1] = x;
+    i = n;
+    a[0] = -MAXINT;
+    while (a[i] >= x) {
+        a[i] = a[i - 1];
+        i = i - 1;
+    }
+    a[i + 1] = x;
 
-	printf("\nwith sentinel, i=%d a[1]=%d\n",i,a[1]);
-        for (i=1; i<=10; i++) printf("%d ",a[i]);
-
-
+    printf("\nwith sentinel, i=%d a[1]=%d\n", i, a[1]);
+    for (i = 1; i <= 10; i++)
+        printf("%d ", a[i]);
 }
-

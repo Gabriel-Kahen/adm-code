@@ -31,7 +31,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "bool.h"
 #include "geometry.h"
 
-point first_point;      /* first hull point */
+point first_point; /* first hull point */
 
 void sort_and_remove_duplicates(point in[], int *n);
 int leftlower();
@@ -39,8 +39,8 @@ int smaller_angle();
 double distance(point a, point b);
 
 void convex_hull(point in[], int n, polygon *hull) {
-    int i;          /* input counter */
-    int top;        /* current hull size */
+    int i;   /* input counter */
+    int top; /* current hull size */
 
     if (n <= 0) {
         hull->n = 0;
@@ -50,7 +50,7 @@ void convex_hull(point in[], int n, polygon *hull) {
 
     /* A collinear hull is a segment, not a closed scan with a sentinel. */
     for (i = 1; i + 1 < n; i++) {
-        if (!collinear(in[0], in[n-1], in[i])) {
+        if (!collinear(in[0], in[n - 1], in[i])) {
             break;
         }
     }
@@ -58,14 +58,14 @@ void convex_hull(point in[], int n, polygon *hull) {
         copy_point(in[0], hull->p[0]);
         hull->n = 1;
         if (n > 1) {
-            copy_point(in[n-1], hull->p[1]);
+            copy_point(in[n - 1], hull->p[1]);
             hull->n = 2;
         }
         return;
     }
-    copy_point(in[0], (double*)&first_point);
+    copy_point(in[0], (double *)&first_point);
 
-    qsort(&in[1], n-1, sizeof(point), smaller_angle);
+    qsort(&in[1], n - 1, sizeof(point), smaller_angle);
 
     copy_point(first_point, hull->p[0]);
     copy_point(in[1], hull->p[1]);
@@ -74,11 +74,11 @@ void convex_hull(point in[], int n, polygon *hull) {
     i = 2;
 
     while (i < n) {
-        if (cw(hull->p[top-1], hull->p[top], in[i])) {
-            top = top-1;    /* top not on hull */
+        if (cw(hull->p[top - 1], hull->p[top], in[i])) {
+            top = top - 1; /* top not on hull */
         } else {
             if (!collinear(hull->p[top - 1], hull->p[top], in[i])) {
-                top = top+1;
+                top = top + 1;
             }
             copy_point(in[i], hull->p[top]);
             i = i + 1;
@@ -87,11 +87,10 @@ void convex_hull(point in[], int n, polygon *hull) {
     hull->n = top + 1;
 }
 
-
 void sort_and_remove_duplicates(point in[], int *n) {
-    int i;                  /* counter */
-    int oldn;               /* number of points before deletion */
-    int hole;               /* index marked for potential deletion */
+    int i;    /* counter */
+    int oldn; /* number of points before deletion */
+    int hole; /* index marked for potential deletion */
     int leftlower();
 
     qsort(in, *n, sizeof(point), leftlower);
@@ -99,7 +98,7 @@ void sort_and_remove_duplicates(point in[], int *n) {
     oldn = *n;
     hole = 1;
     for (i = 1; i < oldn; i++) {
-        if ((in[hole-1][X] == in[i][X]) && (in[hole-1][Y] == in[i][Y])) {
+        if ((in[hole - 1][X] == in[i][X]) && (in[hole - 1][Y] == in[i][Y])) {
             (*n)--;
         } else {
             copy_point(in[i], in[hole]);
@@ -109,15 +108,15 @@ void sort_and_remove_duplicates(point in[], int *n) {
 }
 
 void mwt(polygon p) {
-    double t[MAXN+1][MAXN+1];   /* DP table for values */
-    int i, j, k, gap;           /* counters */
+    double t[MAXN + 1][MAXN + 1]; /* DP table for values */
+    int i, j, k, gap;             /* counters */
 
     for (i = 1; i <= (p->n); i++) {
-        t[i][i]=0;              /* initialize DP table */
+        t[i][i] = 0; /* initialize DP table */
     }
 
     for (gap = 1; gap <= (p->n); gap++) {
-        for (i = 1; i <= n-gap; i++) {
+        for (i = 1; i <= n - gap; i++) {
             j = i + gap;
             t[i][j] = INFINITY;
         }
@@ -141,32 +140,32 @@ int leftlower(point *p1, point *p2) {
         return (1);
     }
 
-    return(0);
+    return (0);
 }
 
 int smaller_angle(point *p1, point *p2) {
     if (collinear(first_point, *p1, *p2)) {
         if (distance(first_point, *p1) <= distance(first_point, *p2)) {
-            return(-1);
+            return (-1);
         } else {
-            return(1);
+            return (1);
         }
     }
 
     if (ccw(first_point, *p1, *p2)) {
-        return(-1);
+        return (-1);
     } else {
-        return(1);
+        return (1);
     }
 }
 
 int main(void) {
-    point in[MAXPOLY];      /* input points */
-    polygon hull;           /* convex hull */
-    int n;                  /* number of points */
-    int i;                  /* counter */
+    point in[MAXPOLY]; /* input points */
+    polygon hull;      /* convex hull */
+    int n;             /* number of points */
+    int i;             /* counter */
 
-    scanf("%d",&n);
+    scanf("%d", &n);
     for (i = 0; i < n; i++) {
         scanf("%lf %lf", &in[i][X], &in[i][Y]);
     }

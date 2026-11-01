@@ -19,7 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,19 +28,18 @@ or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 #define MAXINT (LLONG_MAX / 4)
 
-
 /* WAS prim(g,start) */
 
 /* [[[ dijkstra_cut */
 long long dijkstra(graph *g, int start) {
-    int i;                 /* counter */
-    edgenode *p;           /* temporary pointer */
-    bool intree[MAXV+1];   /* is the vertex in the tree yet? */
-    long long distance[MAXV+1];  /* cost of adding to tree */
-    int v;                 /* current vertex to process */
-    int w;                 /* candidate next vertex */
-    long long dist;              /* cheapest cost to enlarge tree */
-    long long weight = 0;        /* tree weight */
+    int i;                        /* counter */
+    edgenode *p;                  /* temporary pointer */
+    bool intree[MAXV + 1];        /* is the vertex in the tree yet? */
+    long long distance[MAXV + 1]; /* cost of adding to tree */
+    int v;                        /* current vertex to process */
+    int w;                        /* candidate next vertex */
+    long long dist;               /* cheapest cost to enlarge tree */
+    long long weight = 0;         /* tree weight */
 
     for (i = 1; i <= g->nvertices; i++) {
         intree[i] = false;
@@ -55,15 +53,15 @@ long long dijkstra(graph *g, int start) {
     while (!intree[v]) {
         intree[v] = true;
         if (v != start) {
-            printf("edge (%d,%d) in tree \n",parent[v],v);
+            printf("edge (%d,%d) in tree \n", parent[v], v);
             weight += distance[v] - distance[parent[v]];
         }
         p = g->edges[v];
         while (p != NULL) {
             w = p->y;
-            if (distance[w] > (distance[v]+p->weight)) { /* CHANGED */
-                distance[w] = distance[v]+p->weight;     /* CHANGED */
-                parent[w] = v;                           /* CHANGED */
+            if (distance[w] > (distance[v] + p->weight)) { /* CHANGED */
+                distance[w] = distance[v] + p->weight;     /* CHANGED */
+                parent[w] = v;                             /* CHANGED */
             }
             p = p->next;
         }
@@ -77,10 +75,9 @@ long long dijkstra(graph *g, int start) {
         }
     }
 
-    return(weight);
+    return (weight);
 }
 /* ]]] */
-
 
 int main(void) {
     graph g;
@@ -90,7 +87,7 @@ int main(void) {
     read_graph(&g, false);
     weight = dijkstra(&g, 1);
 
-    printf("Total SPST edgeweight = %lld \n",weight);
+    printf("Total SPST edgeweight = %lld \n", weight);
 
     for (i = 1; i <= g.nvertices; i++) {
         find_path(1, i, parent);

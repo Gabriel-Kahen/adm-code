@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,10 +26,10 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 #include "tree.h"
 
-tree *parent;    /* last node visited */
+tree *parent; /* last node visited */
 
 tree *init_tree(void) {
-    return(NULL);
+    return (NULL);
 }
 
 bool empty_tree(tree *t) {
@@ -44,24 +42,24 @@ bool empty_tree(tree *t) {
 /* [[[ search_tree_cut */
 tree *search_tree(tree *l, item_type x) {
     if (l == NULL) {
-        return(NULL);
+        return (NULL);
     }
 
     if (l->item == x) {
-        return(l);
+        return (l);
     }
 
     if (x < l->item) {
-        return(search_tree(l->left, x));
+        return (search_tree(l->left, x));
     } else {
-        return(search_tree(l->right, x));
+        return (search_tree(l->right, x));
     }
 }
 /* ]]] */
 
 /* [[[ insert_tree_cut */
 void insert_tree(tree **l, item_type x, tree *parent) {
-    tree *p;    /* temporary pointer */
+    tree *p; /* temporary pointer */
 
     if (*l == NULL) {
         p = malloc(sizeof(tree));
@@ -90,47 +88,47 @@ void print_tree(tree *l) {
 
 /* [[[ sucessor_descd_cut */
 tree *successor_descendant(tree *t) {
-    tree *succ;                     /* successor pointer */
+    tree *succ; /* successor pointer */
 
     if (t->right == NULL) {
-        return(NULL);
+        return (NULL);
     }
     succ = t->right;
     while (succ->left != NULL) {
         succ = succ->left;
     }
-    return(succ);
+    return (succ);
 }
 /* ]]] */
 
 /* [[[ find_minimum_cut */
 tree *find_minimum(tree *t) {
-    tree *min;    /* pointer to minimum */
+    tree *min; /* pointer to minimum */
 
     if (t == NULL) {
-        return(NULL);
+        return (NULL);
     }
 
     min = t;
     while (min->left != NULL) {
         min = min->left;
     }
-    return(min);
+    return (min);
 }
 /* ]]] */
 
 tree *predecessor_descendant(tree *t) {
-    tree *pred;    /* predecessor pointer */
+    tree *pred; /* predecessor pointer */
 
     if (t->left == NULL) {
-        return(NULL);
+        return (NULL);
     }
 
     pred = t->left;
     while (pred->right != NULL) {
         pred = pred->right;
     }
-    return(pred);
+    return (pred);
 }
 
 /* [[[ delete_tree_cut */
@@ -143,11 +141,16 @@ tree *delete_tree(tree *t, item_type x) {
     }
     p = (d->left != NULL && d->right != NULL) ? successor_descendant(d) : d;
     child = p->left != NULL ? p->left : p->right;
-    if (p->parent == NULL) t = child;
-    else if (p->parent->left == p) p->parent->left = child;
-    else p->parent->right = child;
-    if (child != NULL) child->parent = p->parent;
-    if (p != d) d->item = p->item;
+    if (p->parent == NULL)
+        t = child;
+    else if (p->parent->left == p)
+        p->parent->left = child;
+    else
+        p->parent->right = child;
+    if (child != NULL)
+        child->parent = p->parent;
+    if (p != d)
+        d->item = p->item;
     free(p);
     return t;
 }
@@ -167,43 +170,40 @@ void traverse_tree(tree *l) {
 }
 /* ]]] */
 
-
-
-
 int main(void) {
-    char c;               /* input character */
-    item_type d;          /* input item */
-    tree *l;              /* tree under construction */
-    tree *tmp;            /* returned tree from search */
+    char c;      /* input character */
+    item_type d; /* input item */
+    tree *l;     /* tree under construction */
+    tree *tmp;   /* returned tree from search */
 
     l = init_tree();
 
     while (scanf("%c", &c) != EOF) {
-	    if (tolower(c) == 'p') {
-		    print_tree(l);
-		    printf("\n");
-	    }
-	    if (tolower(c) == 'i') {
-		    scanf("%d", &d);
-		    printf("new item: %d\n", d);
-		    insert_tree(&l, d, NULL);
-	    }
-	    if (tolower(c) == 's') {
-		    scanf("%d", &d);
-		    tmp = search_tree(l, d);
-		    if (tmp == NULL) {
-		        printf("item %d not found\n",d);
-		    } else {
-		        printf("item %d found\n",d);
-		    }
-	    }
-	    if (tolower(c) == 'd') {
-	        scanf("%d", &d);
-	        printf(" deleting item %d\n", d);
-	        l = delete_tree(l, d);
-	        print_tree(l);
-	        printf("\n");
-	    }
+        if (tolower(c) == 'p') {
+            print_tree(l);
+            printf("\n");
+        }
+        if (tolower(c) == 'i') {
+            scanf("%d", &d);
+            printf("new item: %d\n", d);
+            insert_tree(&l, d, NULL);
+        }
+        if (tolower(c) == 's') {
+            scanf("%d", &d);
+            tmp = search_tree(l, d);
+            if (tmp == NULL) {
+                printf("item %d not found\n", d);
+            } else {
+                printf("item %d found\n", d);
+            }
+        }
+        if (tolower(c) == 'd') {
+            scanf("%d", &d);
+            printf(" deleting item %d\n", d);
+            l = delete_tree(l, d);
+            print_tree(l);
+            printf("\n");
+        }
     }
     return 0;
 }

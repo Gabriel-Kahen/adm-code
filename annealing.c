@@ -21,21 +21,19 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "annealing.h"      /* type declarations for SA */
+#include "annealing.h" /* type declarations for SA */
 #include "random.h"
 
-int solution_count;         /* how many solutions evaluated */
-
+int solution_count; /* how many solutions evaluated */
 
 /***********************************************************************/
 
 void solution_count_update(tsp_solution *s, tsp_instance *t) {
-    solution_count = solution_count+1;
-    if ((solution_count==1) ||((solution_count % PRINT_FREQUENCY) == 0)) {
+    solution_count = solution_count + 1;
+    if ((solution_count == 1) || ((solution_count % PRINT_FREQUENCY) == 0)) {
         printf("%d %7.1f\n", solution_count, solution_cost(s, t));
     }
 }
@@ -45,10 +43,10 @@ void solution_count_update(tsp_solution *s, tsp_instance *t) {
 */
 /* [[[ random_sampling_cut */
 void random_sampling(tsp_instance *t, int nsamples, tsp_solution *s) {
-    tsp_solution s_now;             /* current tsp solution */
-    double best_cost;               /* best cost so far */
-    double cost_now;                /* current cost */
-    int i;                          /* counter */
+    tsp_solution s_now; /* current tsp solution */
+    double best_cost;   /* best cost so far */
+    double cost_now;    /* current cost */
+    int i;              /* counter */
 
     initialize_solution(t->n, &s_now);
     best_cost = solution_cost(&s_now, t);
@@ -74,10 +72,10 @@ void random_sampling(tsp_instance *t, int nsamples, tsp_solution *s) {
 
 /* [[[ hill_climbing_cut */
 void hill_climbing(tsp_instance *t, tsp_solution *s) {
-    double cost;            /* best cost so far */
-    double candidate_cost;    /* cost after the proposed swap */
-    int i, j;               /* counters */
-    bool stuck;             /* did I get a better solution? */
+    double cost;           /* best cost so far */
+    double candidate_cost; /* cost after the proposed swap */
+    int i, j;              /* counters */
+    bool stuck;            /* did I get a better solution? */
 
     initialize_solution(t->n, s);
     random_solution(s);
@@ -105,10 +103,10 @@ void hill_climbing(tsp_instance *t, tsp_solution *s) {
 /* ]]] */
 
 void repeated_hill_climbing(tsp_instance *t, int nsamples, tsp_solution *bestsol) {
-    tsp_solution s;                 /* current tsp solution */
-    double best_cost;               /* best cost so far */
-    double cost_now;                /* current cost */
-    int i;                          /* counter */
+    tsp_solution s;   /* current tsp solution */
+    double best_cost; /* best cost so far */
+    double cost_now;  /* current cost */
+    int i;            /* counter */
 
     initialize_solution(t->n, &s);
     best_cost = solution_cost(&s, t);
@@ -135,14 +133,14 @@ void repeated_hill_climbing(tsp_instance *t, int nsamples, tsp_solution *bestsol
 
 /* [[[ anneal_cut */
 void anneal(tsp_instance *t, tsp_solution *s) {
-    int x, y;                       /* pair of items to swap */
-    int i, j;                       /* counters */
-    bool accept_win, accept_loss;   /* conditions to accept transition */
-    double temperature;             /* the current system temp */
-    double current_value;           /* value of current state */
-    double start_value;             /* value at start of loop */
-    double delta;                   /* value after swap */
-    double exponent;                /* exponent for energy funct */
+    int x, y;                     /* pair of items to swap */
+    int i, j;                     /* counters */
+    bool accept_win, accept_loss; /* conditions to accept transition */
+    double temperature;           /* the current system temp */
+    double current_value;         /* value of current state */
+    double start_value;           /* value at start of loop */
+    double delta;                 /* value after swap */
+    double exponent;              /* exponent for energy funct */
 
     temperature = INITIAL_TEMPERATURE;
 
@@ -152,7 +150,7 @@ void anneal(tsp_instance *t, tsp_solution *s) {
     for (i = 1; i <= COOLING_STEPS; i++) {
         temperature *= COOLING_FRACTION;
 
-        start_value = current_value;		
+        start_value = current_value;
 
         for (j = 1; j <= STEPS_PER_TEMP; j++) {
             /* pick indices of elements to swap */
@@ -160,20 +158,20 @@ void anneal(tsp_instance *t, tsp_solution *s) {
             y = random_int(1, t->n);
 
             delta = transition(s, t, x, y);
-            accept_win = (delta < 0);       /* did swap reduce cost? */
+            accept_win = (delta < 0); /* did swap reduce cost? */
 
             exponent = (-delta / current_value) / (K * temperature);
-            accept_loss = (exp(exponent) > random_float(0,1));
+            accept_loss = (exp(exponent) > random_float(0, 1));
 
             if (accept_win || accept_loss) {
                 current_value += delta;
             } else {
-                transition(s, t, x, y);     /* reverse transition */
+                transition(s, t, x, y); /* reverse transition */
             }
             solution_count_update(s, t);
         }
 
-        if (current_value < start_value) {  /* rerun at this temp */
+        if (current_value < start_value) { /* rerun at this temp */
             temperature /= COOLING_FRACTION;
         }
     }
@@ -181,10 +179,10 @@ void anneal(tsp_instance *t, tsp_solution *s) {
 /* ]]] */
 
 void repeated_annealing(tsp_instance *t, int nsamples, tsp_solution *bestsol) {
-    tsp_solution s;                 /* current tsp solution */
-    double best_cost;               /* best cost so far */
-    double cost_now;                /* current cost */
-    int i;                          /* counter */
+    tsp_solution s;   /* current tsp solution */
+    double best_cost; /* best cost so far */
+    double cost_now;  /* current cost */
+    int i;            /* counter */
 
     initialize_solution(t->n, &s);
     best_cost = solution_cost(&s, t);
