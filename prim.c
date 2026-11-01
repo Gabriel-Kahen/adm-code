@@ -20,27 +20,28 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
 #include "bfs-dfs.h"
 
-#define MAXINT 1000007
+#define MAXINT (LLONG_MAX / 4)
 
 int parent[MAXV+1];    /* discovery relation */
 
 /************************************************************/
 /* [[[ prim_cut */
-int prim(graph *g, int start) {
+long long prim(graph *g, int start) {
     int i;                 /* counter */
     edgenode *p;           /* temporary pointer */
     bool intree[MAXV+1];   /* is the vertex in the tree yet? */
-    int distance[MAXV+1];  /* cost of adding to tree */
+    long long distance[MAXV+1];  /* cost of adding to tree */
     int v;                 /* current vertex to process */
     int w;                 /* candidate next vertex */
-    int dist;              /* cheapest cost to enlarge tree */
-    int weight = 0;        /* tree weight */
+    long long dist;              /* cheapest cost to enlarge tree */
+    long long weight = 0;        /* tree weight */
 
     for (i = 1; i <= g->nvertices; i++) {
         intree[i] = false;
@@ -82,13 +83,13 @@ int prim(graph *g, int start) {
 
 int main(void) {
     graph g;
-    int weight;
+    long long weight;
 
     read_graph(&g, false);
 
     weight = prim(&g, 1);
 
-    printf("Out of Prim: weight = %d \n",weight);
+    printf("Out of Prim: weight = %lld \n",weight);
 
     return 0;
 }

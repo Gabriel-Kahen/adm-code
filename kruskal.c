@@ -74,12 +74,12 @@ int weight_compare(const void *x, const void *y) {
 }
 
 /* [[[ kruskal_cut */
-int kruskal(graph *g) {
+long long kruskal(graph *g) {
     int i;                  /* counter */
     union_find s;           /* union-find data structure */
     edge_pair *e;           /* storage for all input edges */
     int nedges;             /* extracted non-loop edge count */
-    int weight=0;           /* cost of the minimum spanning tree */
+    long long weight=0;           /* cost of the minimum spanning tree */
 
     union_find_init(&s, g->nvertices);
 
@@ -106,7 +106,7 @@ int kruskal(graph *g) {
 
 int main(void) {
     graph g;
-    int weight;
+    long long weight;
 
     read_graph(&g, false);
 
@@ -116,7 +116,7 @@ int main(void) {
 
     weight = kruskal(&g);
 
-    printf("Out of Kruskal: weight=%d \n",weight);
+    printf("Out of Kruskal: weight=%lld \n",weight);
 
     return 0;
 }

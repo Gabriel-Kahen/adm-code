@@ -1,12 +1,12 @@
-int dijkstra(graph *g, int start) {
+long long dijkstra(graph *g, int start) {
     int i;                 /* counter */
     edgenode *p;           /* temporary pointer */
     bool intree[MAXV+1];   /* is the vertex in the tree yet? */
-    int distance[MAXV+1];  /* cost of adding to tree */
+    long long distance[MAXV+1];  /* cost of adding to tree */
     int v;                 /* current vertex to process */
     int w;                 /* candidate next vertex */
-    int dist;              /* cheapest cost to enlarge tree */
-    int weight = 0;        /* tree weight */
+    long long dist;              /* cheapest cost to enlarge tree */
+    long long weight = 0;        /* tree weight */
 
     for (i = 1; i <= g->nvertices; i++) {
         intree[i] = false;

@@ -26,29 +26,30 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "bool.h"
 #include "bfs-dfs.h"
 
-#define MAXINT  100007
+#define MAXINT (LLONG_MAX / 4)
 
 int parent[MAXV+1];    /* discovery relation */
 
 /* WAS prim(g,start) */
 
-int totalweight=0;
+long long totalweight=0;
 
 void dijkstra(graph *g, int start) {
     int i;                  /* counter */
     edgenode *p;            /* temporary pointer */
     bool intree[MAXV+1];    /* is the vertex in the tree yet? */
-    int distance[MAXV+1];   /* distance vertex is from start */
+    long long distance[MAXV+1];   /* distance vertex is from start */
     int v;                  /* current vertex to process */
     int w;                  /* candidate next vertex */
-    int weight;	            /* edge weight */
-    int dist;               /* best current distance from start */
+    long long weight;	            /* edge weight */
+    long long dist;               /* best current distance from start */
 
     for (i = 1; i <= g->nvertices; i++) {
         intree[i] = FALSE;
@@ -91,7 +92,7 @@ int main(void) {
     read_graph(&g, FALSE);
     dijkstra(&g, 1);
 
-printf("total DST edge weight = %d\n",totalweight);
+printf("total DST edge weight = %lld\n",totalweight);
 
     for (i = 1; i <= g.nvertices; i++) {
         find_path(1, i, parent);
