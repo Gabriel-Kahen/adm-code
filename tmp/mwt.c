@@ -54,11 +54,10 @@ void convex_hull(point in[], int n, polygon *hull) {
     copy_point(first_point, hull->p[0]);
     copy_point(in[1], hull->p[1]);
 
-    copy_point(first_point, in[n]); /* sentinel to avoid special case */
     top = 1;
     i = 2;
 
-    while (i <= n) {
+    while (i < n) {
         if (!ccw(hull->p[top-1], hull->p[top], in[i])) {
             top = top - 1;  /* top not on hull */
         } else {
@@ -67,7 +66,7 @@ void convex_hull(point in[], int n, polygon *hull) {
             i = i + 1;
         }
     }
-    hull->n = top;
+    hull->n = top + 1;
 }
 
 void sort_and_remove_duplicates(point in[], int *n) {
@@ -88,7 +87,6 @@ void sort_and_remove_duplicates(point in[], int *n) {
             hole = hole + 1;
         }
     }
-    copy_point(in[oldn-1], in[hole]);
 }
 
 void mwt(polygon p) {
