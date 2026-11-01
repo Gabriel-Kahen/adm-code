@@ -32,7 +32,7 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 point s;         /* Superman's initial position */
 point t;         /* target position */
 int ncircles;    /* number of circles */
-circle c[MAXN];  /* circles data structure */
+circle c[MAXN+1];  /* circles data structure */
 
 void superman(void) {
     line l;               /* line from start to target position */
@@ -69,6 +69,10 @@ int main(void) {
     scanf("%lf %lf", &s[X], &s[Y]);
     scanf("%lf %lf", &t[X], &t[Y]);
     scanf("%d", &ncircles);
+    if (ncircles < 0 || ncircles > MAXN) {
+        fprintf(stderr, "circle count exceeds capacity\n");
+        return 1;
+    }
     for (i = 1; i <= ncircles; i++) {
         scanf("%lf %lf %lf", &c[i].c[X], &c[i].c[Y], &c[i].r);
     }
