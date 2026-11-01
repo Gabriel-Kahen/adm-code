@@ -11,7 +11,7 @@ long binomial_coefficient(n,m)
 int n,m;			/* computer n choose m */
 {
 	int i,j;		/* counters */
-	long bc[MAXN][MAXN];	/* table of binomial coefficient values */
+	long bc[MAXN+1][MAXN+1];	/* table of binomial coefficient values */
 
 	for (i=0; i<=n; i++) bc[i][0] = 1;
 
