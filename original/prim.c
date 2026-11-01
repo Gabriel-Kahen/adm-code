@@ -34,7 +34,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 #define MAXINT (LLONG_MAX / 4)
 
-int parent[MAXV];               /* discovery relation */
+int parent[MAXV+1];               /* discovery relation */
 
 
 /************************************************************/
@@ -43,8 +43,8 @@ int parent[MAXV];               /* discovery relation */
 prim(graph *g, int start)
 {
 	int i,j;			/* counters */
-	bool intree[MAXV];		/* is the vertex in the tree yet? */
-	long long distance[MAXV];		/* distance vertex is from start */
+	bool intree[MAXV+1];		/* is the vertex in the tree yet? */
+	long long distance[MAXV+1];		/* distance vertex is from start */
 	int v;				/* current vertex to process */
 	int w;				/* candidate next vertex */
 	long long weight;			/* edge weight */

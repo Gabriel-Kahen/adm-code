@@ -32,11 +32,12 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "bool.h"
 #include "queue.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include "geometry.h"
 
 
 #define	MAXV		100		/* maximum number of vertices */
-#define MAXDEGREE	50		/* maximum outdegree of a vertex */
+#define MAXDEGREE MAXV		/* one coalesced arc per destination */
 
 
 typedef struct {
@@ -47,8 +48,8 @@ typedef struct {
 } edge;
 
 typedef struct {
-	edge edges[MAXV][MAXDEGREE];	/* adjacency info */
-	int degree[MAXV];		/* outdegree of each vertex */
+	edge edges[MAXV+1][MAXDEGREE+1];	/* adjacency info */
+	int degree[MAXV+1];		/* outdegree of each vertex */
 	int nvertices;			/* number of vertices in the graph */
 	int nedges;			/* number of edges in the graph */
 } flow_graph;
@@ -86,7 +87,7 @@ flow_graph *g;				/* graph to initialize */
 	g -> nvertices = 0;
 	g -> nedges = 0;
 
-	for (i=0; i<MAXV; i++) g->degree[i] = 0;
+	for (i=0; i<=MAXV; i++) g->degree[i] = 0;
 }
 
 read_flow_graph(g,directed)
@@ -99,10 +100,18 @@ bool directed;				/* is this graph directed? */
 
 	initialize_graph(g);
 
-	scanf("%d %d\n",&(g->nvertices),&m);
+    if (scanf("%d %d\n", &(g->nvertices), &m) != 2 ||
+        g->nvertices < 1 || g->nvertices > MAXV || m < 0) {
+        fprintf(stderr, "Invalid flow graph size\n");
+        exit(EXIT_FAILURE);
+    }
 
 	for (i=1; i<=m; i++) {
-		scanf("%d %d %d\n",&x,&y,&w);
+        if (scanf("%d %d %d\n", &x, &y, &w) != 3 ||
+            x < 1 || x > g->nvertices || y < 1 || y > g->nvertices || w < 0) {
+            fprintf(stderr, "Invalid flow edge\n");
+            exit(EXIT_FAILURE);
+        }
 		insert_flow_edge(g,x,y,directed,w);
 	}
 }
@@ -111,7 +120,12 @@ edge *find_edge(flow_graph *g, int x, int y);
 
 insert_flow_edge(flow_graph *g, int x, int y, bool directed, int w)
 {
-	edge *existing = find_edge(g, x, y);
+    edge *existing;
+    if (x < 1 || x > MAXV || y < 1 || y > MAXV || w < 0) {
+        fprintf(stderr, "Invalid flow edge\n");
+        exit(EXIT_FAILURE);
+    }
+    existing = find_edge(g, x, y);
     /* Parallel arcs share a single residual-capacity entry. */
     if (existing != NULL) {
         existing->capacity += w;
@@ -120,8 +134,10 @@ insert_flow_edge(flow_graph *g, int x, int y, bool directed, int w)
         return;
     }
 
-	if (g->degree[x] > MAXDEGREE)
-		printf("Warning: insertion(%d,%d) exceeds degree bound\n",x,y);
+    if (g->degree[x] >= MAXDEGREE) {
+        fprintf(stderr, "Flow adjacency capacity exceeded\n");
+        exit(EXIT_FAILURE);
+    }
 
 	g->edges[x][g->degree[x]].v = y;
 	g->edges[x][g->degree[x]].capacity = w;
@@ -174,9 +190,9 @@ print_flow_graph(flow_graph *g)
 	}
 }
 
-bool processed[MAXV];		/* which vertices have been processed */
-bool discovered[MAXV];          /* which vertices have been found */
-int parent[MAXV];		/* discovery relation */
+bool processed[MAXV+1];		/* which vertices have been processed */
+bool discovered[MAXV+1];          /* which vertices have been found */
+int parent[MAXV+1];		/* discovery relation */
 
 bool finished = FALSE;          /* if true, cut off search immediately */
 
@@ -303,6 +319,12 @@ augment_path(flow_graph *g, int start, int end, int parents[], long long volume)
 netflow(flow_graph *g, int source, int sink)
 {
 	long long volume;			/* weight of the augmenting path */
+
+    if (source < 1 || source > g->nvertices || sink < 1 ||
+        sink > g->nvertices || source == sink) {
+        fprintf(stderr, "Invalid flow terminals\n");
+        exit(EXIT_FAILURE);
+    }
 
 	add_residual_edges(g);
 
