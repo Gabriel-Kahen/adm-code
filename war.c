@@ -140,11 +140,11 @@ void war(queue *a, queue *b) {
 	    if (inwar) {
 	        inwar = false;
 	    } else {
-	        if (value(x) > value(y)) {
+	        if ((x / NSUITS) > (y / NSUITS)) {
 	            clear_queue(&c,a);
-	        } else if  (value(x) < value(y)) {
+	        } else if  ((x / NSUITS) < (y / NSUITS)) {
 	            clear_queue(&c,b);
-	        } else if (value(y) == value(x)) {
+	        } else if ((y / NSUITS) == (x / NSUITS)) {
 	            inwar = true;
 	        }
 	    }
