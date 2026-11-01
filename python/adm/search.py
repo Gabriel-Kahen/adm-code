@@ -251,6 +251,8 @@ def _exact_tsp(points: list[Point], best_first: bool) -> dict:
                 candidate = cost + costs[path[-1]][vertex]
                 lower = bound(candidate, extended, rest)
                 if lower < best_cost:
+                    if len(pending) >= 1_000_000:
+                        raise ValueError("TSP best-first frontier exhausted")
                     heapq.heappush(pending, (lower, candidate, extended, rest))
     # Recompute through the public objective rather than returning a cached bound.
     return {"cost": tour_cost(points, best_tour), "tour": best_tour}

@@ -12,6 +12,7 @@ import os
 import random
 import subprocess
 import unittest
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -106,12 +107,12 @@ class Conformance(unittest.TestCase):
 
     def values(self, operation, *arguments):
         for language in LANGUAGES:
-            with self.subTest(language=language, operation=operation, args=arguments):
-                yield language, self.invoke(language, operation, *arguments)
+            yield language, self.invoke(language, operation, *arguments)
 
     def expect(self, expected, operation, *arguments):
-        for _, actual in self.values(operation, *arguments):
-            self.assertEqual(actual, expected)
+        for language in LANGUAGES:
+            with self.subTest(language=language, operation=operation, args=arguments):
+                self.assertEqual(self.invoke(language, operation, *arguments), expected)
 
     def rejects(self, operation, *arguments):
         for language in LANGUAGES:
@@ -512,6 +513,28 @@ class Conformance(unittest.TestCase):
         for points, expected in cases:
             self.expect(expected, "hull", len(points), *sum((list(p) for p in points), []))
 
+    def test_hull_matches_independent_gift_wrapping(self):
+        rng = random.Random(241)
+        for _ in range(5):
+            points = sorted({(rng.randrange(-20, 21), rng.randrange(-20, 21)) for _ in range(12)})
+            hull = []
+            current = min(points)
+            while True:
+                hull.append(list(current))
+                following = next(point for point in points if point != current)
+                for point in points:
+                    turn = (following[0] - current[0]) * (point[1] - current[1]) - (
+                        following[1] - current[1]
+                    ) * (point[0] - current[0])
+                    if turn < 0 or (
+                        turn == 0 and math.dist(current, point) > math.dist(current, following)
+                    ):
+                        following = point
+                current = following
+                if current == points[0]:
+                    break
+            self.expect(hull, "hull", len(points), *sum((list(p) for p in points), []))
+
     def test_segments_lines_and_projections(self):
         for points, expected in (
             ((0, 0, 2, 2, 0, 2, 2, 0), True),
@@ -548,14 +571,53 @@ class Conformance(unittest.TestCase):
             for _, triangles in self.values("triangulate", len(points), *coords):
                 self.assertEqual(len(triangles), len(points) - 2)
                 total = 0
+                edge_counts = Counter()
                 for triangle in triangles:
                     self.assertEqual(len(set(triangle)), 3)
                     self.assertTrue(all(0 <= index < len(points) for index in triangle))
                     a, b, c = [points[index] for index in triangle]
+                    for first, second in zip(triangle, triangle[1:] + triangle[:1]):
+                        edge_counts[tuple(sorted((first, second)))] += 1
                     total += abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) / 2
                 self.assertAlmostEqual(total, area)
+                boundary = {tuple(sorted((i, (i + 1) % len(points)))) for i in range(len(points))}
+                self.assertEqual(
+                    {edge for edge, count in edge_counts.items() if count == 1}, boundary
+                )
+                self.assertTrue(
+                    all(
+                        count == (1 if edge in boundary else 2)
+                        for edge, count in edge_counts.items()
+                    )
+                )
         self.rejects("triangulate", 4, 0, 0, 2, 2, 0, 2, 2, 0)
         self.rejects("triangulate", 3, 0, 0, 1, 1, 2, 2)
+
+    def test_polygon_area_and_triangulation_are_translation_invariant(self):
+        for offset in (0, 10**8, 10**12):
+            points = [
+                (offset, offset),
+                (offset + 1, offset),
+                (offset + 1, offset + 1),
+                (offset, offset + 1),
+            ]
+            arguments = [4, *sum((list(point) for point in points), [])]
+            self.expect(1, "area", *arguments)
+            for _, triangles in self.values("triangulate", *arguments):
+                self.assertEqual(len(triangles), 2)
+                self.assertEqual(set(itertools.chain.from_iterable(triangles)), set(range(4)))
+
+    def test_translated_lines_preserve_their_endpoints(self):
+        for offset in (10**8, 10**12):
+            start, end = (offset, offset + 1), (offset + 1, offset + 2)
+            for _, projected in self.values("project", *start, *start, *end):
+                self.assertEqual(projected, list(start))
+            # Cross with a translated horizontal line through the first point.
+            for _, point in self.values(
+                "intersection", *start, *end, offset - 1, offset + 1, offset + 2, offset + 1
+            ):
+                self.assertAlmostEqual(point[0], start[0], delta=0.001)
+                self.assertAlmostEqual(point[1], start[1], delta=0.001)
 
     def test_minimum_weight_triangulation_against_all_splits(self):
         for n in (3, 4, 6):
@@ -647,6 +709,12 @@ class Conformance(unittest.TestCase):
             for method, order in expected.items():
                 self.expect(order, "grid", method, rows, columns)
 
+    def test_exact_tsp_handles_the_maximum_coincident_city_case(self):
+        for method in ("exact", "best"):
+            for _, result in self.values("tsp", method, 12, *([7, 9] * 12)):
+                self.assertEqual(result["cost"], 0)
+                self.assertEqual(sorted(result["tour"]), list(range(12)))
+
     def test_replacement_and_suitor_ranking(self):
         for pattern, text in (("", "abc"), ("aa", "baaa"), ("z", "abc"), (" ", "a b")):
             self.expect(text.find(pattern), "find", pattern, text)
@@ -677,6 +745,10 @@ class Conformance(unittest.TestCase):
         self.expect({"winner": "a", "steps": 1}, "war", 100, 1, 1, 48, 0)
         self.expect({"winner": "draw", "steps": 1}, "war", 100, 1, 1, 0, 1)
         self.expect({"winner": "draw", "steps": 0}, "war", 0, 1, 1, 48, 0)
+        self.expect({"winner": "a", "steps": 3}, "war", 100, 3, 3, 0, 4, 48, 1, 5, 8)
+        self.expect({"winner": "draw", "steps": 2}, "war", 100, 2, 2, 0, 48, 1, 4)
+        self.expect({"winner": "a", "steps": 0}, "war", 100, 1, 0, 48)
+        self.expect({"winner": "draw", "steps": 0}, "war", 100, 0, 0)
         self.rejects("card", "Xs")
         self.rejects("war", 100, 1, 1, 0, 0)
 

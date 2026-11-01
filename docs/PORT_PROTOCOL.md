@@ -1,13 +1,15 @@
 # Shared command-line adapter protocol
 
-CLI accepts operation and remaining tokens as argv, prints one JSON value and
-newline. No stdin parser required. Strings can be empty or contain spaces because
-argv is already delimited. Integers below signed64 unless bignum/fib/binomial,
-which output JSON STRINGS for consistent exactness. All operations validate arity.
+Each adapter accepts an operation and remaining tokens as arguments and prints
+one JSON value followed by a newline. It does not read stdin. Strings can be empty or contain spaces because
+argv is already delimited. Ordinary integer values use signed 64-bit arithmetic in the common domain;
+bignum, Fibonacci, binomial, and absolute-difference results are exact decimal
+JSON strings. Native index and practical search limits also apply. All operations validate arity.
 Canonical list order for sets: sorted; SCC/components sorted each then lexical
 outer sort. Graph neighbors in input order; avoid tests depending on tie path.
 
-Protocol (tokens after operation):
+Numeric and dynamic operations (tokens after operation):
+
 - sort METHOD [integers...] => sorted integer array (methods insertion selection quick heap merge)
 - binary TARGET [sorted integers...] => index of FIRST occurrence or -1
 - insert VALUE [sorted integers...] => sorted array with value (sentinel demo)
@@ -28,8 +30,9 @@ Protocol (tokens after operation):
 - subsetsum TARGET [nonnegative values...] => null or selected INDICES
 - elevator STOPS MAXFLOOR [destinations...] => {"cost":int,"stops":[floors...]}, AT MOST budget; floor0 free
 
-Graph CLI prefix for graph ops below: N DIRECTED M [U V W repeated M]
+Graph operations use this prefix: N DIRECTED M [U V W repeated M]
 N>=0, DIRECTED=0/1, vertices0..N-1, integer weights; unweighted ops ignore W.
+
 - bfs GRAPH SOURCE => distance array, null unreachable
 - dfs GRAPH SOURCE => list of visited vertices (preorder)
 - components GRAPH => canonical vertex groups (undirected only)
@@ -45,7 +48,8 @@ N>=0, DIRECTED=0/1, vertices0..N-1, integer weights; unweighted ops ignore W.
 - paths GRAPH SOURCE TARGET => sorted list of distinct simple vertex paths
 - edgecount GRAPH => input-edge count (undirected edge once)
 
-Geometry use double coordinates; tolerance explicit library default1e-9.
+Geometry uses finite double coordinates and an absolute tolerance of `1e-9`.
+
 - hull N [x y pairs...] => CCW extremal points from lexicographic minimum, collinear endpoints
 - area N [x y pairs...] => nonnegative polygon area
 - triangulate N [x y pairs...] => list of vertex-index triples, accept either orientation;
@@ -58,14 +62,15 @@ Geometry use double coordinates; tolerance explicit library default1e-9.
 - superman sx sy tx ty N [cx cy r triples...] => [through, travel]; only disjoint circles
   fully crossing segment, endpoints outside. Reject unsupported overlapping circles/inside endpoints.
 
-Search/demos:
+Search and demos:
+
 - queens N => number solutions (N<=12 in tests), zero has one solution
 - permutations N => arrays permutations0..N-1, zero => [[]]
 - subsets N => arrays of subsets0..N-1, canonical lexical sorted, zero => [[]]
 - sudoku STRING81 => solved 81-digit string or null; malformed/contradictory givens => error
 - tsp METHOD N [x y pairs...] [SEED ITERATIONS for sample/hill/anneal]
   => {"cost":number,"tour":[indices...]}; methods exact/best/sample/hill/anneal.
-  closed cycle; empty cost0; exact/best require practical explicit bound (e.g. <=12)
+  closed cycle; empty cost0; exact/best allow at most 12 cities; best-first frontiers are limited to 1,000,000 states
 - grid METHOD ROWS COLS => pairs zero-based (row column snake diagonal)
 - find PATTERN TEXT => first index/-1 (empty at0)
 - replace TEXT N [OLD NEW pairs...] => text, sequential changes; replacements never recursively

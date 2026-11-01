@@ -89,7 +89,8 @@ it does not claim globally optimal packing.
 
 Brute edit distance requires total string length at most 18. Recursive Fibonacci
 requires index at most 30; memoized recursion allows at most 800. Exact DFS/best-first TSP allows at most 12 cities;
-permutation materialization allows at most 9 items, subset materialization at
+best-first search raises an explicit error if its frontier would exceed 1,000,000 states.
+Permutation materialization allows at most 9 items, subset materialization at
 most 20, and n-queens counting at most 15. These are resource bounds, not promises
 that the largest allowed instance will finish quickly. Recursive graph searches,
 backtracking, and geometric algorithms can also reach Python's recursion limit;

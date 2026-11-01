@@ -171,7 +171,8 @@ class RandomSource:
         """Uniform [low,high), except a degenerate interval returns its endpoint."""
         if not math.isfinite(low) or not math.isfinite(high) or low > high:
             raise ValueError("invalid real interval")
-        value = low * (1 - (fraction := self._random.random())) + high * fraction
+        fraction = self._random.random()
+        value = low * (1 - fraction) + high * fraction
         return min(value, math.nextafter(high, low)) if low < high else low
 
     def permutation(self, values: list[T]) -> list[T]:

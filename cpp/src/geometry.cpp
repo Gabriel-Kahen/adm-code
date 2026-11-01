@@ -23,12 +23,17 @@ namespace {
 void finite_point(Point p) {
     require(std::isfinite(p.x) && std::isfinite(p.y), "nonfinite point");
 }
+void validate_tolerance(double tolerance) {
+    require(std::isfinite(tolerance) && tolerance >= 0, "invalid tolerance");
+}
 Line normalized(Line line) {
     double length = std::hypot(line.a, line.b);
     require(std::isfinite(length) && length > 0 && std::isfinite(line.c), "invalid line");
     line.a /= length;
     line.b /= length;
     line.c /= length;
+    require(std::isfinite(line.a) && std::isfinite(line.b) && std::isfinite(line.c),
+            "line normalization overflow");
     if (line.a < 0 || (line.a == 0 && line.b < 0)) {
         line.a = -line.a;
         line.b = -line.b;
@@ -69,21 +74,26 @@ void simple_polygon(const std::vector<Point> &polygon) {
 }
 double signed_polygon_area(const std::vector<Point> &polygon) {
     double twice = 0;
-    for (std::size_t i = 0; i < polygon.size(); ++i) {
-        Point a = polygon[i], b = polygon[(i + 1) % polygon.size()];
-        twice += a.x * b.y - a.y * b.x;
+    // Translate the fan before multiplying. Direct shoelace products can
+    // erase a small polygon's area at a large coordinate offset.
+    for (std::size_t i = 1; i + 1 < polygon.size(); ++i) {
+        twice += cross(polygon[0], polygon[i], polygon[i + 1]);
     }
     require(std::isfinite(twice), "polygon area overflow");
     return twice / 2;
 }
 } // namespace
 double cross(Point a, Point b, Point c) {
-    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    finite_point(a);
+    finite_point(b);
+    finite_point(c);
+    double result = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    require(std::isfinite(result), "orientation overflow");
+    return result;
 }
 int orientation(Point a, Point b, Point c, double tolerance) {
-    require(tolerance >= 0 && std::isfinite(tolerance), "invalid tolerance");
+    validate_tolerance(tolerance);
     double value = cross(a, b, c);
-    require(std::isfinite(value), "orientation overflow");
     return value > tolerance ? 1 : (value < -tolerance ? -1 : 0);
 }
 double triangle_area(Point a, Point b, Point c) {
@@ -99,7 +109,10 @@ double point_distance(Point a, Point b) {
 Line points_to_line(Point a, Point b) {
     finite_point(a);
     finite_point(b);
-    return normalized({a.y - b.y, b.x - a.x, a.x * b.y - b.x * a.y});
+    double x_coefficient = a.y - b.y;
+    double y_coefficient = b.x - a.x;
+    double constant = -(x_coefficient * a.x + y_coefficient * a.y);
+    return normalized({x_coefficient, y_coefficient, constant});
 }
 Line point_slope_line(Point p, double slope) {
     finite_point(p);
@@ -107,17 +120,20 @@ Line point_slope_line(Point p, double slope) {
     return normalized({slope, -1, p.y - slope * p.x});
 }
 bool parallel(Line a, Line b, double tolerance) {
+    validate_tolerance(tolerance);
     a = normalized(a);
     b = normalized(b);
     return std::abs(a.a * b.b - b.a * a.b) <= tolerance;
 }
 bool same_line(Line a, Line b, double tolerance) {
+    validate_tolerance(tolerance);
     a = normalized(a);
     b = normalized(b);
     return parallel(a, b, tolerance) && std::abs(a.a * b.c - b.a * a.c) <= tolerance &&
            std::abs(a.b * b.c - b.b * a.c) <= tolerance;
 }
 std::optional<Point> intersection(Line a, Line b, double tolerance) {
+    validate_tolerance(tolerance);
     a = normalized(a);
     b = normalized(b);
     double determinant = a.a * b.b - b.a * a.b;
@@ -137,6 +153,10 @@ Point project(Point point, Line line) {
     return result;
 }
 bool in_box(Point p, Point a, Point b, double tolerance) {
+    validate_tolerance(tolerance);
+    finite_point(p);
+    finite_point(a);
+    finite_point(b);
     return p.x >= std::min(a.x, b.x) - tolerance && p.x <= std::max(a.x, b.x) + tolerance &&
            p.y >= std::min(a.y, b.y) - tolerance && p.y <= std::max(a.y, b.y) + tolerance;
 }
@@ -252,6 +272,7 @@ double minimum_weight_triangulation(const std::vector<Point> &polygon) {
             }
         }
     }
+    require(std::isfinite(cost[0][n - 1]), "triangulation cost overflow");
     return cost[0][n - 1];
 }
 Integer dense_layers(double width, double height, double radius) {
@@ -283,13 +304,17 @@ Integer grid_plates(double width, double height, double radius) {
 Point hex_to_cartesian(Point hex, double radius) {
     packing_domain(0, 0, radius);
     finite_point(hex);
-    return {radius * hex.x + 2 * radius * hex.y, std::sqrt(3.0) * radius * hex.x};
+    Point result{radius * hex.x + 2 * radius * hex.y, std::sqrt(3.0) * radius * hex.x};
+    finite_point(result);
+    return result;
 }
 Point cartesian_to_hex(Point point, double radius) {
     packing_domain(0, 0, radius);
     finite_point(point);
     double row = point.y / (std::sqrt(3.0) * radius);
-    return {row, (point.x - radius * row) / (2 * radius)};
+    Point result{row, (point.x - radius * row) / (2 * radius)};
+    finite_point(result);
+    return result;
 }
 std::pair<int, int> array_to_hex(int row, int column) {
     // ceil(row/2) is row-floor(row/2), also for negative rows.

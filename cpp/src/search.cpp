@@ -223,7 +223,8 @@ Tour traveling_salesperson(const std::vector<Point> &points, const std::string &
     std::vector<int> initial(points.size());
     std::iota(initial.begin(), initial.end(), 0);
     Tour best{tour_cost(points, initial), initial};
-    if (n < 2) {
+    // Euclidean distances are nonnegative: a validated zero-cost tour is optimal.
+    if (n < 2 || best.cost == 0) {
         return best;
     }
     std::vector<std::vector<double>> distances(n, std::vector<double>(n));
@@ -302,6 +303,7 @@ Tour traveling_salesperson(const std::vector<Point> &points, const std::string &
                 }
                 for (int vertex = 1; vertex < n; ++vertex) {
                     if (!(state.used & (std::uint32_t(1) << vertex))) {
+                        require(ready.size() < 1000000, "TSP best-first frontier exhausted");
                         ready.push(extend(state, vertex));
                     }
                 }

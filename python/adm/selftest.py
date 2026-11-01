@@ -223,6 +223,15 @@ class LibraryTests(unittest.TestCase):
                 geometry.polygon_area(points),
             )
 
+    def test_geometry_rejects_invalid_tolerances_and_nonfinite_conversions(self):
+        for tolerance in (-1, math.inf, math.nan):
+            with self.assertRaises(ValueError):
+                geometry.orientation((0, 0), (1, 0), (2, 0), tolerance)
+        with self.assertRaises(ValueError):
+            geometry.hex_to_cartesian(1e308, 1e308, 1)
+        with self.assertRaises(ValueError):
+            geometry.cartesian_to_hex(1e308, 1e308, 1e-308)
+
     def test_backtracking_undo_early_stop_and_exceptions(self):
         state = []
         solutions = []

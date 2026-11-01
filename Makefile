@@ -172,8 +172,12 @@ test-tooling:
 
 check: check-format check-fragments test
 
-clean:
+clean: clean-ports
 	rm -f $(PROGRAMS) $(OBJECTS) $(DEPENDENCIES) core a.out tests/*.o
+
+.PHONY: clean-ports
+clean-ports:
+	rm -rf build/ports
 
 # Legacy distribution utilities; regular development uses all, test, and clean.
 lint:

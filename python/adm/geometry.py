@@ -56,6 +56,8 @@ def cross(first: Point, second: Point, third: Point) -> float:
 
 
 def orientation(first: Point, second: Point, third: Point, epsilon: float = EPSILON) -> int:
+    if not math.isfinite(epsilon) or epsilon < 0:
+        raise ValueError("orientation tolerance must be finite and nonnegative")
     value = cross(first, second, third)
     return 1 if value > epsilon else -1 if value < -epsilon else 0
 
@@ -325,7 +327,9 @@ def hex_to_cartesian(row: float, diagonal: float, radius: float) -> Point:
     _finite(row, diagonal, radius)
     if radius <= 0:
         raise ValueError("radius must be positive")
-    return radius * row + 2 * radius * diagonal, math.sqrt(3) * radius * row
+    result = radius * row + 2 * radius * diagonal, math.sqrt(3) * radius * row
+    _finite(*result)
+    return result
 
 
 def cartesian_to_hex(x: float, y: float, radius: float) -> Point:
@@ -333,7 +337,9 @@ def cartesian_to_hex(x: float, y: float, radius: float) -> Point:
     if radius <= 0:
         raise ValueError("radius must be positive")
     row = y / (math.sqrt(3) * radius)
-    return row, (x - radius * row) / (2 * radius)
+    result = row, (x - radius * row) / (2 * radius)
+    _finite(*result)
+    return result
 
 
 def array_to_hex(row: int, column: int) -> tuple[int, int]:

@@ -109,7 +109,8 @@ unbalanced: no logarithmic bound is implied for ordered inserts.
   combinations: MRV versus row-first cell selection, and bitmask versus scanned
   candidates. It returns one solution without claiming uniqueness.
 - TSP exact DFS and best-first search use an admissible outgoing-edge lower
-  bound. They accept at most 12 cities. Heuristics return valid tours with fully
+  bound. They accept at most 12 cities. Best-first search rejects frontier growth beyond
+  1,000,000 states with an explicit error. Heuristics return valid tours with fully
   recomputed costs and make no optimality claim. `hill` accepts strict objective
   decreases; `anneal` may accept increases. Repeated runs derive seeds as
   `seed + run` modulo 2^64 and return the best tour found, including the first.

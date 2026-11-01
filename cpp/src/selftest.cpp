@@ -205,6 +205,21 @@ void selftest() {
     check(!intersection(horizontal, point_slope_line({0, 1}, 0)), "parallel line intersection");
     check(in_box({1, 0}, a, b) && segments_intersect(a, b, {1, 0}, {3, 0}),
           "box/collinear segment");
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double infinity = std::numeric_limits<double>::infinity();
+    rejects([&] { cross({nan, 0}, a, b); }, "nonfinite cross-product input");
+    rejects([&] { triangle_area({0, 0}, {1e308, 0}, {0, 1e308}); }, "triangle area overflow");
+    rejects([&] { in_box({infinity, 0}, a, b); }, "nonfinite box input");
+    for (double tolerance : {-1.0, infinity, nan}) {
+        rejects([&] { orientation(a, b, a, tolerance); }, "orientation tolerance");
+        rejects([&] { in_box(a, a, b, tolerance); }, "box tolerance");
+        rejects([&] { parallel(horizontal, horizontal, tolerance); }, "parallel tolerance");
+        rejects([&] { same_line(horizontal, horizontal, tolerance); }, "line equality tolerance");
+        rejects([&] { intersection(horizontal, vertical, tolerance); }, "intersection tolerance");
+    }
+    rejects([&] { parallel({1e-320, 0, 1}, {1e-320, 0, 1}); }, "line normalization overflow");
+    rejects([&] { hex_to_cartesian({1e308, 1e308}, 1); }, "Cartesian conversion overflow");
+    rejects([&] { cartesian_to_hex({1e308, 1e308}, 1e-308); }, "hex conversion overflow");
     const std::vector<Point> square{{0, 0}, {1, 0}, {1, 1}, {0, 1}};
     check(convex_hull({{0, 0}, {1, 0}, {0.5, 0}, {0, 0}}).size() == 2, "collinear hull");
     check(triangulate(square).size() == 2, "ear triangulation");

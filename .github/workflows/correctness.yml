@@ -50,6 +50,20 @@ jobs:
       - name: Check C++, Java, and Python against independent oracles
         run: make test-ports
 
+  cpp-sanitizers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PORT_LANGUAGES: cpp
+      CXX: clang++
+      CXXFLAGS: -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer
+      ASAN_OPTIONS: detect_leaks=1
+      UBSAN_OPTIONS: halt_on_error=1
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Check C++ with address and undefined-behavior sanitizers
+        run: make test-ports
+
   readability:
     runs-on: ubuntu-24.04
     timeout-minutes: 10

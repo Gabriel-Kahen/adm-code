@@ -110,4 +110,5 @@ only for small instances; recursive implementations also use the language stack.
 
 `make test` includes the existing C regression and algorithm suites as well as the
 new ports. `make test-c` runs the original maintained suites alone. CI checks C
-with GCC and Clang and checks the three libraries in a separate job.
+with GCC and Clang, all three libraries together, and C++ again with Clang's
+address and undefined-behavior sanitizers, including leak detection.
