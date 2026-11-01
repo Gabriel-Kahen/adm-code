@@ -69,7 +69,8 @@ void process_vertex_late(int v) {
         pop_component(v);
     }
 
-    if (entry_time[low[v]] < entry_time[low[parent[v]]]) {
+    if ((parent[v] != -1) &&
+        (entry_time[low[v]] < entry_time[low[parent[v]]])) {
         low[parent[v]] = low[v];
     }
 }
