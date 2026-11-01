@@ -56,15 +56,27 @@ void convex_hull(point in[], int n, polygon *hull) {
     int i;          /* input counter */
     int top;        /* current hull size */
 
-    if (n <= 3) { 		/* all points on hull! */
-        for (i = 0; i < n; i++) {
-            copy_point(in[i], hull->p[i]);
-        }
-        hull->n = n;
+    if (n <= 0) {
+        hull->n = 0;
         return;
     }
-
     sort_and_remove_duplicates(in, &n);
+
+    /* A collinear hull is a segment, not a closed scan with a sentinel. */
+    for (i = 1; i + 1 < n; i++) {
+        if (!collinear(in[0], in[n-1], in[i])) {
+            break;
+        }
+    }
+    if (n <= 2 || i + 1 == n) {
+        copy_point(in[0], hull->p[0]);
+        hull->n = 1;
+        if (n > 1) {
+            copy_point(in[n-1], hull->p[1]);
+            hull->n = 2;
+        }
+        return;
+    }
     copy_point(in[0], (double*)&first_point);
 
     qsort(&in[1], n-1, sizeof(point), smaller_angle);
