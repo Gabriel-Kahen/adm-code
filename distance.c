@@ -27,9 +27,11 @@ or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 double distance(point a, point b) {
     int i;
     double d = 0.0;
+    double delta;
 
     for (i = 0; i < DIMENSION; i++) {
-        d = d + (a[i] - b[i]) * (a[i] - b[i]);
+        delta = (double)a[i] - (double)b[i];
+        d += delta * delta;
     }
 
     return(sqrt(d));
