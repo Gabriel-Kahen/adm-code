@@ -41,7 +41,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 tsp_solution best_solution;	/* store the current best solution */
 double best_cost;		/* cost of current best solution */
 
-double lb[NMAX];   		/* vertex lower bounds */
+double lb[NMAX+1];   		/* vertex lower bounds */
 double minlb;      		/* global edge lower bound */
 
 long evaluations;		/* how many of (n-1!) evaluations were done? */
@@ -90,7 +90,7 @@ void unmake_move(tsp_solution *s, int k, tsp_instance *t){
 /* [[[ astar_construct_candidates_tsp_cut */
 void construct_candidates(tsp_solution *s, int k, tsp_instance *t, int c[], int *ncandidates) {
     int i;                 /* counter */
-    bool in_perm[NMAX];    /* what is now in the permutation? */
+    bool in_perm[NMAX+1];    /* what is now in the permutation? */
     double partial_solution_lb();
 
 constructions ++;
@@ -107,7 +107,7 @@ constructions ++;
 	return;
     }
 
-    for (i = 1; i < NMAX; i++) {
+    for (i = 1; i <= NMAX; i++) {
         in_perm[i] = FALSE;
     }
 
