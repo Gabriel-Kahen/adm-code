@@ -46,7 +46,7 @@ process_vertex_late(int v)
 
 process_edge(int x, int y)
 {
-	if (parent[x] == y)
+	if (parent[y] == x)
         	printf("processed tree edge (%d,%d)\n",x,y);
 	else
 		printf("processed back edge (%d,%d)\n",x,y);

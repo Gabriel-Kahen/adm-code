@@ -138,6 +138,8 @@ int v;					/* vertex to start searching from */
 {
 	int i;				/* counter */
 	int y;				/* successor vertex */
+	bool parent_edge_seen = FALSE;
+	bool self_edge_seen = FALSE;
 
 	discovered[v] = TRUE;
 	process_vertex_early(v);
@@ -146,10 +148,18 @@ int v;					/* vertex to start searching from */
 		y = g->edges[v][i].v;
 		if (discovered[y] == FALSE) {
 			parent[y] = v;
+			process_edge(v,y);
 			dfs(g,y);
 		} else 
-			if (processed[y] == FALSE)
-				process_edge(v,y);
+			if (processed[y] == FALSE) {
+                    if (y == v) {
+                        self_edge_seen = !self_edge_seen;
+                        if (self_edge_seen) process_edge(v,y);
+                    } else {
+                        if (y != parent[v] || parent_edge_seen) process_edge(v,y);
+                        if (y == parent[v]) parent_edge_seen = TRUE;
+                    }
+                }
 	}
 
 	process_vertex_late(v);
