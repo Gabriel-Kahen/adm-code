@@ -8,7 +8,7 @@ void construct_candidates(int a[], int k, paths_data *g, int c[], int *nc) {
         in_sol[i] = false;
     }
 
-    for (i = 0; i < k; i++) {
+    for (i = 1; i < k; i++) {
         in_sol[a[i]] = true;
     }
 
