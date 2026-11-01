@@ -74,11 +74,10 @@ void read_adjacency_matrix(adjacency_matrix *g, bool directed) {
 
     for (i = 1; i <= m; i++) {
         scanf("%d %d %d\n", &x, &y, &w);
-        if (x == y && w > g->weight[x][y]) continue;
-        g->weight[x][y] = w;
+        if (w < g->weight[x][y]) g->weight[x][y] = w;
 
         if (!directed) {
-            g->weight[y][x] = w;
+            if (w < g->weight[y][x]) g->weight[y][x] = w;
         }
     }
 }
