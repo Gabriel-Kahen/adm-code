@@ -48,7 +48,7 @@ process_solution(int a[], int k)
 
 is_a_solution(int a[], int k, int t)
 {
-	return (a[k] == t);
+	return (k > 0 && a[k] == t);
 }
 
 make_move(int a[], int k, int n)

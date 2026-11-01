@@ -57,7 +57,7 @@ void process_solution(int a[], int k, paths_data *input) {
 
 /* [[[ is_a_solution_paths_cut */
 int is_a_solution(int a[], int k, paths_data *g) {
-    return (a[k] == g->t);
+    return (k > 0 && a[k] == g->t);
 }
 /* ]]] */
 
@@ -83,7 +83,7 @@ void construct_candidates(int a[], int k, paths_data *g, int c[], int *nc) {
         in_sol[i] = false;
     }
 
-    for (i = 0; i < k; i++) {
+    for (i = 1; i < k; i++) {
         in_sol[a[i]] = true;
     }
 
