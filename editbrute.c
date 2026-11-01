@@ -22,6 +22,7 @@ or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 #include <stdio.h>
 #include <string.h>
+#include "editinput.h"
 #include <stdbool.h>
 
 #include "editdistance.h"
@@ -209,12 +210,13 @@ void print_matrix(char *s, char *t, bool costQ, cell m[MAXLEN+1][MAXLEN+1]) {
 int main(void) {
     int i, j;
     int cost1, cost2;
-    char s[MAXLEN], t[MAXLEN];    /* input strings */
+    char s[MAXLEN+2], t[MAXLEN+2];    /* input strings */
 
     s[0] = t[0] = ' ';
-
-    scanf("%s", &(s[1]));
-    scanf("%s", &(t[1]));
+    if (!read_edit_string(s, MAXLEN) || !read_edit_string(t, MAXLEN)) {
+        fprintf(stderr, "expected two strings of at most %d characters\n", MAXLEN);
+        return 1;
+    }
 
     cost1 = string_compare_r(s, t, strlen(s) - 1, strlen(t) - 1);
     printf("matching cost = %d \n", cost2 = string_compare2(s, t, strlen(s) - 1, strlen(t) - 1, m));

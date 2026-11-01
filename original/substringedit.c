@@ -27,6 +27,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 
 #include <string.h>
+#include "../editinput.h"
 #include "editdistance.h"
 #include "bool.h"
 
@@ -96,14 +97,15 @@ delete_out(char *s, int i)
 
 /**********************************************************************/
 
-main(){
+int main(void) {
 	int i,j;
-	char s[MAXLEN],t[MAXLEN];		/* input strings */
+	char s[MAXLEN+2],t[MAXLEN+2];		/* input strings */
 
 	s[0] = t[0] = ' ';
-
-	scanf("%s",&(s[1]));
-	scanf("%s",&(t[1]));
+    if (!read_edit_string(s, MAXLEN) || !read_edit_string(t, MAXLEN)) {
+        fprintf(stderr, "expected two strings of at most %d characters\n", MAXLEN);
+        return 1;
+    }
 
 	printf("matching cost = %d \n", string_compare(s,t));
 
@@ -117,5 +119,6 @@ main(){
 
 	reconstruct_path(s,t,i,j);
 	printf("\n");
+    return 0;
 }
 
