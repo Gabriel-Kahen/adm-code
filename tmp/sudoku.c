@@ -70,6 +70,7 @@ void possible_values(int x, int y, boardtype *board, bool possible[]) {
         init = TRUE;
     }
 
+    possible[0] = FALSE;
     for (i = 1; i <= DIMENSION; i++) {
         possible[i] = init;
     }
@@ -101,7 +102,7 @@ void possible_values(int x, int y, boardtype *board, bool possible[]) {
 void print_possible(bool possible[]) {
     int i;    /* counter */
 
-    for (i = 0; i <= DIMENSION; i++) {
+    for (i = 1; i <= DIMENSION; i++) {
         if (possible[i] == TRUE) {
             printf(" %d", i);
         }
@@ -116,7 +117,7 @@ int possible_count(int x, int y, boardtype *board) {
 
     possible_values(x, y, board, possible);
     cnt = 0;
-    for (i = 0; i <= DIMENSION; i++) {
+    for (i = 1; i <= DIMENSION; i++) {
         if (possible[i] == TRUE) {
             cnt++;
         }
@@ -159,7 +160,7 @@ void next_square(int *x, int *y, boardtype* board) {
                 doomed = TRUE;
             }
             if (fast == TRUE) {
-                if ((newcnt < bestcnt) && (newcnt >= 1)) {
+                if ((board->m[i][j] == 0) && (newcnt < bestcnt) && (newcnt >= 1)) {
                     bestcnt = newcnt;
                     *x = i;
                     *y = j;
