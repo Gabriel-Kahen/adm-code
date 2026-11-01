@@ -1,20 +1,21 @@
 # Testing the algorithms
 
 The supported suite compiles the real implementations with small C callers and
-checks their results. Python's standard-library `unittest` runner coordinates
+cross-language adapters, then checks their results. Python's standard-library `unittest` runner coordinates
 the tests; no Python test framework needs to be installed.
 
 ## Run the suite
 
-On the checked Linux configuration, install GCC, Clang, GNU Make, Python 3.10 or newer, and
-the compiler sanitizer runtimes. Then run:
+On the checked Linux configuration, install GCC, Clang, GNU Make, Python 3.10 or newer,
+the compiler sanitizer runtimes, a C++17 compiler, and JDK 17 or newer. Then run:
 
 ```sh
 make test
 ```
 
 `./test-script.sh` runs the same suite and preserves a failing status. The suite
-creates temporary executables and compilation files outside the source tree.
+creates temporary C executables outside the source tree and builds the new
+libraries under ignored `build/ports/` directories.
 Historical tests select compatibility flags explicitly; the current programs
 must build with normal C99 flags.
 
@@ -24,6 +25,8 @@ For a narrower check:
 make test-regressions
 make test-algorithms
 make test-tooling
+make test-c
+make test-ports
 python3 -m unittest discover -s tests/regressions -p 'test_GN13.py' -v
 python3 -m unittest discover -s tests/regressions -p 'test_DP*.py' -v
 ```
@@ -31,6 +34,11 @@ python3 -m unittest discover -s tests/regressions -p 'test_DP*.py' -v
 Finding IDs in existing test names refer to [AUDIT_FIXES.md](../AUDIT_FIXES.md).
 Use descriptive names for new test cases so a failure explains the operation,
 input property, or boundary being checked.
+
+The [multilanguage guide](MULTILANGUAGE.md) describes C++, Java, and Python
+contracts, native invariant checks, and the shared oracle suite. Select individual
+ports with `PORT_LANGUAGES="cpp python" make test-ports`. Missing compilers fail
+explicitly; the default suite does not silently skip a language.
 
 ## What each kind of test establishes
 
