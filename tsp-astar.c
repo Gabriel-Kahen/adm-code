@@ -150,6 +150,8 @@ void backtrack(tsp_solution *s, int k, tsp_instance *input) {
 
 /* [[[ astar_generate_tsp_cut */
 void solve_tsp(tsp_instance *t, tsp_solution *s) {
+    first_solution(&best_solution, t);
+    best_cost = solution_cost(&best_solution, t);
     initialize_solution(s, t);
     extend_solution(s, t, 1);
     backtrack(s, 1, t);
@@ -329,6 +331,7 @@ void first_solution(tsp_solution *s, tsp_instance *t) {
 
 void copy_solution(tsp_solution *s, tsp_solution *t) {
     int i;    /* counter */
+    t->cost = s->cost;
     t->n = s->n;
     for (i = 1; i <= (s->n); i++) {
         t->p[i] = s->p[i];
