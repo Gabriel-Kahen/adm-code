@@ -68,7 +68,7 @@ bfs(graph *g, int start)
 				discovered[g->edges[v][i]] = TRUE;
 				parent[g->edges[v][i]] = v;
 			}
-			if (processed[g->edges[v][i]] == FALSE) 
+			if ((processed[g->edges[v][i]] == FALSE) || (g->edges[v][i] == v)) 
 				process_edge(v,g->edges[v][i]);
 		    }
 		process_vertex_late(v);
