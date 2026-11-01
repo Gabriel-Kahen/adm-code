@@ -1,5 +1,5 @@
 void quicksort(item_type s[], int l, int h) {
-    int p;    /* index of partition */
+    int p; /* index of partition */
 
     if (l < h) {
         p = partition(s, l, h);

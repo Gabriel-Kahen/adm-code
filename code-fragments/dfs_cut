@@ -1,11 +1,11 @@
 void dfs(graph *g, int v) {
-    edgenode *p;        /* temporary pointer */
-    int y;              /* successor vertex */
+    edgenode *p; /* temporary pointer */
+    int y;       /* successor vertex */
     bool parent_edge_seen = false;
     bool self_edge_seen = false;
 
     if (finished) {
-        return;         /* allow for search termination */
+        return; /* allow for search termination */
     }
     discovered[v] = true;
     time = time + 1;
@@ -23,12 +23,14 @@ void dfs(graph *g, int v) {
         } else if ((!processed[y]) || g->directed) {
             if (y == v && !g->directed) {
                 self_edge_seen = !self_edge_seen;
-                if (self_edge_seen) process_edge(v, y);
+                if (self_edge_seen)
+                    process_edge(v, y);
             } else {
                 if (g->directed || y != parent[v] || parent_edge_seen) {
                     process_edge(v, y);
                 }
-                if (y == parent[v]) parent_edge_seen = true;
+                if (y == parent[v])
+                    parent_edge_seen = true;
             }
         }
 

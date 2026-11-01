@@ -1,5 +1,5 @@
 tsp_solution extract_min(priority_queue *q) {
-    tsp_solution min;    /* minimum value */
+    tsp_solution min; /* minimum value */
 
     if (q->n <= 0) {
         fputs("Cannot extract from an empty priority queue.\n", stderr);
@@ -12,5 +12,5 @@ tsp_solution extract_min(priority_queue *q) {
     q->n = q->n - 1;
     bubble_down(q, 1);
 
-    return(min);
+    return (min);
 }

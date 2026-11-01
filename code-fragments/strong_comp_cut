@@ -1,5 +1,5 @@
 void strong_components(graph *g) {
-    int i;    /* counter */
+    int i; /* counter */
 
     for (i = 1; i <= (g->nvertices); i++) {
         low[i] = i;

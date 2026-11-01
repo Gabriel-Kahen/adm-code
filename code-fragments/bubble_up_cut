@@ -1,6 +1,6 @@
 void bubble_up(priority_queue *q, int p) {
     if (pq_parent(p) == -1) {
-        return;    /* at root of heap, no parent */
+        return; /* at root of heap, no parent */
     }
 
     if (q->q[pq_parent(p)] > q->q[p]) {

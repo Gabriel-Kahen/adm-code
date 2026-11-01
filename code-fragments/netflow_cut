@@ -1,5 +1,5 @@
 void netflow(flow_graph *g, int source, int sink) {
-    long long volume;    /* weight of the augmenting path */
+    long long volume; /* weight of the augmenting path */
 
     add_residual_edges(g);
 

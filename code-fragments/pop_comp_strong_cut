@@ -1,5 +1,5 @@
 void pop_component(int v) {
-    int t;    /* vertex placeholder */
+    int t; /* vertex placeholder */
 
     components_found = components_found + 1;
     printf("%d is in component %d \n", v, components_found);

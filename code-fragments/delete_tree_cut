@@ -7,11 +7,16 @@ tree *delete_tree(tree *t, item_type x) {
     }
     p = (d->left != NULL && d->right != NULL) ? successor_descendant(d) : d;
     child = p->left != NULL ? p->left : p->right;
-    if (p->parent == NULL) t = child;
-    else if (p->parent->left == p) p->parent->left = child;
-    else p->parent->right = child;
-    if (child != NULL) child->parent = p->parent;
-    if (p != d) d->item = p->item;
+    if (p->parent == NULL)
+        t = child;
+    else if (p->parent->left == p)
+        p->parent->left = child;
+    else
+        p->parent->right = child;
+    if (child != NULL)
+        child->parent = p->parent;
+    if (p != d)
+        d->item = p->item;
     free(p);
     return t;
 }

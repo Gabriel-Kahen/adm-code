@@ -1,3 +1,1 @@
-void process_vertex_early(int v) {
-    
-}
+void process_vertex_early(int v) {}

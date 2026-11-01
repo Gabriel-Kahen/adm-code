@@ -1,9 +1,9 @@
 long long kruskal(graph *g) {
-    int i;                  /* counter */
-    union_find s;           /* union-find data structure */
-    edge_pair *e;           /* storage for all input edges */
-    int nedges;             /* extracted non-loop edge count */
-    long long weight=0;           /* cost of the minimum spanning tree */
+    int i;                /* counter */
+    union_find s;         /* union-find data structure */
+    edge_pair *e;         /* storage for all input edges */
+    int nedges;           /* extracted non-loop edge count */
+    long long weight = 0; /* cost of the minimum spanning tree */
 
     union_find_init(&s, g->nvertices);
 
@@ -24,5 +24,5 @@ long long kruskal(graph *g) {
     }
 
     free(e);
-    return(weight);
+    return (weight);
 }

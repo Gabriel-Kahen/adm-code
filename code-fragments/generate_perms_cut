@@ -1,5 +1,5 @@
 void generate_permutations(int n) {
-    int a[NMAX+1];                    /* solution vector */
+    int a[NMAX + 1]; /* solution vector */
 
     backtrack(a, 0, n);
 }

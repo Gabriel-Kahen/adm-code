@@ -1,9 +1,9 @@
 void topsort(graph *g, int sorted[]) {
-    int indegree[MAXV+1];    /* indegree of each vertex */
-    queue zeroin;            /* vertices of indegree 0 */
-    int x, y;                /* current and next vertex */
-    int i, j;                /* counters */
-    edgenode *p;             /* temporary pointer */
+    int indegree[MAXV + 1]; /* indegree of each vertex */
+    queue zeroin;           /* vertices of indegree 0 */
+    int x, y;               /* current and next vertex */
+    int i, j;               /* counters */
+    edgenode *p;            /* temporary pointer */
 
     compute_indegrees(g, indegree);
     init_queue(&zeroin);

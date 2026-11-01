@@ -1,5 +1,5 @@
 void topsort(graph *g) {
-    int i;    /* counter */
+    int i; /* counter */
 
     init_stack(&sorted);
 
@@ -8,5 +8,5 @@ void topsort(graph *g) {
             dfs(g, i);
         }
     }
-    print_stack(&sorted);    /* report topological order */
+    print_stack(&sorted); /* report topological order */
 }

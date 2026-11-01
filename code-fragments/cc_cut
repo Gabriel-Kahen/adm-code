@@ -1,6 +1,6 @@
 void connected_components(graph *g) {
-    int c;              /* component number */
-    int i;              /* counter */
+    int c; /* component number */
+    int i; /* counter */
 
     initialize_search(g);
 
