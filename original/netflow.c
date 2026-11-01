@@ -71,7 +71,7 @@ main()
 	print_flow_graph(&g);
 
 	flow = 0;
-	for (i=0; i<g.nvertices; i++)
+	for (i=0; i<g.degree[source]; i++)
 		flow += g.edges[source][i].flow;
 
 	printf("total flow = %lld\n",flow);
