@@ -35,7 +35,7 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #define EQUAL_TO     0
 #define GREATER_THAN 1
 
-bool compare(item_type a, item_type b) {
+int compare(item_type a, item_type b) {
     if (a < b) {
         return(LESS_THAN);
     }
