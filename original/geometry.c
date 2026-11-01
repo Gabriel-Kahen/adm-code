@@ -155,25 +155,25 @@ bool point_in_box(point p, point b1, point b2)
 		&& (p[Y] >= min(b1[Y],b2[Y])) && (p[Y] <= max(b1[Y],b2[Y])) );
 }
 
-bool segments_intersect(segment s1, segment s2)
-{
-	line l1,l2;		/* lines containing the input segments */
-	point p;		/* intersection point */
+bool segments_intersect(segment s1, segment s2) {
+    double signed_triangle_area(point a, point b, point c);
+    double a = signed_triangle_area(s1.p1, s1.p2, s2.p1);
+    double b = signed_triangle_area(s1.p1, s1.p2, s2.p2);
+    double c = signed_triangle_area(s2.p1, s2.p2, s1.p1);
+    double d = signed_triangle_area(s2.p1, s2.p2, s1.p2);
 
-	points_to_line(s1.p1,s1.p2,&l1);
-	points_to_line(s2.p1,s2.p2,&l2);
-
-	if (same_lineQ(l1,l2)) 	/* overlapping or disjoint segments */
-		return( point_in_box(s1.p1,s2.p1,s2.p2) ||
-			point_in_box(s1.p2,s2.p1,s2.p2) ||
-			point_in_box(s2.p1,s1.p1,s1.p2) ||
-			point_in_box(s2.p2,s1.p1,s1.p2) );
-
-	if (parallelQ(l1,l2)) return(FALSE);
-
-	intersection_point(l1,l2,p);
-
-	return( point_in_box(p,s1.p1,s1.p2) && point_in_box(p,s2.p1,s2.p2) );
+    /* Test the input endpoints directly; a rounded line intersection can
+       fall just outside a segment that contains its shared endpoint. */
+    if ((fabs(a) <= EPSILON && point_in_box(s2.p1, s1.p1, s1.p2)) ||
+        (fabs(b) <= EPSILON && point_in_box(s2.p2, s1.p1, s1.p2)) ||
+        (fabs(c) <= EPSILON && point_in_box(s1.p1, s2.p1, s2.p2)) ||
+        (fabs(d) <= EPSILON && point_in_box(s1.p2, s2.p1, s2.p2))) {
+        return 1;
+    }
+    return (((a > EPSILON && b < -EPSILON) ||
+             (a < -EPSILON && b > EPSILON)) &&
+            ((c > EPSILON && d < -EPSILON) ||
+             (c < -EPSILON && d > EPSILON)));
 }
 
 double signed_triangle_area(point a, point b, point c)
