@@ -9,10 +9,9 @@
 
 #define	MAXN	45		/* largest number of books */
 #define MAXK	10		/* largest number of dividers */
-#define MAXINT	100000		/* infinity */
 
 
-max(int a, int b)
+long long max(long long a, long long b)
 {
 	return( (a > b) ? a : b );
 } 
@@ -35,7 +34,7 @@ print_books(int s[], int start, int end)
 	printf("}\n");
 }
 
-print_matrix(int m[MAXN+1][MAXK+1], int n, int k)
+print_matrix(long long m[MAXN+1][MAXK+1], int n, int k)
 {
 	int i,j;		/* counters */
 
@@ -43,7 +42,7 @@ print_matrix(int m[MAXN+1][MAXK+1], int n, int k)
 	printf("\n");
 	for (i=1; i<=n; i++) {
 		for (j=1; j<=k; j++) 
-			printf(" %d ",m[i][j]);
+			printf(" %lld ",m[i][j]);
 		printf("\n");
 	}
 }
@@ -60,10 +59,10 @@ reconstruct_partition(int s[],int d[MAXN+1][MAXK+1], int n, int k)
 
 partition(int s[], int n, int k)
 {
-	int p[MAXN+1];				/* prefix sums array */
-	int m[MAXN+1][MAXK+1];			/* DP table for values */
+	long long p[MAXN+1];				/* prefix sums array */
+	long long m[MAXN+1][MAXK+1];			/* DP table for values */
 	int d[MAXN+1][MAXK+1];			/* DP table for dividers */
-	int cost;				/* test split cost */
+	long long cost;				/* test split cost */
 	int i,j,x;				/* counters */
 
 	if (n < 1 || n > MAXN || k < 1 || k > MAXK || k > n) {
@@ -78,10 +77,9 @@ partition(int s[], int n, int k)
 
 	for (i=2; i<=n; i++)			/* evaluate main recurrence */
 		for (j=2; j<=k && j<=i; j++) {
-			m[i][j] = MAXINT;
 			for (x=j-1; x<=(i-1); x++) {
 				cost = max(m[x][j-1], p[i]-p[x]);
-				if (m[i][j] > cost) {
+				if (x == j-1 || m[i][j] > cost) {
 					m[i][j] = cost;
 					d[i][j] = x;
 				}
