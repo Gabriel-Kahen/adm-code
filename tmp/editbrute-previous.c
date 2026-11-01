@@ -94,11 +94,15 @@ int string_compare2(char *s, char *t, int i, int j, cell m[MAXLEN+1][MAXLEN+1]) 
     int lowest_cost; /* lowest cost */
 
     if (i == 0) {
-        return(j * indel(' '));
+        m[i][j].cost = j * indel(' ');
+        m[i][j].parent = j ? INSERT : -1;
+        return m[i][j].cost;
     }
 
     if (j == 0) {
-        return(i * indel(' '));
+        m[i][j].cost = i * indel(' ');
+        m[i][j].parent = DELETE;
+        return m[i][j].cost;
     }
 
     opt[MATCH] = string_compare2(s, t, i-1, j-1, m) + match(s[i], t[j]);
@@ -106,9 +110,11 @@ int string_compare2(char *s, char *t, int i, int j, cell m[MAXLEN+1][MAXLEN+1]) 
     opt[DELETE] = string_compare2(s, t, i-1, j, m) + indel(s[i]);
 
     lowest_cost = opt[MATCH];
+    m[i][j].parent = MATCH;
     for (k = INSERT; k <= DELETE; k++) {
         if (opt[k] < lowest_cost) {
             lowest_cost = opt[k];
+            m[i][j].parent = k;
         }
     }
 
