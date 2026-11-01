@@ -58,16 +58,16 @@ snake_order(int n, int m)
 
 diagonal_order(int n, int m)
 {
-	int d,j;	/* diagonal and point counters */
-	int pcount;	/* points on diagonal */
-	int height;	/* row of lowest point */
+    int d, row;
+    int first, last;
 
-	for (d=1; d<=(m+n-1); d++) {
-		height = 1 + max(0,d-m);
-		pcount = min(d, (n-height+1));
-		for (j=0; j<pcount; j++)
-			process(min(m,d)-j, height+j);
-	}
+    for (d = 1; d <= n + m - 1; d++) {
+        first = max(1, d + 1 - m);
+        last = min(n, d);
+        for (row = first; row <= last; row++) {
+            process(row, d + 1 - row);
+        }
+    }
 }
 
 process(int i, int j)
