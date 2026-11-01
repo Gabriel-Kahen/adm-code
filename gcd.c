@@ -60,7 +60,7 @@ long gcd(long p, long q, long *x, long *y) {
     g = gcd(q, p%q, &x1, &y1);
 	
     *x = y1;
-    *y = (x1 - floor(p/q)*y1);
+    *y = (x1 - (p/q)*y1);
 
     return(g);
 }
