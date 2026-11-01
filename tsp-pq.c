@@ -97,7 +97,8 @@ void bubble_down(priority_queue *q, int p) {
 /* [[[ tsp_pq_insert_cut */
 void pq_insert(priority_queue *q, tsp_solution *x) {
     if (q->n >= PQ_SIZE) {
-        printf("Warning: priority queue overflow insert x=%7.1f\n", x->cost);
+        fprintf(stderr, "TSP priority queue capacity exceeded\n");
+        exit(EXIT_FAILURE);
     } else {
         q->n = (q->n) + 1;
         q->q[q->n] = *x;
