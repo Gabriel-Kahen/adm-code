@@ -54,11 +54,11 @@ void initialize_graph(flow_graph *g) { /* graph to initialize */
     g->nvertices = 0;
     g->nedges = 0;
 
-    for (i = 0; i < MAXV; i++) {
+    for (i = 0; i <= MAXV; i++) {
         g->degree[i] = 0;
     }
 
-    for (i = 0; i < MAXV; i++) {
+    for (i = 0; i <= MAXV; i++) {
         g->edges[i] = NULL;
     }
 }
