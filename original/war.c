@@ -139,11 +139,11 @@ print_card_queue(b);
 		if (inwar) {
 			inwar = FALSE;
 		} else {
-			if (value(x) > value(y)) 
+			if ((x / NSUITS) > (y / NSUITS)) 
 				clear_queue(&c,a);
-			else if  (value(x) < value(y)) 
+			else if  ((x / NSUITS) < (y / NSUITS)) 
 				clear_queue(&c,b);
-			else if (value(y) == value(x)) 
+			else if ((y / NSUITS) == (x / NSUITS)) 
 				inwar = TRUE;
 		}
 		/*printf("x=%d y=%d |a|=%d |b|=%d \n",x,y,a->count,b->count);*/
