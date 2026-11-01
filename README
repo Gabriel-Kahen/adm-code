@@ -164,3 +164,8 @@ Run `make -B all` to rebuild the programs with GCC, or add `CC=clang`.
 Run `make test` or `./test-script.sh` for the supported correctness suite.
 These regressions check algorithm invariants and independent expected results;
 the archived output files remain reference material and are not test gates.
+
+Generated executables and object files are excluded so a fresh `make all`
+builds the corrected sources for the current platform instead of reusing
+obsolete macOS binaries. The original archive remains in the initial import
+commit (f74a015406c0821aa23390e3983d2c385712e3f4).
