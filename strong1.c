@@ -34,7 +34,6 @@ extern int parent[];        /* discovery relation */
 extern int entry_time[];    /* time of vertex entry */
 extern int exit_time[];     /* time of vertex exit */
 
-int time;                   /* current event time */
 extern bool finished;       /* if true, cut off search immediately */
 
 

@@ -28,6 +28,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 
 #include <string.h>
+#include <math.h>
 #include "bool.h"
 #include "tsp.h"
 

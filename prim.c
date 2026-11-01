@@ -29,7 +29,6 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 #define MAXINT (LLONG_MAX / 4)
 
-int parent[MAXV+1];    /* discovery relation */
 
 /************************************************************/
 /* [[[ prim_cut */

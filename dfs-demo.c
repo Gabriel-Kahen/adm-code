@@ -31,9 +31,6 @@ extern bool processed[];    /* which vertices have been processed */
 extern bool discovered[];   /* which vertices have been found */
 extern int parent[];        /* discovery relation */
 
-int entry_time[MAXV+1];     /* time of vertex entry */
-int exit_time[MAXV+1];      /* time of vertex exit */
-int time;                   /* current event time */
 
 void process_vertex_early(int v) {
     time = time + 1;

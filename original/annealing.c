@@ -8,6 +8,8 @@
 
 */
 
+#include <float.h>
+
 #include "annealing.h"			/* type declarations for SA */
 #include "bool.h"
 #include "tsp.h"			/* type declarations for TSP */

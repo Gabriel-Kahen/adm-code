@@ -1,0 +1,23 @@
+name: Build and correctness regressions
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  correctness:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        cc: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install compilers and test tools
+        run: sudo apt-get update && sudo apt-get install -y gcc clang make python3
+      - name: Build current sources
+        run: make -B -j2 all CC=${{ matrix.cc }}
+      - name: Run corrected regression suite
+        run: make test
