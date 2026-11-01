@@ -89,6 +89,8 @@ dfs(graph *g, int v)
 {
 	int i;				/* counter */
 	int y;				/* successor vertex */
+	bool parent_edge_seen = FALSE;
+	bool self_edge_seen = FALSE;
 
 	if (finished) return;		/* allow for search termination */
 
@@ -100,10 +102,18 @@ dfs(graph *g, int v)
 		if (valid_edge(g->edges[v][i]) == TRUE) {
 			if (discovered[y] == FALSE) {
 				parent[y] = v;
+				process_edge(v,y);
 				dfs(g,y);
 			} else 
-				if (processed[y] == FALSE)
-					process_edge(v,y);
+				if (processed[y] == FALSE) {
+                    if (y == v) {
+                        self_edge_seen = !self_edge_seen;
+                        if (self_edge_seen) process_edge(v,y);
+                    } else {
+                        if (y != parent[v] || parent_edge_seen) process_edge(v,y);
+                        if (y == parent[v]) parent_edge_seen = TRUE;
+                    }
+                }
 		}
 		if (finished) return;
 	}

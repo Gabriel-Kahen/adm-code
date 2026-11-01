@@ -160,6 +160,8 @@ void process_edge(int x, int y) {         /* edge to process */
 void dfs(graph *g, int v) {
     edgenode *p;                    /* temporary pointer */
     int y;                          /* successor vertex */
+    bool parent_edge_seen = false;
+    bool self_edge_seen = false;
 
     if (finished) return;           /* allow for search termination */
 
@@ -176,8 +178,16 @@ void dfs(graph *g, int v) {
             parent[y] = v;
             process_edge(v, y);
             dfs(g, y);
-        } else if ((!processed[y]) || (g->directed)) {
-            process_edge(v, y);
+        } else if ((!processed[y]) || g->directed) {
+            if (y == v && !g->directed) {
+                self_edge_seen = !self_edge_seen;
+                if (self_edge_seen) process_edge(v, y);
+            } else {
+                if (g->directed || y != parent[v] || parent_edge_seen) {
+                    process_edge(v, y);
+                }
+                if (y == parent[v]) parent_edge_seen = true;
+            }
         }
 
         if (finished) {

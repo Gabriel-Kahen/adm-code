@@ -47,7 +47,7 @@ process_vertex_late(int v)
 
 process_edge(int x, int y)
 {
-	if (parent[x] != y) {	/* found back edge! */
+	if (parent[y] != x) {	/* found back edge! */
 		printf("Cycle from %d to %d:",y,x);
 		find_path(y,x,parent);
 		printf("\n\n");
