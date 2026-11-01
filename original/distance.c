@@ -41,10 +41,13 @@ main(){
 double distance(point a, point b)
 {
 	int i;
-	double d=0.0;
+	double delta;
+        double d=0.0;
 
-	for (i=0; i<DIMENSION; i++)
-		d = d + (a[i]-b[i]) * (a[i]-b[i]);
+	for (i=0; i<DIMENSION; i++) {
+            delta = (double)a[i] - (double)b[i];
+            d += delta * delta;
+        }
 
 	return( sqrt(d) );
 }

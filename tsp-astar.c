@@ -222,7 +222,7 @@ int sq(int x) {
 }
 
 double d(int x1, int y1, int x2, int y2) {
-	return (sqrt((double) (sq(x1 - x2) + sq(y1 - y2)) ) );
+	return hypot((double)x1 - x2, (double)y1 - y2);
 }
 
 double d1(int i, int j, tsp_instance *t) {

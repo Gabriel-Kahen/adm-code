@@ -71,8 +71,8 @@ double distance(tsp_solution *s, int x, int y, tsp_instance *t)
 	if (i==0) i=(t->n);
 	if (j==0) j=(t->n);
 
-	return ( sqrt( (double) (sq(t->p[(s->p[i])].x - t->p[(s->p[j])].x) +
-			         sq(t->p[(s->p[i])].y - t->p[(s->p[j])].y) ) ) );
+	return hypot((double)t->p[s->p[i]].x - t->p[s->p[j]].x,
+                 (double)t->p[s->p[i]].y - t->p[s->p[j]].y);
 }
 
 
