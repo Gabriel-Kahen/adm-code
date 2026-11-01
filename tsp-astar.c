@@ -144,6 +144,7 @@ void backtrack(tsp_solution *s, int k, tsp_instance *input) {
 void solve_tsp(tsp_instance *t, tsp_solution *s) {
     first_solution(&best_solution, t);
     best_cost = solution_cost(&best_solution, t);
+    /* Fix the first city: rotations describe the same closed tour. */
     initialize_solution(s, t);
     extend_solution(s, t, 1);
     backtrack(s, 1, t);
@@ -165,6 +166,7 @@ void branch_and_bound(tsp_solution *s, tsp_instance *t) {
     pq_init(&q);
     pq_insert(&q, s);
 
+    /* Queue keys are conservative lower bounds, not complete-tour costs. */
     while (!empty_pq(&q) && top_pq(&q).cost < best_cost) {
         *s = extract_min(&q);
         if (is_a_solution(s, s->n, t)) {
@@ -269,23 +271,13 @@ double partial_solution_cost(tsp_solution *s, tsp_instance *t) {
 double partial_solution_lb(tsp_solution *s, tsp_instance *t) {
     int remaining = t->n - s->n + (s->n > 0);
     double bound = partial_solution_cost(s, t);
-    if (lb_flag)
+    if (lb_flag) {
         bound += remaining * minlb;
+    }
     /* Round conservatively: a lower bound must not round above a tour. */
     return fmax(0.0, bound - 64 * DBL_EPSILON * (fabs(bound) + 1));
 }
 /* ]]] */
-
-/* BELOW IS THE RIGHT ONE FOR THE EXPERIMENTS, BUT THE WRONG ONE FOR THE BOOK */
-/*
-double partial_solution_lb(tsp_solution *s, tsp_instance *t) {
-    if (lb_flag) {
-         return(partial_solution_cost(s,t) + (t->n - s->n + 1) * minlb );
-    } else {
-         return(partial_solution_cost(s,t));
-    }
-}
-*/
 
 void initialize_solution(tsp_solution *s, tsp_instance *t) {
     s->n = 0;

@@ -56,7 +56,7 @@ int floors_walked(int previous, int current) {
 	the last of which is at floor i.  Zero is the originating floor.
 */
 
-int optimize_floors() {
+int optimize_floors(void) {
     int i, j, k;  /* counters */
     int cost;     /* costs placeholder */
     int laststop; /* the elevator's last stop */

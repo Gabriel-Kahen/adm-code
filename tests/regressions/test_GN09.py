@@ -1,11 +1,13 @@
 import unittest
+
 from support import ROOT, run_c
+
 
 class NonnegativeDiskPacking(unittest.TestCase):
     def test_narrow_boxes_and_row_boundaries(self):
         for name in ("plates.c", "original/plates.c"):
             code = f'''#define main archived_main
-#include "{ROOT/name}"
+#include "{ROOT / name}"
 #undef main
 int main(void) {{
     int row;
@@ -16,7 +18,12 @@ int main(void) {{
     return dense_plates(4,4,1)!=3 || grid_plates(4,4,1)!=4;
 }}
 '''
-            result = run_c(code, flags=("-std=gnu89", "-w", "-fsanitize=undefined", "-fno-sanitize-recover=all"))
+            result = run_c(
+                code,
+                flags=("-std=gnu89", "-w", "-fsanitize=undefined", "-fno-sanitize-recover=all"),
+            )
             self.assertEqual(result.returncode, 0, result.stderr)
 
-if __name__ == "__main__": unittest.main()
+
+if __name__ == "__main__":
+    unittest.main()

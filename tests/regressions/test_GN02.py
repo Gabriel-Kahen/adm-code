@@ -1,11 +1,13 @@
 import unittest
+
 from support import ROOT, run_c
+
 
 class SegmentIntersections(unittest.TestCase):
     def test_shared_endpoints_and_integer_oracle(self):
         for name in ("geometry.c", "original/geometry.c"):
             code = f'''#include <stdio.h>
-#include "{ROOT/name}"
+#include "{ROOT / name}"
 long cross(point a, point b, point c) {{
     return (long)(b[0]-a[0])*(long)(c[1]-a[1]) -
            (long)(b[1]-a[1])*(long)(c[0]-a[0]);
@@ -34,7 +36,12 @@ int main(void) {{
     return 0;
 }}
 '''
-            result = run_c(code, flags=("-std=gnu89", "-w", "-fsanitize=undefined", "-fno-sanitize-recover=all"))
+            result = run_c(
+                code,
+                flags=("-std=gnu89", "-w", "-fsanitize=undefined", "-fno-sanitize-recover=all"),
+            )
             self.assertEqual(result.returncode, 0, result.stderr)
 
-if __name__ == "__main__": unittest.main()
+
+if __name__ == "__main__":
+    unittest.main()

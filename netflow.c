@@ -30,7 +30,7 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #define MAXDEGREE 50 /* maximum outdegree of a vertex */
 
 /* [[[ netflow_edgenode_cut */
-typedef struct {
+typedef struct edgenode {
     int v;                 /* neighboring vertex */
     long long capacity;    /* capacity of edge */
     long long flow;        /* signed net flow; reverse edge stores its negative */
@@ -64,25 +64,26 @@ void initialize_graph(flow_graph *g) { /* graph to initialize */
 edgenode *find_edge(flow_graph *g, int x, int y);
 
 void insert_flow_edge(flow_graph *g, int x, int y, bool directed, int w) {
-    edgenode *p; /* temporary pointer */
-    edgenode *existing = find_edge(g, x, y);
+    edgenode *edge; /* temporary pointer */
+    edgenode *parallel_edge = find_edge(g, x, y);
     /* Parallel arcs share a single residual-capacity entry. */
-    if (existing != NULL) {
-        existing->capacity += w;
-        existing->residual += w;
-        if (!directed)
+    if (parallel_edge != NULL) {
+        parallel_edge->capacity += w;
+        parallel_edge->residual += w;
+        if (!directed) {
             insert_flow_edge(g, y, x, true, w);
+        }
         return;
     }
-    p = malloc(sizeof(edgenode)); /* allocate storage for edgenode */
+    edge = malloc(sizeof(edgenode)); /* allocate storage for edgenode */
 
-    p->v = y;
-    p->capacity = w;
-    p->flow = 0;
-    p->residual = w;
-    p->next = (struct edgenode *)g->edges[x];
+    edge->v = y;
+    edge->capacity = w;
+    edge->flow = 0;
+    edge->residual = w;
+    edge->next = g->edges[x];
 
-    g->edges[x] = p; /* insert at head of list */
+    g->edges[x] = edge; /* insert at head of list */
     g->degree[x]++;
 
     if (!directed) {
@@ -92,10 +93,9 @@ void insert_flow_edge(flow_graph *g, int x, int y, bool directed, int w) {
     }
 }
 
-void read_flow_graph(flow_graph *g,
-                     bool directed) { /* graph to initialize */ /* is this graph directed? */
-    int i;                                                      /* counter */
-    int m;                                                      /* number of edges */
+void read_flow_graph(flow_graph *g, bool directed) {
+    int i;       /* counter */
+    int m;       /* number of edges */
     int x, y, w; /* placeholder for edge and weight */
 
     initialize_graph(g);
@@ -118,7 +118,7 @@ edgenode *find_edge(flow_graph *g, int x, int y) {
         if (p->v == y) {
             return (p);
         }
-        p = (edgenode *)p->next;
+        p = p->next;
     }
 
     return (NULL);
@@ -135,7 +135,7 @@ void add_residual_edges(flow_graph *g) {
             if (find_edge(g, p->v, i) == NULL) {
                 insert_flow_edge(g, p->v, i, true, 0);
             }
-            p = (edgenode *)p->next;
+            p = p->next;
         }
     }
 }
@@ -149,7 +149,7 @@ void print_flow_graph(flow_graph *g) {
         p = g->edges[i];
         while (p != NULL) {
             printf(" %d(%lld,%lld,%lld)", p->v, p->capacity, p->flow, p->residual);
-            p = (edgenode *)p->next;
+            p = p->next;
         }
         printf("\n");
     }
@@ -211,7 +211,7 @@ void bfs(flow_graph *g, int start) {
                     parent[y] = v;
                 }
             }
-            p = (edgenode *)p->next;
+            p = p->next;
         }
         process_vertex_late(v);
     }
@@ -225,8 +225,9 @@ int find_path(int start, int end, int parents[]) {
     if (start == end) {
         printf("\n%d", start);
     } else {
-        if (!find_path(start, parents[end], parents))
+        if (!find_path(start, parents[end], parents)) {
             return 0;
+        }
         printf(" %d", end);
     }
     return 1;
@@ -252,19 +253,22 @@ long long path_volume(flow_graph *g, int start, int end) {
 
 /* [[[ augment_path_cut */
 void augment_path(flow_graph *g, int start, int end, long long volume) {
-    edgenode *e; /* edge in question */
+    edgenode *forward;
+    edgenode *reverse;
 
     if (start == end) {
         return;
     }
 
-    e = find_edge(g, parent[end], end);
-    e->flow += volume;
-    e->residual -= volume;
+    forward = find_edge(g, parent[end], end);
+    forward->flow += volume;
+    forward->residual -= volume;
 
-    e = find_edge(g, end, parent[end]);
-    e->flow -= volume;
-    e->residual += volume;
+    /* Reverse residual capacity permits undoing an earlier routing decision.
+       Each direction stores the negative of its partner's net flow. */
+    reverse = find_edge(g, end, parent[end]);
+    reverse->flow -= volume;
+    reverse->residual += volume;
 
     augment_path(g, start, parent[end], volume);
 }
@@ -274,6 +278,7 @@ void augment_path(flow_graph *g, int start, int end, long long volume) {
 void netflow(flow_graph *g, int source, int sink) {
     long long volume; /* weight of the augmenting path */
 
+    /* Every arc needs a reverse entry before augmentations can cancel flow. */
     add_residual_edges(g);
 
     initialize_search(g);
@@ -307,7 +312,7 @@ int main(void) {
     p = g.edges[source];
     while (p != NULL) {
         flow += p->flow;
-        p = (edgenode *)p->next;
+        p = p->next;
     }
 
     printf("total flow = %lld\n", flow);

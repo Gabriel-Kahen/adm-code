@@ -1,1 +1,1 @@
-bool finished = FALSE; /* found all solutions yet? */
+int finished = 0; /* found all solutions yet? */

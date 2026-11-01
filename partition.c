@@ -41,7 +41,7 @@ void read_partition(int s[], int *n, int *k) {
 void print_books(int s[], int start, int end) {
     int i; /* counter */
 
-    printf("\{");
+    printf("{");
     for (i = start; i <= end; i++) {
         printf(" %d ", s[i]);
     }
@@ -74,38 +74,41 @@ void reconstruct_partition(int s[], int d[MAXN + 1][MAXK + 1], int n, int k) {
 
 /* [[[ partition_296_cut */
 void partition(int s[], int n, int k) {
-    long long p[MAXN + 1];           /* prefix sums array */
-    long long m[MAXN + 1][MAXK + 1]; /* DP table for values */
-    int d[MAXN + 1][MAXK + 1];       /* DP table for dividers */
-    long long cost;                  /* test split cost */
-    int i, j, x;                     /* counters */
+    long long prefix_sum[MAXN + 1];
+    long long best_cost[MAXN + 1][MAXK + 1];
+    int divider[MAXN + 1][MAXK + 1];
+    long long split_cost;
+    int i, j, x;
 
     if (n < 1 || n > MAXN || k < 1 || k > MAXK || k > n) {
         fprintf(stderr, "invalid partition dimensions\n");
         return;
     }
 
-    p[0] = 0; /* construct prefix sums */
+    prefix_sum[0] = 0; /* construct prefix sums */
     for (i = 1; i <= n; i++) {
-        p[i] = p[i - 1] + s[i];
+        prefix_sum[i] = prefix_sum[i - 1] + s[i];
     }
 
     for (i = 1; i <= n; i++) {
-        m[i][1] = p[i]; /* initialize boundaries */
+        best_cost[i][1] = prefix_sum[i]; /* initialize boundaries */
     }
 
-    for (i = 2; i <= n; i++) { /* evaluate main recurrence */
+    /* best_cost[i][j] balances the first i books into j nonempty groups.
+       A split after x leaves j - 1 nonempty groups on its left. */
+    for (i = 2; i <= n; i++) {
         for (j = 2; j <= k && j <= i; j++) {
             for (x = j - 1; x <= (i - 1); x++) {
-                cost = max(m[x][j - 1], p[i] - p[x]);
-                if (x == j - 1 || m[i][j] > cost) {
-                    m[i][j] = cost;
-                    d[i][j] = x;
+                split_cost = max(best_cost[x][j - 1], prefix_sum[i] - prefix_sum[x]);
+                /* The first feasible split initializes the cell without an infinity sentinel. */
+                if (x == j - 1 || best_cost[i][j] > split_cost) {
+                    best_cost[i][j] = split_cost;
+                    divider[i][j] = x;
                 }
             }
         }
     }
-    reconstruct_partition(s, d, n, k); /* print book partition */
+    reconstruct_partition(s, divider, n, k); /* print book partition */
 }
 /* ]]] */
 

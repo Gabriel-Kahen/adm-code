@@ -58,13 +58,13 @@ void zero_justify(bignum *n) {
     }
 
     if ((n->lastdigit == 0) && (n->digits[0] == 0)) {
-        n->signbit = PLUS; /* hack to avoid -0 */
+        n->signbit = PLUS; /* zero has one canonical, nonnegative representation */
     }
 }
 
 void int_to_bignum(int s, bignum *n) {
-    int i;          /* counter */
-    unsigned int t; /* int to work with */
+    int i;                  /* counter */
+    unsigned int magnitude; /* int to work with */
 
     if (s >= 0) {
         n->signbit = PLUS;
@@ -78,12 +78,13 @@ void int_to_bignum(int s, bignum *n) {
 
     n->lastdigit = -1;
 
-    t = s < 0 ? 0u - (unsigned int)s : (unsigned int)s;
+    /* Unsigned subtraction also handles INT_MIN, whose signed negation does not fit. */
+    magnitude = s < 0 ? 0u - (unsigned int)s : (unsigned int)s;
 
-    while (t > 0) {
+    while (magnitude > 0) {
         n->lastdigit++;
-        n->digits[n->lastdigit] = (t % 10);
-        t = t / 10;
+        n->digits[n->lastdigit] = (magnitude % 10);
+        magnitude = magnitude / 10;
     }
 
     if (s == 0) {
@@ -102,6 +103,7 @@ int max(int a, int b) {
     return (b);
 }
 
+/* Historical convention: PLUS means a < b, MINUS means a > b, and 0 means equality. */
 int compare_bignum(bignum *a, bignum *b) {
     int i; /* counter */
 
@@ -198,16 +200,19 @@ void add_bignum(bignum *a, bignum *b, bignum *c) {
     c->lastdigit = max(a->lastdigit, b->lastdigit);
     carry = 0;
     for (i = 0; i <= c->lastdigit; i++) {
-        sum =
-            carry + (i <= a->lastdigit ? a->digits[i] : 0) + (i <= b->lastdigit ? b->digits[i] : 0);
+        int left_digit = i <= a->lastdigit ? a->digits[i] : 0;
+        int right_digit = i <= b->lastdigit ? b->digits[i] : 0;
+        sum = carry + left_digit + right_digit;
         c->digits[i] = sum % 10;
         carry = sum / 10;
     }
-    if (carry) {
+    /* Reserve a new digit only when a carry actually needs it. */
+    if (carry != 0) {
         if (c->lastdigit == MAXDIGITS - 1) {
             bignum_capacity_error();
         }
-        c->digits[++c->lastdigit] = carry;
+        c->lastdigit++;
+        c->digits[c->lastdigit] = carry;
     }
 
     zero_justify(c);

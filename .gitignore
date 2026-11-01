@@ -58,3 +58,13 @@ __pycache__/
 /a.out
 /tmp/a.out
 /tmp/dijkstra-previous
+
+# Compiler-generated header dependencies.
+*.d
+/backup/
+
+# Local development tools and compiler dependency files.
+/.venv/
+.ruff_cache/
+*.d
+/backup/

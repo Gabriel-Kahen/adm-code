@@ -78,6 +78,7 @@ bool point_in_box(point p, point b1, point b2);
 bool segments_intersect(segment s1, segment s2);
 double signed_triangle_area(point a, point b, point c);
 double triangle_area(point a, point b, point c);
+/* Orientation predicates use the file's absolute EPSILON tolerance. */
 bool ccw(point a, point b, point c);
 bool cw(point a, point b, point c);
 bool collinear(point a, point b, point c);

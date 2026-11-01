@@ -28,24 +28,25 @@ or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 point first_point; /* first hull point */
 
-int leftlower();     // const void *, const void *);
-int smaller_angle(); // const void *, const void *);
+int leftlower(const void *left, const void *right);
+int smaller_angle(const void *left, const void *right);
 
 void sort_and_remove_duplicates(point in[], int *n) {
-    int i;    /* counter */
-    int oldn; /* number of points before deletion */
-    int hole; /* index marked for potential deletion */
+    int i;            /* counter */
+    int input_count;  /* number of points before deletion */
+    int unique_count; /* index marked for potential deletion */
 
     qsort(in, *n, sizeof(point), leftlower);
 
-    oldn = *n;
-    hole = 1;
-    for (i = 1; i < oldn; i++) {
-        if ((in[hole - 1][X] == in[i][X]) && (in[hole - 1][Y] == in[i][Y])) {
+    input_count = *n;
+    /* in[0..unique_count-1] is the compacted distinct prefix. */
+    unique_count = 1;
+    for (i = 1; i < input_count; i++) {
+        if ((in[unique_count - 1][X] == in[i][X]) && (in[unique_count - 1][Y] == in[i][Y])) {
             (*n)--;
         } else {
-            copy_point(in[i], in[hole]);
-            hole = hole + 1;
+            copy_point(in[i], in[unique_count]);
+            unique_count = unique_count + 1;
         }
     }
 }
@@ -99,7 +100,9 @@ void convex_hull(point in[], int n, polygon *hull) {
     hull->n = top + 1;
 }
 
-int leftlower(const point *p1, const point *p2) {
+int leftlower(const void *left, const void *right) {
+    const point *p1 = left;
+    const point *p2 = right;
 
     if ((*p1)[X] < (*p2)[X]) {
         return (-1);
@@ -120,7 +123,10 @@ int leftlower(const point *p1, const point *p2) {
     return (0);
 }
 
-int smaller_angle(point *p1, point *p2) {
+int smaller_angle(const void *left, const void *right) {
+    /* The legacy geometry predicates accept mutable pointers but only read them. */
+    point *p1 = (point *)left;
+    point *p2 = (point *)right;
     if (collinear(first_point, *p1, *p2)) {
         if (distance(first_point, *p1) <= distance(first_point, *p2)) {
             return (-1);

@@ -18,20 +18,11 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include <stdio.h>
-
 #include "backtrack.h"
-#include "bool.h"
 
 /* [[[ backtrack_boolean_cut */
-bool finished = FALSE; /* found all solutions yet? */
+int finished = 0; /* found all solutions yet? */
 /* ]]] */
-
-void process_solution(int a[], int k, data input);
-void construct_candidates(int a[], int k, data input, int c[], int *nc);
-void make_move(int a[], int k, data input);
-void unmake_move(int a[], int k, data input);
-int is_a_solution(int a[], int k, data input);
 
 /* [[[ backtrack_cut */
 void backtrack(int a[], int k, data input) {

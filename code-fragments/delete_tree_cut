@@ -1,22 +1,28 @@
 tree *delete_tree(tree *t, item_type x) {
-    tree *d = search_tree(t, x);
-    tree *p, *child;
-    if (d == NULL) {
+    tree *target = search_tree(t, x);
+    tree *removed, *child;
+    if (target == NULL) {
         printf("Warning: key to be deleted %d is not in tree.\n", x);
         return t;
     }
-    p = (d->left != NULL && d->right != NULL) ? successor_descendant(d) : d;
-    child = p->left != NULL ? p->left : p->right;
-    if (p->parent == NULL)
+    /* Detach a node by identity: equal keys need not identify the same node.
+       The successor of a two-child node has at most one child. */
+    removed =
+        (target->left != NULL && target->right != NULL) ? successor_descendant(target) : target;
+    child = removed->left != NULL ? removed->left : removed->right;
+    if (removed->parent == NULL) {
         t = child;
-    else if (p->parent->left == p)
-        p->parent->left = child;
-    else
-        p->parent->right = child;
-    if (child != NULL)
-        child->parent = p->parent;
-    if (p != d)
-        d->item = p->item;
-    free(p);
+    } else if (removed->parent->left == removed) {
+        removed->parent->left = child;
+    } else {
+        removed->parent->right = child;
+    }
+    if (child != NULL) {
+        child->parent = removed->parent;
+    }
+    if (removed != target) {
+        target->item = removed->item;
+    }
+    free(removed);
     return t;
 }

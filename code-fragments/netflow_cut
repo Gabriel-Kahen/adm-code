@@ -1,6 +1,7 @@
 void netflow(flow_graph *g, int source, int sink) {
     long long volume; /* weight of the augmenting path */
 
+    /* Every arc needs a reverse entry before augmentations can cancel flow. */
     add_residual_edges(g);
 
     initialize_search(g);
