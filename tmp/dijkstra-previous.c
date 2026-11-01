@@ -57,12 +57,13 @@ void dijkstra(graph *g, int start) {
         parent[i] = -1;
     }
 
+    totalweight = 0;
     dist = distance[start] = 0;
     v = start;
 
     while (intree[v] == FALSE) {
         intree[v] = TRUE;
-totalweight = totalweight + dist;
+        if (v != start) totalweight += distance[v] - distance[parent[v]];
         p = g->edges[v];
         while (p != NULL) {
             w = p->y;
@@ -92,7 +93,7 @@ int main(void) {
     read_graph(&g, FALSE);
     dijkstra(&g, 1);
 
-printf("total DST edge weight = %lld\n",totalweight);
+printf("total SPST edgeweight = %lld\n",totalweight);
 
     for (i = 1; i <= g.nvertices; i++) {
         find_path(1, i, parent);
