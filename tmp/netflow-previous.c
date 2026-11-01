@@ -42,7 +42,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 typedef struct {
     int v;                  /* neighboring vertex */
     long long capacity;           /* capacity of edge */
-    long long flow;               /* flow through edge */
+    long long flow;               /* signed net flow; reverse edge stores its negative */
     long long residual;           /* residual capacity of edge */
     struct edgenode *next;  /* next edge in list */
 } edgenode;
@@ -276,6 +276,7 @@ void augment_path(flow_graph *g, int start, int end, int parents[], long long vo
     e->residual -= volume;
     
     e = find_edge(g, end, parents[end]);
+    e->flow -= volume;
     e->residual += volume;
 
     augment_path(g, start, parents[end], parents, volume);
