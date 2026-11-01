@@ -57,7 +57,7 @@ make test
 ./test-script.sh
 ```
 
-The suite needs Python 3, GCC, Clang, and their sanitizer runtimes. It compiles the
+The suite needs Python 3.10 or newer, GCC, Clang, and their sanitizer runtimes. It compiles the
 actual C implementations and checks counterexamples, boundaries, invariants, and
 independent reference results. [Testing](docs/TESTING.md) explains how to select a
 suite, understand sanitizer output, and add a useful regression.

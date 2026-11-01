@@ -6,7 +6,7 @@ between the implementation, its mathematical state, and the book excerpts.
 
 ## Development setup
 
-The programs need a C99 compiler and GNU Make. Tests additionally need Python 3,
+The programs need a C99 compiler and GNU Make. Tests additionally need Python 3.10 or newer,
 GCC, Clang, and sanitizer runtimes. Formatting tools are optional for running the
 programs and required for maintenance checks.
 
@@ -54,7 +54,8 @@ changes in a readability-only patch.
 ## Excerpts and historical copies
 
 Most files in `code-fragments/` come from blocks delimited by
-`/* [[[ name */` and `/* ]]] */` in root C/header files. Blocks may be nested.
+`/* [[[ name */` and `/* ]]] */` in root C/header files. Blocks may be nested. Put each opening/closing marker on its own
+line.
 Edit the full source first, then update and check its excerpts:
 
 ```sh

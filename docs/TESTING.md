@@ -6,7 +6,7 @@ the tests; no Python test framework needs to be installed.
 
 ## Run the suite
 
-On the checked Linux configuration, install GCC, Clang, GNU Make, Python 3, and
+On the checked Linux configuration, install GCC, Clang, GNU Make, Python 3.10 or newer, and
 the compiler sanitizer runtimes. Then run:
 
 ```sh
@@ -23,6 +23,7 @@ For a narrower check:
 ```sh
 make test-regressions
 make test-algorithms
+make test-tooling
 python3 -m unittest discover -s tests/regressions -p 'test_GN13.py' -v
 python3 -m unittest discover -s tests/regressions -p 'test_DP*.py' -v
 ```
