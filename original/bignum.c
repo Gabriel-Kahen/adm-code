@@ -27,6 +27,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define	MAXDIGITS	100		/* maximum length bignum */ 
 
@@ -38,6 +39,12 @@ typedef struct {
 	int signbit;			/* 1 if positive, -1 if negative */ 
         int lastdigit;			/* index of high-order digit */
 } bignum;
+
+static void bignum_capacity_error(void) {
+    fprintf(stderr, "bignum capacity exceeded\n");
+    exit(EXIT_FAILURE);
+}
+
 
 
 print_bignum(bignum *n)
@@ -90,6 +97,7 @@ int max(int a, int b)
 add_bignum(bignum *a, bignum *b, bignum *c)
 {
 	int carry;			/* carry digit */
+    int sum;
 	int i;				/* counter */
 
 	initialize_bignum(c);
@@ -108,15 +116,22 @@ add_bignum(bignum *a, bignum *b, bignum *c)
 		return;
 	}
 
-	c->lastdigit = max(a->lastdigit,b->lastdigit)+1;
-	carry = 0;
+	c->lastdigit = max(a->lastdigit, b->lastdigit);
+    carry = 0;
+    for (i = 0; i <= c->lastdigit; i++) {
+        sum = carry + (i <= a->lastdigit ? a->digits[i] : 0)
+                    + (i <= b->lastdigit ? b->digits[i] : 0);
+        c->digits[i] = sum % 10;
+        carry = sum / 10;
+    }
+    if (carry) {
+        if (c->lastdigit == MAXDIGITS-1) {
+            bignum_capacity_error();
+        }
+        c->digits[++c->lastdigit] = carry;
+    }
 
-	for (i=0; i<=(c->lastdigit); i++) {
-		c->digits[i] = (char) (carry+a->digits[i]+b->digits[i]) % 10;
-		carry = (carry + a->digits[i] + b->digits[i]) / 10;
-	}
-
-	zero_justify(c);
+    zero_justify(c);
 }
 
 
@@ -193,6 +208,10 @@ digit_shift(bignum *n, int d)		/* multiply n by 10^d */
 
 	if ((n->lastdigit == 0) && (n->digits[0] == 0)) return;
 
+    if (d < 0 || d > MAXDIGITS-1-n->lastdigit) {
+        bignum_capacity_error();
+    }
+
 	for (i=n->lastdigit; i>=0; i--)
 		n->digits[i+d] = n->digits[i];
 
@@ -218,7 +237,9 @@ multiply_bignum(bignum *a, bignum *b, bignum *c)
 			add_bignum(c,&row,&tmp);
 			*c = tmp;
 		}
-		digit_shift(&row,1);
+		if (i < b->lastdigit) {
+            digit_shift(&row,1);
+        }
 	}
 
 	c->signbit = a->signbit * b->signbit;
