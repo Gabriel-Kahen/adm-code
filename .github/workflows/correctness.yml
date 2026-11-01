@@ -2,21 +2,37 @@ name: Build and correctness regressions
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 permissions:
   contents: read
 
+concurrency:
+  group: correctness-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   correctness:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     strategy:
+      fail-fast: false
       matrix:
         cc: [gcc, clang]
     steps:
       - uses: actions/checkout@v7.0.1
-      - name: Install compilers and test tools
-        run: sudo apt-get update && sudo apt-get install -y gcc clang make python3
+      - name: Select preinstalled compiler tools
+        run: |
+          command -v gcc
+          command -v make
+          command -v python3
+          clang_bin="$(command -v clang-18 || command -v clang)"
+          test -n "$clang_bin"
+          mkdir -p "$RUNNER_TEMP/adm-tools"
+          ln -s "$clang_bin" "$RUNNER_TEMP/adm-tools/clang"
+          echo "$RUNNER_TEMP/adm-tools" >> "$GITHUB_PATH"
+          "$clang_bin" --version
       - name: Build current sources
         run: make -B -j2 all CC=${{ matrix.cc }}
       - name: Run corrected regression suite
