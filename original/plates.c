@@ -39,7 +39,7 @@ int dense_layers(double w, double h, double r)
 {
 	double gap;			/* distance between layers */
 
-	if ((2*r) > h) return(0);
+	if ((2*r) > h || (2*r) > w) return(0);
 
 	gap = 2.0 * r * (sqrt(3)/2.0);
 	return( 1 + floor((h-2.0*r)/gap) );
@@ -48,6 +48,10 @@ int dense_layers(double w, double h, double r)
 int plates_per_row(int row, double w, double r)
 {
         int plates_per_full_row;        /* number of plates in full/even row */
+
+    if (w < 2*r) {
+        return 0;
+    }
 
         plates_per_full_row = floor(w/(2*r));
 
