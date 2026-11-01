@@ -23,7 +23,6 @@ or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 
 #include <stdio.h>
-#include <float.h>
 #include <stdbool.h>
 
 #include "annealing.h"      /* type declarations for SA */
@@ -76,7 +75,7 @@ void random_sampling(tsp_instance *t, int nsamples, tsp_solution *s) {
 /* [[[ hill_climbing_cut */
 void hill_climbing(tsp_instance *t, tsp_solution *s) {
     double cost;            /* best cost so far */
-    double delta;           /* swap cost */
+    double candidate_cost;    /* cost after the proposed swap */
     int i, j;               /* counters */
     bool stuck;             /* did I get a better solution? */
 
@@ -84,14 +83,17 @@ void hill_climbing(tsp_instance *t, tsp_solution *s) {
     random_solution(s);
     cost = solution_cost(s, t);
 
+    /* Recompute the objective so every accepted tour strictly decreases
+       the same deterministic cost, including small real improvements. */
     do {
         stuck = true;
         for (i = 1; i < t->n; i++) {
             for (j = i + 1; j <= t->n; j++) {
-                delta = transition(s, t, i, j);
-                if (delta < -64 * DBL_EPSILON * (fabs(cost) + 1)) {
+                transition(s, t, i, j);
+                candidate_cost = solution_cost(s, t);
+                if (candidate_cost < cost) {
                     stuck = false;
-                    cost = cost + delta;
+                    cost = candidate_cost;
                 } else {
                     transition(s, t, j, i);
                 }
