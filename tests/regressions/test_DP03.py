@@ -24,7 +24,8 @@ fill_square(p,1,&b);
 if(possible_count(0,0,&b)!=0 || possible_count(0,1,&b)!=8)return 2;
 next_square(&chosen,&b);return b.m[chosen.x][chosen.y]!=0;'''
             code='#include <stdio.h>\n#define main demo_main\n#include "'+source+'"\n#undef main\nint main(void){'+body+'}'
-            flags=['-std=gnu89','-w','-Wno-return-mismatch','-fPIE','-pie','-fsanitize=memory','-fno-sanitize-memory-param-retval','-I',str(ROOT/'original')]
+            # Historical implicit-int returns have different diagnostic groups in Clang 18 and 22.
+            flags=['-std=gnu89','-w','-Wno-return-type','-Wno-return-mismatch','-fPIE','-pie','-fsanitize=memory','-fno-sanitize-memory-param-retval','-I',str(ROOT/'original')]
             r=run_c(code,sources=['original/backtrack.c'] if legacy else [],flags=flags,compiler='clang')
             self.assertEqual(r.returncode,0,source+'\n'+r.stderr)
 if __name__=='__main__':unittest.main()
