@@ -1,7 +1,10 @@
 tsp_solution extract_min(priority_queue *q) {
     tsp_solution min;    /* minimum value */
 
-    if (q->n <= 0) printf("Warning: empty priority queue.\n");
+    if (q->n <= 0) {
+        fputs("Cannot extract from an empty priority queue.\n", stderr);
+        exit(EXIT_FAILURE);
+    }
 
     min = q->q[1];
 

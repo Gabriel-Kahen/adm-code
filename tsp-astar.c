@@ -173,7 +173,7 @@ void branch_and_bound (tsp_solution *s, tsp_instance *t) {
     pq_init(&q);
     pq_insert(&q,s);
 
-    while (top_pq(&q).cost < best_cost) {
+    while (!empty_pq(&q) && top_pq(&q).cost < best_cost) {
          *s = extract_min(&q);
          if (is_a_solution(s, s->n, t)) {
               process_solution(s, s->n, t);

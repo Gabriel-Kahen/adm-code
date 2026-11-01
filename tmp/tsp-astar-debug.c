@@ -189,7 +189,7 @@ int k;
 
 /*printf("before while \n");*/
 
-    while (top_pq(&q).cost < best_cost) {
+    while (!empty_pq(&q) && top_pq(&q).cost < best_cost) {
 
 /*printf("before extract min \n");*/
 

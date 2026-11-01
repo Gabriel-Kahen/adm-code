@@ -23,6 +23,7 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 #include "tsp-pq.h"
@@ -109,7 +110,10 @@ void pq_insert(priority_queue *q, tsp_solution *x) {
 tsp_solution extract_min(priority_queue *q) {
     tsp_solution min;    /* minimum value */
 
-    if (q->n <= 0) printf("Warning: empty priority queue.\n");
+    if (q->n <= 0) {
+        fputs("Cannot extract from an empty priority queue.\n", stderr);
+        exit(EXIT_FAILURE);
+    }
 
     min = q->q[1];
 
@@ -123,7 +127,8 @@ tsp_solution extract_min(priority_queue *q) {
 
 tsp_solution top_pq(priority_queue *q) {
     if (q->n <= 0) {
-        printf("Warning: empty priority queue.\n");
+        fputs("Cannot inspect an empty priority queue.\n", stderr);
+        exit(EXIT_FAILURE);
     }
 
     return(q->q[1]);
