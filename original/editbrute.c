@@ -25,96 +25,90 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
-
 #include <string.h>
 #include "editdistance.h"
 #include "bool.h"
 
-cell m[MAXLEN+1][MAXLEN+1];		/* dynamic programming table */
-
+cell m[MAXLEN + 1][MAXLEN + 1]; /* dynamic programming table */
 
 /**********************************************************************/
 
-int string_compare(char *s, char *t, int i, int j)
-{
-	int k;			/* counter */
-	int opt[3];		/* cost of the three options */
-	int lowest_cost;	/* lowest cost */
+int string_compare(char *s, char *t, int i, int j) {
+    int k;           /* counter */
+    int opt[3];      /* cost of the three options */
+    int lowest_cost; /* lowest cost */
 
-	if (i == 0) {
+    if (i == 0) {
         m[i][j].cost = j * indel(' ');
         m[i][j].parent = j ? INSERT : -1;
         return m[i][j].cost;
     }
-	if (j == 0) {
+    if (j == 0) {
         m[i][j].cost = i * indel(' ');
         m[i][j].parent = DELETE;
         return m[i][j].cost;
     }
 
-	opt[MATCH] = string_compare(s,t,i-1,j-1) + match(s[i],t[j]);
-	opt[INSERT] = string_compare(s,t,i,j-1) + indel(t[j]);
-	opt[DELETE] = string_compare(s,t,i-1,j) + indel(s[i]);
+    opt[MATCH] = string_compare(s, t, i - 1, j - 1) + match(s[i], t[j]);
+    opt[INSERT] = string_compare(s, t, i, j - 1) + indel(t[j]);
+    opt[DELETE] = string_compare(s, t, i - 1, j) + indel(s[i]);
 
-	lowest_cost = opt[MATCH];
+    lowest_cost = opt[MATCH];
     m[i][j].parent = MATCH;
-	for (k=INSERT; k<=DELETE; k++)
-		if (opt[k] < lowest_cost) {
+    for (k = INSERT; k <= DELETE; k++)
+        if (opt[k] < lowest_cost) {
             lowest_cost = opt[k];
             m[i][j].parent = k;
         }
 
-	m[i][j].cost = lowest_cost;	/* REMOVE FROM PRINTED VERSION */
+    m[i][j].cost = lowest_cost; /* REMOVE FROM PRINTED VERSION */
 
-	return( lowest_cost );
-} 
-
-reconstruct_path(char *s, char *t, int i, int j)
-{
-/*printf("trace (%d,%d)\n",i,j);*/
-
-	if (m[i][j].parent == -1) return;
-
-	if (m[i][j].parent == MATCH) {
-		reconstruct_path(s,t,i-1,j-1);
-		match_out(s, t, i, j);
-		return;
-	}
-        if (m[i][j].parent == INSERT) {
-                reconstruct_path(s,t,i,j-1);
-		insert_out(t,j);
-		return;
-        }
-        if (m[i][j].parent == DELETE) {
-                reconstruct_path(s,t,i-1,j);
-		delete_out(s,i);
-		return;
-        }
+    return (lowest_cost);
 }
 
-print_matrix(char *s, char *t, bool costQ)
-{
-	int i,j;			/* counters */
-	int x,y;			/* string lengths */
+reconstruct_path(char *s, char *t, int i, int j) {
+    /*printf("trace (%d,%d)\n",i,j);*/
 
-	x = strlen(s);
-	y = strlen(t);
+    if (m[i][j].parent == -1)
+        return;
 
-	printf("   ");
-	for (i=0; i<y; i++)
-		printf("  %c",t[i]);
-	printf("\n");
-
-	for (i=0; i<x; i++) {
-		printf("%c: ",s[i]);
-		for (j=0; j<y; j++) {
-			if (costQ == TRUE)
-				printf(" %2d",m[i][j].cost);
-			else
-				printf(" %2d",m[i][j].parent);
-
-		}
-		printf("\n");
-	}
+    if (m[i][j].parent == MATCH) {
+        reconstruct_path(s, t, i - 1, j - 1);
+        match_out(s, t, i, j);
+        return;
+    }
+    if (m[i][j].parent == INSERT) {
+        reconstruct_path(s, t, i, j - 1);
+        insert_out(t, j);
+        return;
+    }
+    if (m[i][j].parent == DELETE) {
+        reconstruct_path(s, t, i - 1, j);
+        delete_out(s, i);
+        return;
+    }
 }
 
+print_matrix(char *s, char *t, bool costQ) {
+    int i, j; /* counters */
+    int x, y; /* string lengths */
+
+    x = strlen(s);
+    y = strlen(t);
+
+    printf("   ");
+    for (i = 0; i < y; i++)
+        printf("  %c", t[i]);
+    printf("\n");
+
+    for (i = 0; i < x; i++) {
+        printf("%c: ", s[i]);
+        for (j = 0; j < y; j++) {
+            if (costQ == TRUE)
+                printf(" %2d", m[i][j].cost);
+            else
+                printf(" %2d", m[i][j].parent);
+        }
+        printf("\n");
+    }
+}

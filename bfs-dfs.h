@@ -24,11 +24,11 @@ or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "graph.h"
 
 /* State is owned by the selected traversal backend, not its clients. */
-extern bool processed[MAXV+1];
-extern bool discovered[MAXV+1];
-extern int parent[MAXV+1];
-extern int entry_time[MAXV+1];
-extern int exit_time[MAXV+1];
+extern bool processed[MAXV + 1];
+extern bool discovered[MAXV + 1];
+extern int parent[MAXV + 1];
+extern int entry_time[MAXV + 1];
+extern int exit_time[MAXV + 1];
 extern int time;
 extern bool finished;
 

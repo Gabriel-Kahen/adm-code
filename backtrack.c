@@ -18,14 +18,13 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 
 #include "backtrack.h"
 #include "bool.h"
 
 /* [[[ backtrack_boolean_cut */
-bool finished = FALSE;                  /* found all solutions yet? */
+bool finished = FALSE; /* found all solutions yet? */
 /* ]]] */
 
 void process_solution(int a[], int k, data input);
@@ -36,12 +35,12 @@ int is_a_solution(int a[], int k, data input);
 
 /* [[[ backtrack_cut */
 void backtrack(int a[], int k, data input) {
-    int c[MAXCANDIDATES];      /* candidates for next position */
-    int nc;                    /* next position candidate count */
-    int i;                     /* counter */
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int nc;               /* next position candidate count */
+    int i;                /* counter */
 
     if (is_a_solution(a, k, input)) {
-        process_solution(a, k,input);
+        process_solution(a, k, input);
     } else {
         k = k + 1;
         construct_candidates(a, k, input, c, &nc);
@@ -52,7 +51,7 @@ void backtrack(int a[], int k, data input) {
             unmake_move(a, k, input);
 
             if (finished) {
-                return;	/* terminate early */
+                return; /* terminate early */
             }
         }
     }

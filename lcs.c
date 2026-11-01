@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <string.h>
 #include "editinput.h"
@@ -28,7 +26,7 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "editdistance.h"
 #include <stdbool.h>
 
-cell m[MAXLEN+1][MAXLEN+1];    /* dynamic programming table */
+cell m[MAXLEN + 1][MAXLEN + 1]; /* dynamic programming table */
 
 /******************************************************************/
 
@@ -44,28 +42,28 @@ void goal_cell(char *s, char *t, int *i, int *j) {
 /* [[[ match_ed_cut */
 int match(char c, char d) {
     if (c == d) {
-        return(0);
+        return (0);
     }
-    return(MAXLEN);
+    return (MAXLEN);
 }
 /* ]]] */
 
 int indel(char c) {
-    return(1);
+    return (1);
 }
 
 /* [[[ row_init_ed_cut */
-void row_init(int i, cell m[MAXLEN+1][MAXLEN+1]) {
+void row_init(int i, cell m[MAXLEN + 1][MAXLEN + 1]) {
     m[0][i].cost = i;
     if (i > 0) {
-        m[0][i].parent =  INSERT;
+        m[0][i].parent = INSERT;
     } else {
         m[0][i].parent = -1;
     }
 }
 /* ]]] */
 
-void column_init(int i, cell m[MAXLEN+1][MAXLEN+1]) {
+void column_init(int i, cell m[MAXLEN + 1][MAXLEN + 1]) {
     m[i][0].cost = i;
     if (i > 0) {
         m[i][0].parent = DELETE;
@@ -83,20 +81,16 @@ void match_out(char *s, char *t, int i, int j) {
 }
 /* ]]] */
 
-void insert_out(char *t, int j) {
+void insert_out(char *t, int j) {}
 
-}
-
-void delete_out(char *s, int i) {
-
-}
+void delete_out(char *s, int i) {}
 
 /**********************************************************************/
 
 int main(void) {
     int i, j;
     int lcslen, complen;
-    char s[MAXLEN+2],t[MAXLEN+2];    /* input strings */
+    char s[MAXLEN + 2], t[MAXLEN + 2]; /* input strings */
 
     s[0] = t[0] = ' ';
     if (!read_edit_string(s, MAXLEN) || !read_edit_string(t, MAXLEN)) {

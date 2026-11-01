@@ -19,7 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 
 #include "distance.h"
@@ -34,7 +33,7 @@ double distance(point a, point b) {
         d += delta * delta;
     }
 
-    return(sqrt(d));
+    return (sqrt(d));
 }
 
 int main(void) {

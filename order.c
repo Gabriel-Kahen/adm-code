@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 
 #include "geometry.h"
@@ -30,7 +28,7 @@ void process(int i, int j) {
 }
 
 void row_major(int n, int m) {
-    int i, j;    /* counters */
+    int i, j; /* counters */
 
     for (i = 1; i <= n; i++) {
         for (j = 1; j <= m; j++) {
@@ -40,7 +38,7 @@ void row_major(int n, int m) {
 }
 
 void column_major(int n, int m) {
-    int i, j;    /* counters */
+    int i, j; /* counters */
 
     for (j = 1; j <= m; j++) {
         for (i = 1; i <= n; i++) {
@@ -50,11 +48,11 @@ void column_major(int n, int m) {
 }
 
 void snake_order(int n, int m) {
-    int i, j;    /* counters */
+    int i, j; /* counters */
 
     for (i = 1; i <= n; i++) {
         for (j = 1; j <= m; j++) {
-            process(i, j + (m+1-2*j) * ((i+1) % 2));
+            process(i, j + (m + 1 - 2 * j) * ((i + 1) % 2));
         }
     }
 }

@@ -14,22 +14,21 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-#define NMAX    1001    /* maximum number of points */
+#define NMAX 1001 /* maximum number of points */
 
 typedef struct {
-    int x, y;    /* x and y coordinates of point */
+    int x, y; /* x and y coordinates of point */
 } point;
 
 typedef struct {
-   int n;              /* how many points in problem? */
-   point p[NMAX+1];    /* array of points */
+    int n;             /* how many points in problem? */
+    point p[NMAX + 1]; /* array of points */
 } tsp_instance;
 
 typedef struct {
-   double cost;      /* lower bound on full cost solution */
-   int n;            /* how many elements in permutation? */    
-   int p[NMAX+1];    /* array of indices */
+    double cost;     /* lower bound on full cost solution */
+    int n;           /* how many elements in permutation? */
+    int p[NMAX + 1]; /* array of indices */
 } tsp_solution;
 
 double solution_cost(tsp_solution *s, tsp_instance *t);

@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -37,7 +35,7 @@ void enqueue(queue *q, item_type x) {
         printf("Warning: queue overflow enqueue x=%d\n", x);
     } else {
         q->last = (q->last + 1) % QUEUESIZE;
-        q->q[q->last] = x;    
+        q->q[q->last] = x;
         q->count = q->count + 1;
     }
 }
@@ -45,17 +43,18 @@ void enqueue(queue *q, item_type x) {
 item_type dequeue(queue *q) {
     item_type x;
 
-    if (q->count <= 0) printf("Warning: empty queue dequeue.\n");
+    if (q->count <= 0)
+        printf("Warning: empty queue dequeue.\n");
 
     x = q->q[q->first];
     q->first = (q->first + 1) % QUEUESIZE;
     q->count = q->count - 1;
 
-    return(x);
+    return (x);
 }
 
 item_type headq(queue *q) {
-    return(q->q[q->first]);
+    return (q->q[q->first]);
 }
 
 int empty_queue(queue *q) {
@@ -68,8 +67,8 @@ int empty_queue(queue *q) {
 void print_queue(queue *q) {
     int i;
 
-    i = q->first; 
-        
+    i = q->first;
+
     while (i != q->last) {
         printf("%d ", q->q[i]);
         i = (i + 1) % QUEUESIZE;

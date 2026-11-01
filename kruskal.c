@@ -19,9 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -29,18 +26,18 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "graph.h"
 #include "set_union.h"
 
-#define MAXINT  100007
+#define MAXINT 100007
 
 typedef struct {
-    int x, y;       /* adjacency info */
-    int weight;     /* edge weight, if any */
+    int x, y;   /* adjacency info */
+    int weight; /* edge weight, if any */
 } edge_pair;
 
 /************************************************************/
 
 int to_edge_array(graph *g, edge_pair e[]) {
-    int i, m;       /* counters */
-    edgenode *p;    /* temporary pointer */
+    int i, m;    /* counters */
+    edgenode *p; /* temporary pointer */
 
     m = 0;
     for (i = 1; i <= g->nvertices; i++) {
@@ -59,27 +56,27 @@ int to_edge_array(graph *g, edge_pair e[]) {
 }
 
 int weight_compare(const void *x, const void *y) {
-    edge_pair *_x = (edge_pair*)x;
-    edge_pair *_y = (edge_pair*)y;
+    edge_pair *_x = (edge_pair *)x;
+    edge_pair *_y = (edge_pair *)y;
 
     if (_x->weight < _y->weight) {
-        return(-1);
+        return (-1);
     }
 
     if (_x->weight > _y->weight) {
-        return(1);
+        return (1);
     }
 
-    return(0);
+    return (0);
 }
 
 /* [[[ kruskal_cut */
 long long kruskal(graph *g) {
-    int i;                  /* counter */
-    union_find s;           /* union-find data structure */
-    edge_pair *e;           /* storage for all input edges */
-    int nedges;             /* extracted non-loop edge count */
-    long long weight=0;           /* cost of the minimum spanning tree */
+    int i;                /* counter */
+    union_find s;         /* union-find data structure */
+    edge_pair *e;         /* storage for all input edges */
+    int nedges;           /* extracted non-loop edge count */
+    long long weight = 0; /* cost of the minimum spanning tree */
 
     union_find_init(&s, g->nvertices);
 
@@ -100,7 +97,7 @@ long long kruskal(graph *g) {
     }
 
     free(e);
-    return(weight);
+    return (weight);
 }
 /* ]]] */
 
@@ -110,13 +107,13 @@ int main(void) {
 
     read_graph(&g, false);
 
-/*
+    /*
     print_graph(&g);
 */
 
     weight = kruskal(&g);
 
-    printf("Out of Kruskal: weight=%lld \n",weight);
+    printf("Out of Kruskal: weight=%lld \n", weight);
 
     return 0;
 }

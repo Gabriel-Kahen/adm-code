@@ -15,13 +15,12 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #ifndef DISTANCE_H
 #define DISTANCE_H
 
 #include <math.h>
 
-#define	DIMENSION 3
+#define DIMENSION 3
 
 typedef int point[DIMENSION];
 

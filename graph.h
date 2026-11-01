@@ -19,39 +19,37 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdbool.h>
 
 /* #define _NULL       0       null pointer */
 
 /*	DFS edge types		*/
 
-#define TREE        0       /* tree edge */
-#define BACK        1       /* back edge */
-#define CROSS       2       /* cross edge */
-#define FORWARD     3       /* forward edge */
+#define TREE 0    /* tree edge */
+#define BACK 1    /* back edge */
+#define CROSS 2   /* cross edge */
+#define FORWARD 3 /* forward edge */
 
 /* [[[ graph_struct_cut */
 /* [[[ maxv_cut */
-#define MAXV        100     /* maximum number of vertices */
+#define MAXV 100 /* maximum number of vertices */
 /* ]]] */
 
 /* [[[ edge_struct_only_cut */
 typedef struct edgenode {
-    int y;                   /* adjacency info */
-    int weight;              /* edge weight, if any */
-    struct edgenode *next;   /* next edge in list */
+    int y;                 /* adjacency info */
+    int weight;            /* edge weight, if any */
+    struct edgenode *next; /* next edge in list */
 } edgenode;
 /* ]]] */
 
 /* [[[ graph_struct_only_cut */
 typedef struct {
-    edgenode *edges[MAXV+1];  /* adjacency info */
-    int degree[MAXV+1];       /* outdegree of each vertex */
-    int nvertices;            /* number of vertices in the graph */
-    int nedges;               /* number of edges in the graph */
-    int directed;             /* is the graph directed? */
+    edgenode *edges[MAXV + 1]; /* adjacency info */
+    int degree[MAXV + 1];      /* outdegree of each vertex */
+    int nvertices;             /* number of vertices in the graph */
+    int nedges;                /* number of edges in the graph */
+    int directed;              /* is the graph directed? */
 } graph;
 /* ]]] */
 /* ]]] */
@@ -64,4 +62,3 @@ void initialize_graph(graph *g, bool directed);
 void read_graph(graph *g, bool directed);
 void print_graph(graph *g);
 graph *transpose(graph *g);
-

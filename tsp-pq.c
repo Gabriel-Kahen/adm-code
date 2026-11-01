@@ -20,8 +20,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -37,20 +35,20 @@ void pq_init(priority_queue *q) {
 /* [[[ tsp_pq_parent_cut */
 int pq_parent(int n) {
     if (n == 1) {
-        return(-1);
+        return (-1);
     }
-    return((int) n/2);     /* implicitly take floor(n/2) */
+    return ((int)n / 2); /* implicitly take floor(n/2) */
 }
 /* ]]] */
 
 /* [[[ tsp_pq_young_child */
 int pq_young_child(int n) {
-    return(2 * n);
+    return (2 * n);
 }
 /* ]]] */
 
 void pq_swap(priority_queue *q, int i, int j) {
-    tsp_solution temp;    /* placeholder */
+    tsp_solution temp; /* placeholder */
 
     temp = q->q[i];
     q->q[i] = q->q[j];
@@ -60,10 +58,10 @@ void pq_swap(priority_queue *q, int i, int j) {
 /* [[[ tsp_bubble_up_cut */
 void bubble_up(priority_queue *q, int p) {
     if (pq_parent(p) == -1) {
-        return;    /* at root of heap, no parent */
+        return; /* at root of heap, no parent */
     }
 
-    if (q->q[pq_parent(p)].cost  > q->q[p].cost ) {
+    if (q->q[pq_parent(p)].cost > q->q[p].cost) {
         pq_swap(q, p, pq_parent(p));
         bubble_up(q, pq_parent(p));
     }
@@ -72,14 +70,14 @@ void bubble_up(priority_queue *q, int p) {
 
 /* [[[ tsp_bubble_down_cut */
 void bubble_down(priority_queue *q, int p) {
-    int c;          /* child index */
-    int i;          /* counter */
-    int min_index;  /* index of lightest child */
+    int c;         /* child index */
+    int i;         /* counter */
+    int min_index; /* index of lightest child */
 
     c = pq_young_child(p);
     min_index = p;
 
-    for (i = 0; i <= 1; i++) { 
+    for (i = 0; i <= 1; i++) {
         if ((c + i) <= q->n) {
             if (q->q[min_index].cost > q->q[c + i].cost) {
                 min_index = c + i;
@@ -109,7 +107,7 @@ void pq_insert(priority_queue *q, tsp_solution *x) {
 
 /* [[[ tsp_extract_min */
 tsp_solution extract_min(priority_queue *q) {
-    tsp_solution min;    /* minimum value */
+    tsp_solution min; /* minimum value */
 
     if (q->n <= 0) {
         fputs("Cannot extract from an empty priority queue.\n", stderr);
@@ -122,7 +120,7 @@ tsp_solution extract_min(priority_queue *q) {
     q->n = q->n - 1;
     bubble_down(q, 1);
 
-    return(min);
+    return (min);
 }
 /* ]]] */
 
@@ -132,16 +130,15 @@ tsp_solution top_pq(priority_queue *q) {
         exit(EXIT_FAILURE);
     }
 
-    return(q->q[1]);
+    return (q->q[1]);
 }
-
 
 int empty_pq(priority_queue *q) {
     return (q->n <= 0);
 }
 
 void print_pq(priority_queue *q) {
-    int i;    /* counter */
+    int i; /* counter */
 
     for (i = 1; i <= q->n; i++) {
         printf("%7.1f ", q->q[i].cost);
@@ -152,22 +149,22 @@ void print_pq(priority_queue *q) {
 
 /* [[[ tsp_make_heap2_cut */
 void make_heap_fast(priority_queue *q, tsp_solution s[], int n) {
-    int i;    /* counter */
+    int i; /* counter */
 
     q->n = n;
     for (i = 0; i < n; i++) {
         q->q[i + 1] = s[i];
     }
 
-    for (i = q->n/2; i >= 1; i--) {
-         bubble_down(q, i);
+    for (i = q->n / 2; i >= 1; i--) {
+        bubble_down(q, i);
     }
 }
 /* ]]] */
 
 /* [[[ tsp_make_heap_cut */
 void make_heap(priority_queue *q, tsp_solution s[], int n) {
-    int i;    /* counter */
+    int i; /* counter */
 
     pq_init(q);
     for (i = 0; i < n; i++) {
@@ -179,14 +176,14 @@ void make_heap(priority_queue *q, tsp_solution s[], int n) {
 /* [[[ tsp_heap_compare_cut */
 int heap_compare(priority_queue *q, int i, int count, int x) {
     if ((count <= 0) || (i > q->n)) {
-        return(count);
+        return (count);
     }
 
     if (q->q[i].cost < x) {
-        count = heap_compare(q, pq_young_child(i), count-1, x);
-        count = heap_compare(q, pq_young_child(i)+1, count, x);
+        count = heap_compare(q, pq_young_child(i), count - 1, x);
+        count = heap_compare(q, pq_young_child(i) + 1, count, x);
     }
 
-    return(count);
+    return (count);
 }
 /* ]]] */

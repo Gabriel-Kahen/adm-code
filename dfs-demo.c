@@ -19,33 +19,30 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdbool.h>
 
 #include "bfs-dfs.h"
 #include "queue.h"
 
-extern bool processed[];    /* which vertices have been processed */
-extern bool discovered[];   /* which vertices have been found */
-extern int parent[];        /* discovery relation */
-
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
 void process_vertex_early(int v) {
     time = time + 1;
     entry_time[v] = time;
-    printf("entered vertex %d at time %d\n",v, entry_time[v]);
+    printf("entered vertex %d at time %d\n", v, entry_time[v]);
 }
 
 void process_vertex_late(int v) {
     time = time + 1;
     exit_time[v] = time;
-    printf("exit vertex %d at time %d\n",v, exit_time[v]);
+    printf("exit vertex %d at time %d\n", v, exit_time[v]);
 }
 
 void process_edge(int x, int y) {
-    int class;    /* edge class */
+    int class; /* edge class */
 
     class = edge_classification(x, y);
 

@@ -18,14 +18,12 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #ifndef BOOL_H
 #define BOOL_H
 
-#define TRUE    1
-#define FALSE   0
+#define TRUE 1
+#define FALSE 0
 
 typedef int bool;
 
 #endif /* BOOL_H */
-

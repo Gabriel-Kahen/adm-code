@@ -19,30 +19,24 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdbool.h>
 
 #include "bfs-dfs.h"
 
-extern bool processed[];    /* which vertices have been processed */
-extern bool discovered[];   /* which vertices have been found */
-extern int parent[];        /* discovery relation */
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
-extern bool finished;       /* flag for early search cutoff */
+extern bool finished; /* flag for early search cutoff */
 
-void process_vertex_early(int v) {
+void process_vertex_early(int v) {}
 
-}
-
-void process_vertex_late(int v) {
-
-}
+void process_vertex_late(int v) {}
 
 /* [[[ cyclepedge_cut */
 void process_edge(int x, int y) {
-    if (parent[y] != x) {    /* found back edge! */
+    if (parent[y] != x) { /* found back edge! */
         printf("Cycle from %d to %d:", y, x);
         find_path(y, x, parent);
         finished = true;

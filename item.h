@@ -19,12 +19,9 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #ifndef ITEM_H
 #define ITEM_H
 
 typedef int item_type;
 
 #endif /* ITEM_H */
-

@@ -19,7 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,18 +28,17 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 #define MAXINT (LLONG_MAX / 4)
 
-
 /************************************************************/
 /* [[[ prim_cut */
 long long prim(graph *g, int start) {
-    int i;                 /* counter */
-    edgenode *p;           /* temporary pointer */
-    bool intree[MAXV+1];   /* is the vertex in the tree yet? */
-    long long distance[MAXV+1];  /* cost of adding to tree */
-    int v;                 /* current vertex to process */
-    int w;                 /* candidate next vertex */
-    long long dist;              /* cheapest cost to enlarge tree */
-    long long weight = 0;        /* tree weight */
+    int i;                        /* counter */
+    edgenode *p;                  /* temporary pointer */
+    bool intree[MAXV + 1];        /* is the vertex in the tree yet? */
+    long long distance[MAXV + 1]; /* cost of adding to tree */
+    int v;                        /* current vertex to process */
+    int w;                        /* candidate next vertex */
+    long long dist;               /* cheapest cost to enlarge tree */
+    long long weight = 0;         /* tree weight */
 
     for (i = 1; i <= g->nvertices; i++) {
         intree[i] = false;
@@ -54,7 +52,7 @@ long long prim(graph *g, int start) {
     while (!intree[v]) {
         intree[v] = true;
         if (v != start) {
-            printf("edge (%d,%d) in tree \n",parent[v],v);
+            printf("edge (%d,%d) in tree \n", parent[v], v);
             weight = weight + dist;
         }
         p = g->edges[v];
@@ -76,7 +74,7 @@ long long prim(graph *g, int start) {
         }
     }
 
-    return(weight);
+    return (weight);
 }
 /* ]]] */
 
@@ -88,7 +86,7 @@ int main(void) {
 
     weight = prim(&g, 1);
 
-    printf("Out of Prim: weight = %lld \n",weight);
+    printf("Out of Prim: weight = %lld \n", weight);
 
     return 0;
 }

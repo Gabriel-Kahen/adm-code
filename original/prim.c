@@ -26,7 +26,6 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
-
 #include <limits.h>
 #include <stdlib.h>
 #include "bool.h"
@@ -34,68 +33,62 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 #define MAXINT (LLONG_MAX / 4)
 
-int parent[MAXV+1];               /* discovery relation */
-
+int parent[MAXV + 1]; /* discovery relation */
 
 /************************************************************/
 
+prim(graph *g, int start) {
+    int i, j;                     /* counters */
+    bool intree[MAXV + 1];        /* is the vertex in the tree yet? */
+    long long distance[MAXV + 1]; /* distance vertex is from start */
+    int v;                        /* current vertex to process */
+    int w;                        /* candidate next vertex */
+    long long weight;             /* edge weight */
+    long long dist;               /* best current distance from start */
 
-prim(graph *g, int start)
-{
-	int i,j;			/* counters */
-	bool intree[MAXV+1];		/* is the vertex in the tree yet? */
-	long long distance[MAXV+1];		/* distance vertex is from start */
-	int v;				/* current vertex to process */
-	int w;				/* candidate next vertex */
-	long long weight;			/* edge weight */
-	long long dist;			/* best current distance from start */
+    for (i = 1; i <= g->nvertices; i++) {
+        intree[i] = FALSE;
+        distance[i] = MAXINT;
+        parent[i] = -1;
+    }
 
-	for (i=1; i<=g->nvertices; i++) {
-		intree[i] = FALSE;
-		distance[i] = MAXINT;
-		parent[i] = -1;
-	}
+    distance[start] = 0;
+    v = start;
 
-	distance[start] = 0;
-	v = start;
+    while (intree[v] == FALSE) {
+        intree[v] = TRUE;
+        for (i = 0; i < g->degree[v]; i++) {
+            w = g->edges[v][i].v;
+            weight = g->edges[v][i].weight;
+            if ((distance[w] > weight) && (intree[w] == FALSE)) {
+                distance[w] = weight;
+                parent[w] = v;
+            }
+        }
 
-	while (intree[v] == FALSE) {
-		intree[v] = TRUE;
-		for (i=0; i<g->degree[v]; i++) {
-			w = g->edges[v][i].v;
-			weight = g->edges[v][i].weight;
-			if ((distance[w] > weight) && (intree[w] == FALSE)) {
-				distance[w] = weight;
-				parent[w] = v;
-			}
-		}
-
-		v = 1;
-		dist = MAXINT;
-		for (i=1; i<=g->nvertices; i++) 
-			if ((intree[i] == FALSE) && (dist > distance[i])) {
-				dist = distance[i];
-				v = i;
-			}
-	}
+        v = 1;
+        dist = MAXINT;
+        for (i = 1; i <= g->nvertices; i++)
+            if ((intree[i] == FALSE) && (dist > distance[i])) {
+                dist = distance[i];
+                v = i;
+            }
+    }
 }
 
-main()
-{
-	graph g;
-	int i;
+main() {
+    graph g;
+    int i;
 
-	read_graph(&g,FALSE);
+    read_graph(&g, FALSE);
 
-	prim(&g,1);
+    prim(&g, 1);
 
-printf("Out of Prim\n");
+    printf("Out of Prim\n");
 
-        for (i=1; i<=g.nvertices; i++) {
-		/*printf(" %d parent=%d\n",i,parent[i]);*/
-                find_path(1,i,parent);
-	}
-        printf("\n");
-
+    for (i = 1; i <= g.nvertices; i++) {
+        /*printf(" %d parent=%d\n",i,parent[i]);*/
+        find_path(1, i, parent);
+    }
+    printf("\n");
 }
-

@@ -19,14 +19,12 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <math.h>
 #include <stdio.h>
 
 void prime_factorization(long x) {
-    long i;    /* counter */
-    long c;    /* remaining product to factor */
+    long i; /* counter */
+    long c; /* remaining product to factor */
 
     c = x;
 

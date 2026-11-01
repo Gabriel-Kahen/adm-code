@@ -19,27 +19,22 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 
 #include <stdbool.h>
 #include "bfs-dfs.h"
 
-extern bool processed[];    /* which vertices have been processed */
-extern bool discovered[];   /* which vertices have been found */
-extern int parent[];        /* discovery relation */
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
-extern bool finished;       /* flag for early search cutoff */
+extern bool finished; /* flag for early search cutoff */
 
-int nedges;		    /* counter for the number of edges */
+int nedges; /* counter for the number of edges */
 
-void process_vertex_early(int v) {
+void process_vertex_early(int v) {}
 
-}
-
-void process_vertex_late(int v) {
-
-}
+void process_vertex_late(int v) {}
 
 /* [[[ pedge2_cut */
 void process_edge(int x, int y) {
@@ -56,7 +51,7 @@ int main(void) {
     initialize_search(&g);
     nedges = 0;
     dfs(&g, 1);
-    printf("nedges = %d \n",nedges);
+    printf("nedges = %d \n", nedges);
 
     return 0;
 }

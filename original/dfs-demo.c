@@ -25,52 +25,42 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
-
 #include "bool.h"
 #include "graph.h"
 #include "queue.h"
 
-extern bool processed[];	/* which vertices have been processed */
-extern bool discovered[];	/* which vertices have been found */
-extern int parent[];		/* discovery relation */
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
-
-process_vertex_early(int v)
-{
-	printf("processed vertex %d\n",v);
+process_vertex_early(int v) {
+    printf("processed vertex %d\n", v);
 }
 
-process_vertex_late(int v)
-{
+process_vertex_late(int v) {}
+
+process_edge(int x, int y) {
+    if (parent[y] == x)
+        printf("processed tree edge (%d,%d)\n", x, y);
+    else
+        printf("processed back edge (%d,%d)\n", x, y);
 }
 
-process_edge(int x, int y)
-{
-	if (parent[y] == x)
-        	printf("processed tree edge (%d,%d)\n",x,y);
-	else
-		printf("processed back edge (%d,%d)\n",x,y);
+bool valid_edge(int e) {
+    return (TRUE);
 }
 
-bool valid_edge(int e)
-{
-        return (TRUE);
-}
+main() {
+    graph g;
+    int i;
 
+    read_graph(&g, FALSE);
+    print_graph(&g);
 
-main()
-{
-	graph g;
-	int i;
+    initialize_search(&g);
+    dfs(&g, 1);
 
-	read_graph(&g,FALSE);
-	print_graph(&g);
-
-	initialize_search(&g);
-	dfs(&g,1);
-
-        for (i=1; i<=g.nvertices; i++)
-                find_path(1,i,parent);
-        printf("\n");
-
+    for (i = 1; i <= g.nvertices; i++)
+        find_path(1, i, parent);
+    printf("\n");
 }

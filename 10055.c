@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-
 int main(void) {
     long p, q, r;
 
@@ -10,7 +9,7 @@ int main(void) {
         } else {
             r = p - q;
         }
-        printf("%ld\n",r);
+        printf("%ld\n", r);
     }
 
     return 0;

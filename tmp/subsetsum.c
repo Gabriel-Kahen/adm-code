@@ -12,62 +12,63 @@
 #include <stdio.h>
 #include "bool.h"
 
-#define	MAXN    100    /* largest n */
-#define MAXSUM	10000  /* largest sum we will consider */
+#define MAXN 100     /* largest n */
+#define MAXSUM 10000 /* largest sum we will consider */
 
-#define NIL     -1
+#define NIL -1
 
 /* compute whether k can be made as a subset sum from s */
 
 /* [[[ subset_sum_cut */
-bool sum[MAXN+1][MAXSUM+1];     /* table of realizable sums */
-int parent[MAXN+1][MAXSUM+1];   /* table of parent pointers */
+bool sum[MAXN + 1][MAXSUM + 1];   /* table of realizable sums */
+int parent[MAXN + 1][MAXSUM + 1]; /* table of parent pointers */
 
 bool subset_sum(int s[], int n, int k) {
-    int i, j;                     /* counters */
+    int i, j; /* counters */
 
-printf("n=%d  k=%d \n",n,k);
+    printf("n=%d  k=%d \n", n, k);
 
     sum[0][0] = TRUE;
     parent[0][0] = NIL;
 
     for (i = 1; i <= k; i++) {
         sum[0][i] = FALSE;
-	parent[0][i] = NIL;
+        parent[0][i] = NIL;
     }
 
-    for (i = 1; i <= n; i++) {    /* build table */
+    for (i = 1; i <= n; i++) { /* build table */
         for (j = 0; j <= k; j++) {
-	    if (j >= s[i-1])
-            	sum[i][j] = (sum[i-1][j] || sum[i-1][j-s[i-1]]);
-	    else
-		sum[i][j] = sum[i-1][j];
-		parent[i][j] = parent[i-1][j];
+            if (j >= s[i - 1])
+                sum[i][j] = (sum[i - 1][j] || sum[i - 1][j - s[i - 1]]);
+            else
+                sum[i][j] = sum[i - 1][j];
+            parent[i][j] = parent[i - 1][j];
         }
     }
 
-for (i = 0; i <= n; i++) {    /* print table */
-   printf("i=%d: ",i);
-   if (i > 0) printf("item=%d: ",s[i-1]);
-   for (j = 0; j <= k; j++) {
-	printf(" %d ",sum[i][j]);
-   }
-   printf("\n");
-}
+    for (i = 0; i <= n; i++) { /* print table */
+        printf("i=%d: ", i);
+        if (i > 0)
+            printf("item=%d: ", s[i - 1]);
+        for (j = 0; j <= k; j++) {
+            printf(" %d ", sum[i][j]);
+        }
+        printf("\n");
+    }
 
-    return(sum[n][k]);
+    return (sum[n][k]);
 }
 /* ]]] */
 
 int main(void) {
-    int n, k, i, s[MAXN+1];
+    int n, k, i, s[MAXN + 1];
 
     scanf("%d %d", &n, &k);
 
-    for (i=0; i<n; i++) {
+    for (i = 0; i < n; i++) {
         scanf("%d", &s[i]);
     }
 
-    printf("Is %d realizable: %d\n", k, subset_sum(s,n,k));
+    printf("Is %d realizable: %d\n", k, subset_sum(s, n, k));
     return 0;
 }

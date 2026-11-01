@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,9 +26,8 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 #include "list.h"
 
-
 list *init_list(void) {
-    return(NULL);
+    return (NULL);
 }
 
 bool empty_list(list *l) {
@@ -44,13 +41,13 @@ bool empty_list(list *l) {
 /* [[[ search_list_cut */
 list *search_list(list *l, item_type x) {
     if (l == NULL) {
-        return(NULL);
+        return (NULL);
     }
 
     if (l->item == x) {
-        return(l);
+        return (l);
     } else {
-        return(search_list(l->next, x));
+        return (search_list(l->next, x));
     }
 }
 /* ]]] */
@@ -58,20 +55,20 @@ list *search_list(list *l, item_type x) {
 /* [[[ predecessor_cut */
 list *item_ahead(list *l, list *x) {
     if ((l == NULL) || (l->next == NULL)) {
-        return(NULL);
+        return (NULL);
     }
 
     if ((l->next) == x) {
-        return(l);
+        return (l);
     } else {
-        return(item_ahead(l->next, x));
+        return (item_ahead(l->next, x));
     }
 }
 /* ]]] */
 
 /* [[[ insert_list_cut */
 void insert_list(list **l, item_type x) {
-    list *p;    /* temporary pointer */
+    list *p; /* temporary pointer */
 
     p = malloc(sizeof(list));
     p->item = x;
@@ -90,8 +87,8 @@ void print_list(list *l) {
 
 /* [[[ delete_list_cut */
 void delete_list(list **l, list **x) {
-    list *p;            /* item pointer */
-    list *pred;         /* predecessor pointer */
+    list *p;    /* item pointer */
+    list *pred; /* predecessor pointer */
 
     p = *l;
     pred = item_ahead(*l, *x);
@@ -101,15 +98,15 @@ void delete_list(list **l, list **x) {
     } else {
         pred->next = (*x)->next;
     }
-    free(*x);           /* free memory used by node */
+    free(*x); /* free memory used by node */
 }
 /* ]]] */
 
 int main(void) {
-    char c;             /* input character */
-    item_type d;        /* input item */
-    list *l;            /* list under construction */
-    list *tmp;          /* returned list from search */
+    char c;      /* input character */
+    item_type d; /* input item */
+    list *l;     /* list under construction */
+    list *tmp;   /* returned list from search */
 
     l = init_list();
 
@@ -127,8 +124,8 @@ int main(void) {
         if (tolower(c) == 's') {
             scanf("%d", &d);
             tmp = search_list(l, d);
-            if (tmp == NULL) { 
-				printf("item %d not found\n", d);
+            if (tmp == NULL) {
+                printf("item %d not found\n", d);
             } else {
                 printf("item %d found\n", d);
             }

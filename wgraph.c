@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -28,7 +26,7 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #include "graph.h"
 
 void initialize_graph(graph *g, bool directed) {
-    int i;    /* counter */
+    int i; /* counter */
 
     g->nvertices = 0;
     g->nedges = 0;
@@ -44,7 +42,7 @@ void initialize_graph(graph *g, bool directed) {
 }
 
 void insert_edge(graph *g, int x, int y, bool directed, int w) {
-    edgenode *p;    /* temporary pointer */
+    edgenode *p; /* temporary pointer */
 
     p = malloc(sizeof(edgenode));
     p->y = y;
@@ -62,11 +60,11 @@ void insert_edge(graph *g, int x, int y, bool directed, int w) {
 }
 
 void read_graph(graph *g, bool directed) {
-    int i;        /* counter */
-    int m;        /* number of edges */
-    int x,y,w;    /* placeholder for edge and weight */
+    int i;       /* counter */
+    int m;       /* number of edges */
+    int x, y, w; /* placeholder for edge and weight */
 
-    initialize_graph(g,directed);
+    initialize_graph(g, directed);
 
     scanf("%d %d\n", &(g->nvertices), &m);
 
@@ -77,12 +75,12 @@ void read_graph(graph *g, bool directed) {
 }
 
 void delete_edge(graph *g, int x, int y, bool directed) {
-    edgenode *p, *p_back;           /* temporary pointers */
+    edgenode *p, *p_back; /* temporary pointers */
 
     p = g->edges[x];
     p_back = NULL;
 
-    while (p != NULL) 
+    while (p != NULL)
         if (p->y == y) {
             g->degree[x]--;
             if (p_back != NULL) {
@@ -95,19 +93,19 @@ void delete_edge(graph *g, int x, int y, bool directed) {
             if (!directed) {
                 delete_edge(g, y, x, true);
             } else {
-                g->nedges --;
+                g->nedges--;
             }
             return;
         } else {
             p_back = p;
             p = p->next;
         }
-        printf("Warning: deletion(%d,%d) not found in g.\n", x, y);
+    printf("Warning: deletion(%d,%d) not found in g.\n", x, y);
 }
 
 void print_graph(graph *g) {
-    int i;                          /* counter */
-    edgenode *p;                    /* temporary pointer */
+    int i;       /* counter */
+    edgenode *p; /* temporary pointer */
 
     for (i = 1; i <= g->nvertices; i++) {
         printf("%d: ", i);
@@ -120,19 +118,18 @@ void print_graph(graph *g) {
     }
 }
 
-bool processed[MAXV+1];         /* which vertices have been processed */
-bool discovered[MAXV+1];        /* which vertices have been found */
-int parent[MAXV+1];             /* discovery relation */
+bool processed[MAXV + 1];  /* which vertices have been processed */
+bool discovered[MAXV + 1]; /* which vertices have been found */
+int parent[MAXV + 1];      /* discovery relation */
 
-int entry_time[MAXV+1];         /* time of vertex entry */
-int exit_time[MAXV+1];          /* time of vertex exit */
-int time;                       /* current event time */
+int entry_time[MAXV + 1]; /* time of vertex entry */
+int exit_time[MAXV + 1];  /* time of vertex exit */
+int time;                 /* current event time */
 
-bool finished = false;          /* if true, cut off search immediately */
-
+bool finished = false; /* if true, cut off search immediately */
 
 void initialize_search(graph *g) {
-    int i;    /* counter */
+    int i; /* counter */
 
     time = 0;
 
@@ -144,26 +141,23 @@ void initialize_search(graph *g) {
 
 /* [[[ pvearly2_cut */
 
-void process_vertex_early(int v) {        /* vertex to process */
+void process_vertex_early(int v) { /* vertex to process */
     printf(" %d", v);
 }
 /* ]]] */
 
-void process_vertex_late(int v) {         /* vertex to process */
+void process_vertex_late(int v) { /* vertex to process */ }
 
-}
-
-void process_edge(int x, int y) {         /* edge to process */
-
-}
+void process_edge(int x, int y) { /* edge to process */ }
 
 void dfs(graph *g, int v) {
-    edgenode *p;                    /* temporary pointer */
-    int y;                          /* successor vertex */
+    edgenode *p; /* temporary pointer */
+    int y;       /* successor vertex */
     bool parent_edge_seen = false;
     bool self_edge_seen = false;
 
-    if (finished) return;           /* allow for search termination */
+    if (finished)
+        return; /* allow for search termination */
 
     discovered[v] = true;
     time = time + 1;
@@ -181,12 +175,14 @@ void dfs(graph *g, int v) {
         } else if ((!processed[y]) || g->directed) {
             if (y == v && !g->directed) {
                 self_edge_seen = !self_edge_seen;
-                if (self_edge_seen) process_edge(v, y);
+                if (self_edge_seen)
+                    process_edge(v, y);
             } else {
                 if (g->directed || y != parent[v] || parent_edge_seen) {
                     process_edge(v, y);
                 }
-                if (y == parent[v]) parent_edge_seen = true;
+                if (y == parent[v])
+                    parent_edge_seen = true;
             }
         }
 
@@ -212,15 +208,16 @@ int find_path(int start, int end, int parents[]) {
     if (start == end) {
         printf("\n%d", start);
     } else {
-        if (!find_path(start, parents[end], parents)) return 0;
+        if (!find_path(start, parents[end], parents))
+            return 0;
         printf(" %d", end);
     }
     return 1;
 }
 
-void connected_components(graph *g) {    /* graph to analyze */
-    int c;    /* component number */
-    int i;    /* counter */
+void connected_components(graph *g) { /* graph to analyze */
+    int c;                            /* component number */
+    int i;                            /* counter */
 
     initialize_search(g);
 

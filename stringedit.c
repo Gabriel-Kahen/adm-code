@@ -19,8 +19,6 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 #include <string.h>
 #include "editinput.h"
@@ -32,7 +30,7 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 /*    For normal edit distance computation  */
 
-cell m[MAXLEN+1][MAXLEN+1];
+cell m[MAXLEN + 1][MAXLEN + 1];
 
 void goal_cell(char *s, char *t, int *i, int *j) {
     *i = strlen(s) - 1;
@@ -41,25 +39,25 @@ void goal_cell(char *s, char *t, int *i, int *j) {
 
 int match(char c, char d) {
     if (c == d) {
-        return(0);
+        return (0);
     }
-    return(1);
+    return (1);
 }
 
 int indel(char c) {
-    return(1);
+    return (1);
 }
 
-void row_init(int i, cell m[MAXLEN+1][MAXLEN+1]) {    /* what is m[0][i]? */
+void row_init(int i, cell m[MAXLEN + 1][MAXLEN + 1]) { /* what is m[0][i]? */
     m[0][i].cost = i;
     if (i > 0) {
-        m[0][i].parent =  INSERT;
+        m[0][i].parent = INSERT;
     } else {
         m[0][i].parent = -1;
     }
 }
 
-void column_init(int i, cell m[MAXLEN+1][MAXLEN+1])    { /* what is m[i][0]? */
+void column_init(int i, cell m[MAXLEN + 1][MAXLEN + 1]) { /* what is m[i][0]? */
     m[i][0].cost = i;
     if (i > 0) {
         m[i][0].parent = DELETE;
@@ -88,9 +86,9 @@ void delete_out(char *s, int i) {
 
 /**********************************************************************/
 
-int main(void){
+int main(void) {
     int i, j;
-    char s[MAXLEN+2], t[MAXLEN+2];    /* input strings */
+    char s[MAXLEN + 2], t[MAXLEN + 2]; /* input strings */
 
     s[0] = t[0] = ' ';
     if (!read_edit_string(s, MAXLEN) || !read_edit_string(t, MAXLEN)) {

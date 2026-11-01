@@ -6,7 +6,6 @@
     begun: August 2, 2006
 */
 
-
 /*
 Copyright 2003 by Steven S. Skiena; all rights reserved. 
 
@@ -31,38 +30,38 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 #include "bool.h"
 
-#define BASED       3                     /* base dimension, 3*3 blocks */
+#define BASED 3 /* base dimension, 3*3 blocks */
 /* [[[ sudoku_objects_cut */
-#define DIMENSION   9                     /* 9*9 board */
-#define NCELLS      DIMENSION*DIMENSION   /* 81 cells in 9-by-9-board */
-#define MAXCANDIDATES   DIMENSION+1       /* max digit choices per cell */
+#define DIMENSION 9                 /* 9*9 board */
+#define NCELLS DIMENSION *DIMENSION /* 81 cells in 9-by-9-board */
+#define MAXCANDIDATES DIMENSION + 1 /* max digit choices per cell */
 
 bool finished = FALSE;
 
 typedef struct {
-    int x, y;                  /* x and y coordinates of point */
+    int x, y; /* x and y coordinates of point */
 } point;
 
 typedef struct {
-   int m[DIMENSION+1][DIMENSION+1];    /* board contents */
-   int freecount;                      /* open square count */
-   point move[NCELLS+1];               /* which cells have we filled? */
+    int m[DIMENSION + 1][DIMENSION + 1]; /* board contents */
+    int freecount;                       /* open square count */
+    point move[NCELLS + 1];              /* which cells have we filled? */
 } boardtype;
 /* ]]] */
 
-extern bool finished;    /* solution found, stop search */
+extern bool finished; /* solution found, stop search */
 
-int steps;               /* how many total move insertions? */
+int steps; /* how many total move insertions? */
 
-bool fast;               /* fast or slow nextmove algorithm? */
-bool smart;              /* quickly test for unfillable squares? */
+bool fast;  /* fast or slow nextmove algorithm? */
+bool smart; /* quickly test for unfillable squares? */
 
 /**********************************************************************/
 
 void possible_values(int x, int y, boardtype *board, bool possible[]) {
-    int i, j;          /* counters */
-    int xlow, ylow;    /* origin of box with (x,y) */
-    bool init;         /* is anything/everthing possible? */
+    int i, j;       /* counters */
+    int xlow, ylow; /* origin of box with (x,y) */
+    bool init;      /* is anything/everthing possible? */
 
     if ((board->m[x][y] != 0) || ((x < 0) || (y < 0))) {
         init = FALSE;
@@ -87,8 +86,8 @@ void possible_values(int x, int y, boardtype *board, bool possible[]) {
         }
     }
 
-    xlow = BASED * ((int) (x / BASED));
-    ylow = BASED * ((int) (y / BASED));
+    xlow = BASED * ((int)(x / BASED));
+    ylow = BASED * ((int)(y / BASED));
 
     for (i = xlow; i < xlow + BASED; i++) {
         for (j = ylow; j < ylow + BASED; j++) {
@@ -100,7 +99,7 @@ void possible_values(int x, int y, boardtype *board, bool possible[]) {
 }
 
 void print_possible(bool possible[]) {
-    int i;    /* counter */
+    int i; /* counter */
 
     for (i = 1; i <= DIMENSION; i++) {
         if (possible[i] == TRUE) {
@@ -111,9 +110,9 @@ void print_possible(bool possible[]) {
 }
 
 int possible_count(int x, int y, boardtype *board) {
-    int i;                      /* counter */
-    int cnt;                    /* number of open squares */
-    bool possible[DIMENSION+1]; /* what is possible for the square */
+    int i;                        /* counter */
+    int cnt;                      /* number of open squares */
+    bool possible[DIMENSION + 1]; /* what is possible for the square */
 
     possible_values(x, y, board, possible);
     cnt = 0;
@@ -122,7 +121,7 @@ int possible_count(int x, int y, boardtype *board) {
             cnt++;
         }
     }
-    return(cnt);
+    return (cnt);
 }
 
 void fill_square(int x, int y, int v, boardtype *board) {
@@ -143,14 +142,14 @@ void free_square(int x, int y, boardtype *board) {
     board->m[x][y] = 0;
 }
 
-void next_square(int *x, int *y, boardtype* board) {
-    int i, j;               /* counters */
-    int bestcnt, newcnt;    /* the best and latest square counts */
-    bool doomed;            /* some empty square without moves? */
+void next_square(int *x, int *y, boardtype *board) {
+    int i, j;            /* counters */
+    int bestcnt, newcnt; /* the best and latest square counts */
+    bool doomed;         /* some empty square without moves? */
 
     bestcnt = DIMENSION + 1;
     doomed = FALSE;
-    
+
     *x = *y = -1;
 
     for (i = 0; i < DIMENSION; i++) {
@@ -166,7 +165,7 @@ void next_square(int *x, int *y, boardtype* board) {
                     *y = j;
                 }
             }
-            if (fast == FALSE) {  
+            if (fast == FALSE) {
                 if ((newcnt >= 1) && (board->m[i][j] == 0)) {
                     *x = i;
                     *y = j;
@@ -176,22 +175,21 @@ void next_square(int *x, int *y, boardtype* board) {
     }
 
     if (doomed && smart) {
-        *x = *y = -1;    /* initialize to non-position */
+        *x = *y = -1; /* initialize to non-position */
     }
 }
 
 void print_board(boardtype *board) {
-    int i, j;    /* counters */
+    int i, j; /* counters */
 
     printf("\nThere are %d free board positions.\n", board->freecount);
-
 
     for (i = 0; i < DIMENSION; i++) {
         for (j = 0; j < DIMENSION; j++) {
             if (board->m[i][j] == 0) {
                 printf(" ");
             } else {
-                printf("%c", (char) '0' + board->m[i][j]);
+                printf("%c", (char)'0' + board->m[i][j]);
             }
             if ((j + 1) % BASED == 0) {
                 printf("|");
@@ -207,8 +205,8 @@ void print_board(boardtype *board) {
     }
 }
 
-void init_board(boardtype* board) {
-    int i, j;    /* counters */
+void init_board(boardtype *board) {
+    int i, j; /* counters */
 
     for (i = 0; i < DIMENSION; i++) {
         for (j = 0; j < DIMENSION; j++) {
@@ -218,8 +216,8 @@ void init_board(boardtype* board) {
     }
 }
 
-void read_board(boardtype* board) {
-    int i, j;    /* counters */
+void read_board(boardtype *board) {
+    int i, j; /* counters */
     char c;
     int value;
 
@@ -228,7 +226,7 @@ void read_board(boardtype* board) {
     for (i = 0; i < DIMENSION; i++) {
         for (j = 0; j < DIMENSION; j++) {
             scanf("%c", &c);
-            value = (int) (c - '0');
+            value = (int)(c - '0');
             if (value != 0) {
                 fill_square(i, j, value, board);
             }
@@ -265,14 +263,14 @@ bool is_a_solution(int a[], int k, boardtype *board) {
     if (board->freecount == 0) {
         return (TRUE);
     } else {
-        return(FALSE);
+        return (FALSE);
     }
 }
 /* ]]] */
 
 /* [[[ make_move_sudoku_cut */
 void make_move(int a[], int k, boardtype *board) {
-    fill_square(board->move[k].x, board->move[k].y, a[k],board);
+    fill_square(board->move[k].x, board->move[k].y, a[k], board);
 }
 /* ]]] */
 
@@ -284,22 +282,22 @@ void unmake_move(int a[], int k, boardtype *board) {
 
 /* [[[ construct_candidates_sudoku_cut */
 void construct_candidates(int a[], int k, boardtype *board, int c[], int *nc) {
-    int x, y;                    /* position of next move */
-    int i;                       /* counter */
-    bool possible[DIMENSION+1];  /* what is possible for the square */
+    int x, y;                     /* position of next move */
+    int i;                        /* counter */
+    bool possible[DIMENSION + 1]; /* what is possible for the square */
 
-    next_square(&x, &y, board);  /* which square should we fill next? */
+    next_square(&x, &y, board); /* which square should we fill next? */
 
-    board->move[k].x = x;        /* store our choice of next position */
+    board->move[k].x = x; /* store our choice of next position */
     board->move[k].y = y;
 
     *nc = 0;
 
     if ((x < 0) && (y < 0)) {
-        return;    /* error condition, no moves possible */
+        return; /* error condition, no moves possible */
     }
 
-    possible_values(x, y, board,possible);
+    possible_values(x, y, board, possible);
     for (i = 1; i <= DIMENSION; i++) {
         if (possible[i] == TRUE) {
             c[*nc] = i;
@@ -310,12 +308,12 @@ void construct_candidates(int a[], int k, boardtype *board, int c[], int *nc) {
 /* ]]] */
 
 void backtrack(int a[], int k, boardtype *input) {
-    int c[MAXCANDIDATES];           /* candidates for next position */
-    int ncandidates;                /* next position candidate count */
-    int i;                          /* counter */
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int ncandidates;      /* next position candidate count */
+    int i;                /* counter */
 
     if (is_a_solution(a, k, input)) {
-            process_solution(a, k, input);
+        process_solution(a, k, input);
     } else {
         k = k + 1;
         construct_candidates(a, k, input, c, &ncandidates);
@@ -326,21 +324,21 @@ void backtrack(int a[], int k, boardtype *input) {
             unmake_move(a, k, input);
 
             if (finished == TRUE) {
-                return;    /* terminate early */
+                return; /* terminate early */
             }
         }
     }
 }
 
 int main(void) {
-    int i, j;                     /* counters */
+    int i, j; /* counters */
     int a[DIMENSION * DIMENSION + 1];
-    boardtype board;              /* Seduko board structure */
+    boardtype board; /* Seduko board structure */
     boardtype temp;
 
     read_board(&board);
     print_board(&board);
-    copy_board(&board,&temp);
+    copy_board(&board, &temp);
 
     for (fast = TRUE; fast >= FALSE; fast--) {
         for (smart = TRUE; smart >= FALSE; smart--) {
@@ -349,7 +347,7 @@ int main(void) {
             copy_board(&temp, &board);
             finished = FALSE;
 
-            backtrack(a,0, &board);
+            backtrack(a, 0, &board);
 
             printf("It took %d steps to find this solution ", steps);
             printf("for fast=%d  smart=%d\n", fast, smart);

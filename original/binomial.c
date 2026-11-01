@@ -8,11 +8,11 @@
 	by: Steven Skiena
 */
 
-#define	MAXN	100		/* largest n or m */
+#define MAXN 100 /* largest n or m */
 
 /* Returns -1 with errno set for invalid arguments or an unrepresentable result. */
 long binomial_coefficient(int n, int k) {
-    long bc[MAXN+1] = {0};
+    long bc[MAXN + 1] = {0};
     int i, j, last;
 
     errno = 0;
@@ -20,30 +20,29 @@ long binomial_coefficient(int n, int k) {
         errno = EDOM;
         return -1;
     }
-    if (k > n-k) {
-        k = n-k;
+    if (k > n - k) {
+        k = n - k;
     }
     bc[0] = 1;
     for (i = 1; i <= n; i++) {
         last = i < k ? i : k;
         for (j = last; j > 0; j--) {
-            if (bc[j] > LONG_MAX-bc[j-1]) {
+            if (bc[j] > LONG_MAX - bc[j - 1]) {
                 errno = ERANGE;
                 return -1;
             }
-            bc[j] += bc[j-1];
+            bc[j] += bc[j - 1];
         }
     }
     return bc[k];
 }
 
-main()
-{
-	int a, b;
+main() {
+    int a, b;
     long coefficient;
-	long binomial_coefficient();
+    long binomial_coefficient();
 
-	while (1) {
+    while (1) {
         if (scanf("%d %d", &a, &b) != 2) {
             break;
         }
@@ -53,6 +52,5 @@ main()
             return 1;
         }
         printf("%ld\n", coefficient);
-	}
+    }
 }
-

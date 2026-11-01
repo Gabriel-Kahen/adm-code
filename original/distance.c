@@ -24,30 +24,28 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
-
-#define	DIMENSION	3
+#define DIMENSION 3
 #include <math.h>
 
 typedef int point[DIMENSION];
 
-main(){
-	point a={6,2,3};
-	point b={6,3,4};
-	double distance();
+main() {
+    point a = {6, 2, 3};
+    point b = {6, 3, 4};
+    double distance();
 
-	printf("distance = %f\n",distance(a,b));
+    printf("distance = %f\n", distance(a, b));
 }
 
-double distance(point a, point b)
-{
-	int i;
-	double delta;
-        double d=0.0;
+double distance(point a, point b) {
+    int i;
+    double delta;
+    double d = 0.0;
 
-	for (i=0; i<DIMENSION; i++) {
-            delta = (double)a[i] - (double)b[i];
-            d += delta * delta;
-        }
+    for (i = 0; i < DIMENSION; i++) {
+        delta = (double)a[i] - (double)b[i];
+        d += delta * delta;
+    }
 
-	return( sqrt(d) );
+    return (sqrt(d));
 }

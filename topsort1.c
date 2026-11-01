@@ -19,27 +19,22 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 
 #include <stdbool.h>
 #include "bfs-dfs.h"
 #include "stack.h"
 
-stack sorted;    		/* topological ordering of vertices */
+stack sorted; /* topological ordering of vertices */
 
-extern bool processed[];        /* which vertices have been processed */
-extern bool discovered[];       /* which vertices have been found */
-extern int parent[];            /* discovery relation */
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
-extern int entry_time[];        /* time of vertex entry */
-extern int exit_time[];         /* time of vertex exit */
+extern int entry_time[]; /* time of vertex entry */
+extern int exit_time[];  /* time of vertex exit */
 
-
-void process_vertex_early(int v) {
-
-}
+void process_vertex_early(int v) {}
 
 /* [[[ pvlate_topsort_cut */
 void process_vertex_late(int v) {
@@ -49,7 +44,7 @@ void process_vertex_late(int v) {
 
 /* [[[ pedge_topsort_cut */
 void process_edge(int x, int y) {
-    int class;    /* edge class */
+    int class; /* edge class */
 
     class = edge_classification(x, y);
 
@@ -61,7 +56,7 @@ void process_edge(int x, int y) {
 
 /* [[[ topsort_cut */
 void topsort(graph *g) {
-    int i;    /* counter */
+    int i; /* counter */
 
     init_stack(&sorted);
 
@@ -70,7 +65,7 @@ void topsort(graph *g) {
             dfs(g, i);
         }
     }
-    print_stack(&sorted);    /* report topological order */
+    print_stack(&sorted); /* report topological order */
 }
 /* ]]] */
 

@@ -19,20 +19,18 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
-
 #include <stdio.h>
 
 #include <stdbool.h>
 
-#define MAXCANDIDATES   100    /* max possible next extensions */
-#define NMAX            100    /* maximum solution size */
+#define MAXCANDIDATES 100 /* max possible next extensions */
+#define NMAX 100          /* maximum solution size */
 
 bool finished = false;
 
 /* [[[ process_solution_perms_cut */
 void process_solution(int a[], int k, int input) {
-    int i;    /* counter */
+    int i; /* counter */
 
     for (i = 1; i <= k; i++) {
         printf(" %d", a[i]);
@@ -47,19 +45,15 @@ int is_a_solution(int a[], int k, int n) {
 }
 /* ]]] */
 
-void make_move(int a[], int k, int n) {
+void make_move(int a[], int k, int n) {}
 
-}
-
-void unmake_move(int a[], int k, int n){
-
-}
+void unmake_move(int a[], int k, int n) {}
 
 /*    What are possible elements of the next slot in the permutation?  */
 /* [[[ construct_candidates_perms_cut */
 void construct_candidates(int a[], int k, int n, int c[], int *nc) {
-    int i;                 /* counter */
-    bool in_perm[NMAX+1];    /* what is now in the permutation? */
+    int i;                  /* counter */
+    bool in_perm[NMAX + 1]; /* what is now in the permutation? */
 
     for (i = 1; i <= NMAX; i++) {
         in_perm[i] = false;
@@ -70,9 +64,9 @@ void construct_candidates(int a[], int k, int n, int c[], int *nc) {
     }
 
     *nc = 0;
-    for (i = 1; i <= n; i++) { 
+    for (i = 1; i <= n; i++) {
         if (!in_perm[i]) {
-            c[ *nc ] = i;
+            c[*nc] = i;
             *nc = *nc + 1;
         }
     }
@@ -80,9 +74,9 @@ void construct_candidates(int a[], int k, int n, int c[], int *nc) {
 /* ]]] */
 
 void backtrack(int a[], int k, int input) {
-    int c[MAXCANDIDATES];           /* candidates for next position */
-    int ncandidates;                /* next position candidate count */
-    int i;                          /* counter */
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int ncandidates;      /* next position candidate count */
+    int i;                /* counter */
 
     if (is_a_solution(a, k, input)) {
         process_solution(a, k, input);
@@ -96,7 +90,7 @@ void backtrack(int a[], int k, int input) {
             unmake_move(a, k, input);
 
             if (finished) {
-                return;    /* terminate early */
+                return; /* terminate early */
             }
         }
     }
@@ -104,7 +98,7 @@ void backtrack(int a[], int k, int input) {
 
 /* [[[ generate_perms_cut */
 void generate_permutations(int n) {
-    int a[NMAX+1];                    /* solution vector */
+    int a[NMAX + 1]; /* solution vector */
 
     backtrack(a, 0, n);
 }

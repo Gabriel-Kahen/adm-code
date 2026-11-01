@@ -18,46 +18,41 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 #include <stdbool.h>
 
 #include "bfs-dfs.h"
 #include "queue.h"
 
-extern bool processed[];    /* which vertices have been processed */
-extern bool discovered[];   /* which vertices have been found */
-extern int parent[];        /* discovery relation */
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
-extern int entry_time[MAXV+1];  /* time of vertex entry */
-extern int exit_time[MAXV+1];   /* time of vertex exit */
+extern int entry_time[MAXV + 1]; /* time of vertex entry */
+extern int exit_time[MAXV + 1];  /* time of vertex exit */
 
-#define UNCOLORED   0   /* vertex not yet colored */
-#define WHITE       1   /* white vertex */
-#define BLACK       2   /* black vertex */
+#define UNCOLORED 0 /* vertex not yet colored */
+#define WHITE 1     /* white vertex */
+#define BLACK 2     /* black vertex */
 
-int color[MAXV+1];      /* assigned color of v */
-bool bipartite;         /* is the graph bipartite? */
+int color[MAXV + 1]; /* assigned color of v */
+bool bipartite;      /* is the graph bipartite? */
 
-void process_vertex_early(int v) {
+void process_vertex_early(int v) {}
 
-}
-
-void process_vertex_late(int v) {
-
-}
+void process_vertex_late(int v) {}
 
 /* [[[ complement_cut */
 int complement(int color) {
     if (color == WHITE) {
-        return(BLACK);
+        return (BLACK);
     }
 
     if (color == BLACK) {
-        return(WHITE);
+        return (WHITE);
     }
-	
-    return(UNCOLORED);
+
+    return (UNCOLORED);
 }
 /* ]]] */
 
@@ -74,14 +69,14 @@ void process_edge(int x, int y) {
 
 /* [[[ twocolor_cut */
 void twocolor(graph *g) {
-    int i;    /* counter */
+    int i; /* counter */
 
-    for (i = 1; i <= (g->nvertices); i++) { 
+    for (i = 1; i <= (g->nvertices); i++) {
         color[i] = UNCOLORED;
     }
 
     bipartite = true;
- 
+
     initialize_search(g);
 
     for (i = 1; i <= (g->nvertices); i++) {

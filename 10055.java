@@ -6,39 +6,42 @@ import java.util.*;
 
 class Main {
 
-  public static void main(String[] args) {
-    Main myWork = new Main();
-    myWork.begin();
-  }
-
-  void begin () {
-    String s;
-    StringTokenizer st;
-    long a, b;
-
-    while ((s = Main.readLn(255)) != null) {
-      st = new StringTokenizer(s);
-      a = Long.parseLong(st.nextToken());
-      b = Long.parseLong(st.nextToken());
-      System.out.println(Math.abs(a - b));
+    public static void main(String[] args) {
+        Main myWork = new Main();
+        myWork.begin();
     }
-  }
- 
-  static String readLn (int maxLg) {
-    byte lin[] = new byte [maxLg];
-    int lg = 0, car = -1;
-    String line = "";
- 
-    try {
-      while (lg < maxLg) {
-        car = System.in.read();
-        if ((car < 0) || (car == '\n')) break;
-        lin [lg++] += car;
-       }
+
+    void begin() {
+        String s;
+        StringTokenizer st;
+        long a, b;
+
+        while ((s = Main.readLn(255)) != null) {
+            st = new StringTokenizer(s);
+            a = Long.parseLong(st.nextToken());
+            b = Long.parseLong(st.nextToken());
+            System.out.println(Math.abs(a - b));
+        }
     }
-    catch (IOException e) { return (null); }
- 
-    if ((car < 0) && (lg == 0)) return (null);
-    return (new String (lin, 0, lg));
-  }
+
+    static String readLn(int maxLg) {
+        byte lin[] = new byte[maxLg];
+        int lg = 0, car = -1;
+        String line = "";
+
+        try {
+            while (lg < maxLg) {
+                car = System.in.read();
+                if ((car < 0) || (car == '\n'))
+                    break;
+                lin[lg++] += car;
+            }
+        } catch (IOException e) {
+            return (null);
+        }
+
+        if ((car < 0) && (lg == 0))
+            return (null);
+        return (new String(lin, 0, lg));
+    }
 }

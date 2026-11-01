@@ -18,15 +18,14 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-
 #include <stdio.h>
 #include <stdbool.h>
 
 #include "bfs-dfs.h"
 
-extern bool processed[];    /* which vertices have been processed */
-extern bool discovered[];   /* which vertices have been found */
-extern int parent[];        /* discovery relation */
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
 /* [[[ pvearly_cut */
 void process_vertex_early(int v) {
@@ -35,9 +34,7 @@ void process_vertex_early(int v) {
 /* ]]] */
 
 /* [[[ pvlate_cut */
-void process_vertex_late(int v) {
-
-}
+void process_vertex_late(int v) {}
 /* ]]] */
 
 /* [[[ pedge_cut */
@@ -60,7 +57,7 @@ int main(void) {
     }
     printf("\n");
 
-    for (i = 1; i <= g.nvertices; i++) { 
+    for (i = 1; i <= g.nvertices; i++) {
         find_path(1, i, parent);
     }
     printf("\n");

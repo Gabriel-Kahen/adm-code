@@ -25,71 +25,56 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 */
 
-
 #include "backtrack.h"
 #include "bool.h"
 
-int solution_count;			/* how many solutions are there? */
+int solution_count; /* how many solutions are there? */
 
+process_solution(int a[], int k) {
+    int i; /* counter */
 
-process_solution(int a[], int k)
-{
-	int i;				/* counter */
-
-	solution_count ++;
+    solution_count++;
 }
 
-is_a_solution(int a[], int k, int n)
-{
-	return (k == n);
+is_a_solution(int a[], int k, int n) {
+    return (k == n);
 }
 
-make_move(int a[], int k, int n)
-{
-}
+make_move(int a[], int k, int n) {}
 
-unmake_move(int a[], int k, int n)
-{
-}
-
-
+unmake_move(int a[], int k, int n) {}
 
 /*	What are possible elements of the next slot in the 8-queens
 	problem?
 */
 
-construct_candidates(int a[], int k, int n, int c[], int *ncandidates)
-{
-	int i,j;			/* counters */
-	bool legal_move;		/* might the move be legal? */
+construct_candidates(int a[], int k, int n, int c[], int *ncandidates) {
+    int i, j;        /* counters */
+    bool legal_move; /* might the move be legal? */
 
-	*ncandidates = 0;
-	for (i=1; i<=n; i++) {
-		legal_move = TRUE;
-		for (j=1; j<k; j++) {
-			if (abs((k)-j) == abs(i-a[j]))  /* diagonal threat */
-				legal_move = FALSE;
-			if (i == a[j])                  /* column threat */
-				legal_move = FALSE;
-		}
-		if (legal_move == TRUE) {
-			c[*ncandidates] = i;
-			*ncandidates = *ncandidates + 1;
-		}
-	}
+    *ncandidates = 0;
+    for (i = 1; i <= n; i++) {
+        legal_move = TRUE;
+        for (j = 1; j < k; j++) {
+            if (abs((k)-j) == abs(i - a[j])) /* diagonal threat */
+                legal_move = FALSE;
+            if (i == a[j]) /* column threat */
+                legal_move = FALSE;
+        }
+        if (legal_move == TRUE) {
+            c[*ncandidates] = i;
+            *ncandidates = *ncandidates + 1;
+        }
+    }
 }
 
+main() {
+    int a[NMAX + 1]; /* solution vector */
+    int i;           /* counter */
 
-
-main()
-{
-	int a[NMAX+1];			/* solution vector */
-	int i;				/* counter */
-
-	for (i=1; i<=10; i++) {
-		solution_count = 0;
-		backtrack(a,0,i);
-		printf("n=%d  solution_count=%d\n",i,solution_count);
-	}
+    for (i = 1; i <= 10; i++) {
+        solution_count = 0;
+        backtrack(a, 0, i);
+        printf("n=%d  solution_count=%d\n", i, solution_count);
+    }
 }
-

@@ -12,13 +12,15 @@ static int read_edit_string(char *s, int limit) {
     do {
         c = getchar();
     } while (c != EOF && isspace((unsigned char)c));
-    if (c == EOF) return 0;
+    if (c == EOF)
+        return 0;
     do {
-        if (length == limit) return 0;
+        if (length == limit)
+            return 0;
         s[++length] = (char)c;
         c = getchar();
     } while (c != EOF && !isspace((unsigned char)c));
-    s[length+1] = '\0';
+    s[length + 1] = '\0';
     return 1;
 }
 
