@@ -35,7 +35,7 @@ OBJECTS = backtrack.o 8-queens.o permutations.o subsets.o queue.o war.o \
 	graph.o random.o sorting.o bfs-dfs.o bfs-demo.o dfs-demo.o \
 	connected.o topsort.o wgraph.o prim.o dijkstra.o floyd.o findcycle.o \
 	editdistance.o stringedit.o lcs.o substringedit.o geometry.o \
-	superman.o convex-hull.o triangulate.o 10055.c distance.o name.o \
+	superman.o convex-hull.o triangulate.o 10055.o distance.o name.o \
 	polly.o gcd.o primes.o bignum.o editbrute.o elevator.o order.o \
 	plates.o geotest.o cgtest.o netflow.o paths.o sudoku.o annealing.o \
 	tsp.o fib.o partition.o biconnected.o stack.o strong.o topsort1.o \
@@ -51,14 +51,17 @@ BINARIES = 8-queens permutations subsets war sorting bfs-demo \
 	bipartite kruskal matrix tree-demo topsort1 list-demo binomial \
 	subsetsum tsp-astar convolve countedges sentinel strong1
 # criterion_test
-INCLUDES = backtrack.h queue.h graph.h editdistance.h \
+INCLUDES = backtrack.h queue.h graph.h editdistance.h editinput.h \
 	   geometry.h annealing.h tsp.h stack.h priority_queue.h set_union.h \
 	   list.h tree.h item.h random.h bfs-dfs.h editbrute.h tsp-astar.h tsp-pq.h
 
 
 CC = gcc
+PYTHON ?= python3
 CFLAGS = -ggdb -Wall -std=c99 -pedantic # -O4 -g -DNDEBUG -pg -Wextra
 LFLAGS = -lm # -g -lm -pg
+
+.PHONY: make all test lint backup clean tar
 
 make:	$(BINARIES)
 	
@@ -67,6 +70,9 @@ $(OBJECTS):     $(INCLUDES)
 $(OBJECTS):     $(MAKEFILE)
 
 all:	$(BINARIES)
+
+test:
+	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests/regressions -p 'test_*.py' -v
 
 kruskal:	kruskal.o set_union.o wgraph.o
 		$(CC) -o $@ kruskal.o set_union.o wgraph.o $(LFLAGS)
@@ -84,10 +90,10 @@ biconnected:	biconnected.o bfs-dfs.o queue.o graph.o
 		$(CC) -o $@ biconnected.o bfs-dfs.o queue.o graph.o $(LFLAGS)
 
 partition:	partition.c
-		$(CC) -o $@ partition.c $(LFLAGS)
+		$(CC) $(CFLAGS) -o $@ partition.c $(LFLAGS)
 
 fib:		fib.c
-		$(CC) -o $@ fib.c $(LFLAGS)
+		$(CC) $(CFLAGS) -o $@ fib.c $(LFLAGS)
 
 tsp:		annealing.o random.o tsp.o 
 		$(CC) -o $@ annealing.o random.o tsp.o $(LFLAGS)
@@ -212,7 +218,7 @@ tree-demo:	tree-demo.o
 convolve:	convolve.o
 		$(CC) -o $@ convolve.o $(LFLAGS)
 
-countedges:	countedges.o
+countedges:	countedges.o queue.o graph.o bfs-dfs.o
 		$(CC) -o $@ queue.o graph.o countedges.o bfs-dfs.o $(LFLAGS)
 
 sentinel:	sentinel.o
