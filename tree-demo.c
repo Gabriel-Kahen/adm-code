@@ -135,58 +135,21 @@ tree *predecessor_descendant(tree *t) {
 
 /* [[[ delete_tree_cut */
 tree *delete_tree(tree *t, item_type x) {
-    tree *d;             /* node with key to delete */
-    tree *p;             /* node to be physically deleted */
-    item_type new_key;   /* key to overwrite deleted key */
-    tree *child;         /* d's only child, if any */
-
-    d = search_tree(t, x);
-
+    tree *d = search_tree(t, x);
+    tree *p, *child;
     if (d == NULL) {
         printf("Warning: key to be deleted %d is not in tree.\n", x);
-        return(t);
+        return t;
     }
-
-    if (d->parent == NULL) {    /* if d is the root */
-        if ((d->left == NULL) && (d->right == NULL)) {
-            free(d);
-            return NULL;    /* root-only tree */
-        }
-
-        if (d->left != NULL) {    /* find node to physically delete */
-            p = predecessor_descendant(d);
-        } else { 
-            p = successor_descendant(d);
-        }
-    } else {
-        if ((d->left == NULL) || (d->right == NULL)) {
-            /* d has <=1 child, so try to find non-null child */
-            if (d->left != NULL) {
-                child = d->left;
-            } else {
-                child = d->right;
-            }
-
-            if ((d->parent)->left == d) {    /* fill null pointer */
-              d->parent->left = child;
-            } 
-            else {
-              d->parent->right = child;
-            }
-            if (child != NULL) {
-                child->parent = d->parent;
-            }
-            free(d);
-            return(t);
-        } else {
-            p = successor_descendant(d);    /* p has 2 children */
-        }
-    }
-
-    new_key = p->item;    /* deal with simpler case of deletion */
-    delete_tree(t, p->item);
-    d->item = new_key;
-    return (t);
+    p = (d->left != NULL && d->right != NULL) ? successor_descendant(d) : d;
+    child = p->left != NULL ? p->left : p->right;
+    if (p->parent == NULL) t = child;
+    else if (p->parent->left == p) p->parent->left = child;
+    else p->parent->right = child;
+    if (child != NULL) child->parent = p->parent;
+    if (p != d) d->item = p->item;
+    free(p);
+    return t;
 }
 /* ]]] */
 
