@@ -15,7 +15,7 @@ void bfs(graph *g, int start) {
         p = g->edges[v];
         while (p != NULL) {
             y = p->y;
-            if ((!processed[y]) || g->directed) {
+            if ((!processed[y]) || g->directed || y == v) {
                 process_edge(v, y);
             }
             if (!discovered[y]) {
