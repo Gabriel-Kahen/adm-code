@@ -106,6 +106,7 @@ void delete_edge(graph *g, int x, int y, bool directed) {
             }
             return;
         } else {
+            p_back = p;
             p = p->next;
         }
     }
