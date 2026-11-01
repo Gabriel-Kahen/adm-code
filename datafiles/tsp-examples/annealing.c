@@ -82,7 +82,7 @@ void hill_climbing(tsp_instance *t, tsp_solution *s) {
                 solution_count_update(s, t);
             }
         }
-    } while (stuck == TRUE);
+    } while (!stuck);
 
 }
 /* ]]] */
