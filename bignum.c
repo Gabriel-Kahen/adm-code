@@ -66,7 +66,7 @@ void zero_justify(bignum *n) {
 
 void int_to_bignum(int s, bignum *n) {
     int i;    /* counter */
-    int t;    /* int to work with */
+    unsigned int t;    /* int to work with */
 
     if (s >= 0) {
         n->signbit = PLUS;
@@ -80,7 +80,7 @@ void int_to_bignum(int s, bignum *n) {
 
     n->lastdigit = -1;
 
-    t = abs(s);
+    t = s < 0 ? 0u - (unsigned int)s : (unsigned int)s;
 
     while (t > 0) {
         n->lastdigit ++;
