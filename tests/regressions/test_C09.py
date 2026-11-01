@@ -6,6 +6,8 @@ class HillCopies(unittest.TestCase):
             text=(ROOT/name).read_text()
             if name.endswith(".c"):text=text.split("/* [[[ hill_climbing_cut */",1)[1].split("/* ]]] */",1)[0]
             code="""#include <stdbool.h>
+#include <math.h>
+#include <float.h>
 #define TRUE true
 #define FALSE false
 +typedef struct { int n; } tsp_instance;

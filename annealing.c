@@ -23,6 +23,7 @@ or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 
 #include <stdio.h>
+#include <float.h>
 #include <stdbool.h>
 
 #include "annealing.h"      /* type declarations for SA */
@@ -88,7 +89,7 @@ void hill_climbing(tsp_instance *t, tsp_solution *s) {
         for (i = 1; i < t->n; i++) {
             for (j = i + 1; j <= t->n; j++) {
                 delta = transition(s, t, i, j);
-                if (delta < 0) {
+                if (delta < -64 * DBL_EPSILON * (fabs(cost) + 1)) {
                     stuck = false;
                     cost = cost + delta;
                 } else {
