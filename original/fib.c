@@ -1,3 +1,5 @@
+#include <limits.h>
+#include <errno.h>
 /*	binomial.c
 	Compute the binomial coefficients using dynamic programming 
 
@@ -11,22 +13,31 @@
 long f[MAXN+1];			/* array for caching computed fib values */
 
 
-long binomial_coefficient(n,m)
-int n,m;			/* computer n choose m */
-{
-	int i,j;		/* counters */
-	long bc[MAXN+1][MAXN+1];	/* table of binomial coefficient values */
+/* Returns -1 with errno set for invalid arguments or an unrepresentable result. */
+long binomial_coefficient(int n, int k) {
+    long bc[MAXN+1] = {0};
+    int i, j, last;
 
-	for (i=0; i<=n; i++) bc[i][0] = 1;
-
-	for (j=0; j<=n; j++) bc[j][j] = 1;
-
-
-	for (i=1; i<=n; i++)
-		for (j=1; j<i; j++)
-			bc[i][j] = bc[i-1][j-1] + bc[i-1][j];
-
-	return( bc[n][m] );
+    errno = 0;
+    if (n < 0 || n > MAXN || k < 0 || k > n) {
+        errno = EDOM;
+        return -1;
+    }
+    if (k > n-k) {
+        k = n-k;
+    }
+    bc[0] = 1;
+    for (i = 1; i <= n; i++) {
+        last = i < k ? i : k;
+        for (j = last; j > 0; j--) {
+            if (bc[j] > LONG_MAX-bc[j-1]) {
+                errno = ERANGE;
+                return -1;
+            }
+            bc[j] += bc[j-1];
+        }
+    }
+    return bc[k];
 }
 
 long fib_r(int n)

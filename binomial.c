@@ -1,3 +1,5 @@
+#include <limits.h>
+#include <errno.h>
 /*	binomial.c
 	Compute the binomial coefficients using dynamic programming 
 	by: Steven Skiena
@@ -27,36 +29,48 @@ or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 /* compute n choose k */
 
 /* [[[ binomial_coeff_cut */
+/* Returns -1 with errno set for invalid arguments or an unrepresentable result. */
 long binomial_coefficient(int n, int k) {
-    int i, j;                   /* counters */
-    long bc[MAXN+1][MAXN+1];    /* binomial coefficient table */
+    long bc[MAXN+1] = {0};
+    int i, j, last;
 
-    for (i = 0; i <= n; i++) {
-        bc[i][0] = 1;
+    errno = 0;
+    if (n < 0 || n > MAXN || k < 0 || k > n) {
+        errno = EDOM;
+        return -1;
     }
-
-    for (j = 0; j <= n; j++) {
-        bc[j][j] = 1;
+    if (k > n-k) {
+        k = n-k;
     }
-
-    for (i = 2; i <= n; i++) {
-        for (j = 1; j < i; j++) {
-            bc[i][j] = bc[i-1][j-1] + bc[i-1][j];
+    bc[0] = 1;
+    for (i = 1; i <= n; i++) {
+        last = i < k ? i : k;
+        for (j = last; j > 0; j--) {
+            if (bc[j] > LONG_MAX-bc[j-1]) {
+                errno = ERANGE;
+                return -1;
+            }
+            bc[j] += bc[j-1];
         }
     }
-
-    return(bc[n][k]);
+    return bc[k];
 }
 /* ]]] */
 
 int main(void) {
     int a, b, n, i;
+    long coefficient;
 
     scanf("%d", &n);
 
     for (i=0; i<n; i++) {
         scanf("%d %d", &a, &b);
-        printf("%d choose %d = %ld\n", a, b, binomial_coefficient(a, b));
+        coefficient = binomial_coefficient(a, b);
+        if (coefficient < 0) {
+            perror("binomial coefficient");
+            return 1;
+        }
+        printf("%d choose %d = %ld\n", a, b, coefficient);
     }
 
     return 0;
