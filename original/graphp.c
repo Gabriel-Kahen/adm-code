@@ -84,7 +84,7 @@ insert_edge(graph *g, int x, int y, bool directed)
 delete_edge(graph *g, int x, int y, bool directed)
 {
 	int i;				/* counter */
-	edgenode *p;			/* temporary pointers */
+	edgenode *p, *p_back;		/* temporary pointers */
 
 	p = g->edges[x];
 	p_back = NULL;
