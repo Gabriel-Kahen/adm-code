@@ -1,4 +1,6 @@
 void solve_tsp(tsp_instance *t, tsp_solution *s) {
+    first_solution(&best_solution, t);
+    best_cost = solution_cost(&best_solution, t);
     initialize_solution(s, t);
     extend_solution(s, t, 1);
     backtrack(s, 1, t);
