@@ -32,50 +32,68 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 point first_point;		/* first hull point */
 
-convex_hull(point in[], int n, polygon *hull)
-{
-	int i;			/* input counter */
-	int top;		/* current hull size */
-	bool smaller_angle();
-	
-	if (n <= 3) { 		/* all points on hull! */
-		for (i=0; i<n; i++)
-                        copy_point(in[i],hull->p[i]);
-		hull->n = n;
-		return;
-	}
+void sort_and_remove_duplicates(point in[], int *n);
+int leftlower();
+int smaller_angle();
+double distance(point a, point b);
 
-	sort_and_remove_duplicates(in,&n);
-	copy_point(in[0],&first_point);
+void convex_hull(point in[], int n, polygon *hull) {
+    int i;          /* input counter */
+    int top;        /* current hull size */
 
-	qsort(&in[1], n-1, sizeof(point), smaller_angle);
+    if (n <= 0) {
+        hull->n = 0;
+        return;
+    }
+    sort_and_remove_duplicates(in, &n);
 
-	copy_point(first_point,hull->p[0]);
-	copy_point(in[1],hull->p[1]);
+    /* A collinear hull is a segment, not a closed scan with a sentinel. */
+    for (i = 1; i + 1 < n; i++) {
+        if (!collinear(in[0], in[n-1], in[i])) {
+            break;
+        }
+    }
+    if (n <= 2 || i + 1 == n) {
+        copy_point(in[0], hull->p[0]);
+        hull->n = 1;
+        if (n > 1) {
+            copy_point(in[n-1], hull->p[1]);
+            hull->n = 2;
+        }
+        return;
+    }
+    copy_point(in[0], (double*)&first_point);
 
-	top = 1;
-	i = 2;
+    qsort(&in[1], n-1, sizeof(point), smaller_angle);
 
-	while (i < n) {
-		if (!ccw(hull->p[top-1], hull->p[top], in[i])) 
-			top = top-1;	/* top not on hull */
-		else {
-			top = top+1;
-                    	copy_point(in[i],hull->p[top]);
-			i = i+1;
-		}
-	}
+    copy_point(first_point, hull->p[0]);
+    copy_point(in[1], hull->p[1]);
 
-	hull->n = top + 1;
+    top = 1;
+    i = 2;
+
+    while (i < n) {
+        if (cw(hull->p[top-1], hull->p[top], in[i])) {
+            top = top-1;    /* top not on hull */
+        } else {
+            if (!collinear(hull->p[top - 1], hull->p[top], in[i])) {
+                top = top+1;
+            }
+            copy_point(in[i], hull->p[top]);
+            i = i + 1;
+        }
+    }
+    hull->n = top + 1;
 }
 
 
-sort_and_remove_duplicates(point in[], int *n)
+
+void sort_and_remove_duplicates(point in[], int *n)
 {
         int i;                  /* counter */
         int oldn;               /* number of points before deletion */
         int hole;               /* index marked for potential deletion */
-	bool leftlower();
+	int leftlower();
 
 	qsort(in, *n, sizeof(point), leftlower);
 
@@ -120,7 +138,7 @@ main(){
 }
 
 
-bool leftlower(point *p1, point *p2)
+int leftlower(point *p1, point *p2)
 {
 	if ((*p1)[X] < (*p2)[X]) return (-1);
 	if ((*p1)[X] > (*p2)[X]) return (1);
@@ -132,7 +150,7 @@ bool leftlower(point *p1, point *p2)
 }
 
 /*
-bool leftlower(point *p1, point *p2)
+int leftlower(point *p1, point *p2)
 {
 	if (fabs((*p1)[X] - (*p2)[X]) > EPSILON) {
         	if ((*p1)[X] < (*p2)[X]) return (-1);
@@ -148,7 +166,7 @@ bool leftlower(point *p1, point *p2)
 }
 */
 
-bool smaller_angle(point *p1, point *p2)
+int smaller_angle(point *p1, point *p2)
 {
 	if (collinear(first_point,*p1,*p2)) {
 		if (distance(first_point,*p1) <= distance(first_point,*p2))
