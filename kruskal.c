@@ -38,7 +38,7 @@ typedef struct {
 
 /************************************************************/
 
-void to_edge_array(graph *g, edge_pair e[]) {
+int to_edge_array(graph *g, edge_pair e[]) {
     int i, m;       /* counters */
     edgenode *p;    /* temporary pointer */
 
@@ -55,6 +55,7 @@ void to_edge_array(graph *g, edge_pair e[]) {
             p = p->next;
         }
     }
+    return m;
 }
 
 int weight_compare(const void *x, const void *y) {
@@ -76,15 +77,21 @@ int weight_compare(const void *x, const void *y) {
 int kruskal(graph *g) {
     int i;                  /* counter */
     union_find s;           /* union-find data structure */
-    edge_pair e[MAXV+1];    /* array of edges data structure */
+    edge_pair *e;           /* storage for all input edges */
+    int nedges;             /* extracted non-loop edge count */
     int weight=0;           /* cost of the minimum spanning tree */
 
     union_find_init(&s, g->nvertices);
 
-    to_edge_array(g, e);
-    qsort(&e,g->nedges, sizeof(edge_pair), &weight_compare);
+    e = malloc((g->nedges ? g->nedges : 1) * sizeof(*e));
+    if (e == NULL) {
+        perror("kruskal edge allocation");
+        exit(EXIT_FAILURE);
+    }
+    nedges = to_edge_array(g, e);
+    qsort(e, nedges, sizeof(*e), &weight_compare);
 
-    for (i = 0; i < (g->nedges); i++) {
+    for (i = 0; i < nedges; i++) {
         if (!same_component(&s, e[i].x, e[i].y)) {
             printf("edge (%d,%d) in MST\n", e[i].x, e[i].y);
             weight = weight + e[i].weight;
@@ -92,6 +99,7 @@ int kruskal(graph *g) {
         }
     }
 
+    free(e);
     return(weight);
 }
 /* ]]] */
