@@ -28,12 +28,12 @@ or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #define MAX_RIDERS  50  /* what is the capacity of the elevator? */
 #define MAXINT      100007
 
-int stops[MAX_RIDERS];  /* what floor does everyone get off at? */
+int stops[MAX_RIDERS+1];  /* what floor does everyone get off at? */
 int nriders;            /* number of riders */
 int nstops;             /* number of allowable stops */
 
-int m[NFLOORS+1][MAX_RIDERS];   /* dynamic programming cost table */
-int p[NFLOORS+1][MAX_RIDERS];   /* dynamic programming parent table */
+int m[NFLOORS+1][MAX_RIDERS+1];   /* dynamic programming cost table */
+int p[NFLOORS+1][MAX_RIDERS+1];   /* dynamic programming parent table */
 
 int min(int a, int b) {
 	if (a < b) {
@@ -63,6 +63,11 @@ int optimize_floors() {
     int i, j, k;    /* counters */
     int cost;       /* costs placeholder */
     int laststop;   /* the elevator's last stop */
+
+    if (nriders < 0 || nriders > MAX_RIDERS ||
+        nstops < 0 || nstops > MAX_RIDERS) {
+        return -1;
+    }
 
     for (i = 0; i <= NFLOORS; i++) {
         m[i][0] = floors_walked(0, MAXINT);
@@ -102,7 +107,7 @@ void reconstruct_path(int lastfloor, int stops_to_go) {
     printf("%d\n", lastfloor);
 }
 
-void print_matrix(int m[NFLOORS+1][MAX_RIDERS]) {
+void print_matrix(int m[NFLOORS+1][MAX_RIDERS+1]) {
     int i, j;    /* counters */
 
     for (j = 0; j <= nstops; j++) {
@@ -117,10 +122,18 @@ int main(void) {
     int i;        /* counter */
     int laststop;
 
-    scanf("%d %d", &nriders, &nstops);
+    if (scanf("%d %d", &nriders, &nstops) != 2 ||
+        nriders < 0 || nriders > MAX_RIDERS ||
+        nstops < 0 || nstops > MAX_RIDERS) {
+        fprintf(stderr, "invalid elevator dimensions\n");
+        return 1;
+    }
 
     for (i = 1; i <= nriders; i++) {
-        scanf("%d", &(stops[i]));
+        if (scanf("%d", &stops[i]) != 1 || stops[i] < 0 || stops[i] > NFLOORS) {
+            fprintf(stderr, "invalid destination floor\n");
+            return 1;
+        }
     }
 
     for (i = 1; i <= nriders; i++) {
