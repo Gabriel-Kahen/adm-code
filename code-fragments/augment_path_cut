@@ -10,6 +10,7 @@ void augment_path(flow_graph *g, int start, int end, long long volume) {
     e->residual -= volume;
     
     e = find_edge(g, end, parent[end]);
+    e->flow -= volume;
     e->residual += volume;
 
     augment_path(g, start, parent[end], volume);
