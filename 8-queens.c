@@ -98,7 +98,7 @@ void backtrack(int a[], int k, int input) {
 }
 
 int main(void) {
-    int a[NMAX];        /* solution vector */
+    int a[NMAX+1];        /* solution vector */
     int i;              /* counter */
 
     for (i = 1; i <= 10; i++) {

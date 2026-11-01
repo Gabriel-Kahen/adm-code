@@ -59,9 +59,9 @@ void unmake_move(int a[], int k, int n){
 /* [[[ construct_candidates_perms_cut */
 void construct_candidates(int a[], int k, int n, int c[], int *nc) {
     int i;                 /* counter */
-    bool in_perm[NMAX];    /* what is now in the permutation? */
+    bool in_perm[NMAX+1];    /* what is now in the permutation? */
 
-    for (i = 1; i < NMAX; i++) {
+    for (i = 1; i <= NMAX; i++) {
         in_perm[i] = false;
     }
 
@@ -104,7 +104,7 @@ void backtrack(int a[], int k, int input) {
 
 /* [[[ generate_perms_cut */
 void generate_permutations(int n) {
-    int a[NMAX];                    /* solution vector */
+    int a[NMAX+1];                    /* solution vector */
 
     backtrack(a, 0, n);
 }

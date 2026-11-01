@@ -83,7 +83,7 @@ construct_candidates(int a[], int k, int n, int c[], int *ncandidates)
 
 main()
 {
-	int a[NMAX];			/* solution vector */
+	int a[NMAX+1];			/* solution vector */
 	int i;				/* counter */
 
 	for (i=1; i<=10; i++) {
