@@ -70,7 +70,7 @@ construct_candidates(int a[], int k, int n, int c[], int *ncandidates)
 
 main()
 {
-	int a[NMAX];			/* solution vector */
+	int a[NMAX+1];			/* solution vector */
 
 	backtrack(a,0,3);
 }

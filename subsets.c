@@ -95,7 +95,7 @@ void backtrack(int a[], int k, int input) {
 
 /* [[[ generate_subsets_cut */
 void generate_subsets(int n) {
-    int a[NMAX];                    /* solution vector */
+    int a[NMAX+1];                    /* solution vector */
 
     backtrack(a, 0, n);
 }
