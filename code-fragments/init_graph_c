@@ -1,5 +1,5 @@
 void initialize_graph(graph *g, bool directed) {
-    int i;    /* counter */
+    int i; /* counter */
 
     g->nvertices = 0;
     g->nedges = 0;

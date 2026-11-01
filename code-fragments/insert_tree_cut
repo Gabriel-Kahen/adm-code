@@ -1,5 +1,5 @@
 void insert_tree(tree **l, item_type x, tree *parent) {
-    tree *p;    /* temporary pointer */
+    tree *p; /* temporary pointer */
 
     if (*l == NULL) {
         p = malloc(sizeof(tree));

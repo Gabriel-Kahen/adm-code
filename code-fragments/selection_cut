@@ -1,6 +1,6 @@
 void selection_sort(item_type s[], int n) {
-    int i, j;   /* counters */
-    int min;    /* index of minimum */
+    int i, j; /* counters */
+    int min;  /* index of minimum */
 
     for (i = 0; i < n; i++) {
         min = i;

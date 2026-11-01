@@ -5,8 +5,10 @@ void merge(item_type s[], int low, int middle, int high) {
     init_queue(&buffer1);
     init_queue(&buffer2);
 
-    for (i = low; i <= middle; i++) enqueue(&buffer1, s[i]);
-    for (i = middle + 1; i <= high; i++) enqueue(&buffer2, s[i]);
+    for (i = low; i <= middle; i++)
+        enqueue(&buffer1, s[i]);
+    for (i = middle + 1; i <= high; i++)
+        enqueue(&buffer2, s[i]);
 
     i = low;
     while (!(empty_queue(&buffer1) || empty_queue(&buffer2))) {

@@ -1,5 +1,5 @@
 void process_edge(int x, int y) {
-    int class;    /* edge class */
+    int class; /* edge class */
 
     class = edge_classification(x, y);
 
@@ -10,8 +10,8 @@ void process_edge(int x, int y) {
     }
 
     if (class == CROSS) {
-        if (scc[y] == -1) {   /* component not yet assigned */
-            if (entry_time[y] < entry_time[ low[x]]) {
+        if (scc[y] == -1) { /* component not yet assigned */
+            if (entry_time[y] < entry_time[low[x]]) {
                 low[x] = y;
             }
         }

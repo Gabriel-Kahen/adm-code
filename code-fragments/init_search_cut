@@ -1,5 +1,5 @@
 void initialize_search(graph *g) {
-    int i;                  /* counter */
+    int i; /* counter */
 
     time = 0;
 

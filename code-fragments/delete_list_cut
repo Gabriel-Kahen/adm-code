@@ -1,6 +1,6 @@
 void delete_list(list **l, list **x) {
-    list *p;            /* item pointer */
-    list *pred;         /* predecessor pointer */
+    list *p;    /* item pointer */
+    list *pred; /* predecessor pointer */
 
     p = *l;
     pred = item_ahead(*l, *x);
@@ -10,5 +10,5 @@ void delete_list(list **l, list **x) {
     } else {
         pred->next = (*x)->next;
     }
-    free(*x);           /* free memory used by node */
+    free(*x); /* free memory used by node */
 }

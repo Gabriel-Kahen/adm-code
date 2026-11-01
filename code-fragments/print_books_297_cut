@@ -1,5 +1,5 @@
 void print_books(int s[], int start, int end) {
-    int i;    /* counter */
+    int i; /* counter */
 
     printf("\{");
     for (i = start; i <= end; i++) {

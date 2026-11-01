@@ -1,6 +1,6 @@
 int match(char c, char d) {
     if (c == d) {
-        return(0);
+        return (0);
     }
-    return(MAXLEN);
+    return (MAXLEN);
 }

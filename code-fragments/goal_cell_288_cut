@@ -1,5 +1,5 @@
 void goal_cell(char *s, char *t, int *i, int *j) {
-    int k;    /* counter */
+    int k; /* counter */
 
     *i = strlen(s) - 1;
     *j = 0;

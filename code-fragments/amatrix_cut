@@ -1,4 +1,4 @@
 typedef struct {
-    long long weight[MAXV+1][MAXV+1];  /* adjacency/weight info */
-    int nvertices;               /* number of vertices in graph */
+    long long weight[MAXV + 1][MAXV + 1]; /* adjacency/weight info */
+    int nvertices;                        /* number of vertices in graph */
 } adjacency_matrix;

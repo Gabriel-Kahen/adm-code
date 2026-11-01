@@ -1,8 +1,8 @@
 void random_sampling(tsp_instance *t, int nsamples, tsp_solution *s) {
-    tsp_solution s_now;             /* current tsp solution */
-    double best_cost;               /* best cost so far */
-    double cost_now;                /* current cost */
-    int i;                          /* counter */
+    tsp_solution s_now; /* current tsp solution */
+    double best_cost;   /* best cost so far */
+    double cost_now;    /* current cost */
+    int i;              /* counter */
 
     initialize_solution(t->n, &s_now);
     best_cost = solution_cost(&s_now, t);

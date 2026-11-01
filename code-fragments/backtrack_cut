@@ -1,10 +1,10 @@
 void backtrack(int a[], int k, data input) {
-    int c[MAXCANDIDATES];      /* candidates for next position */
-    int nc;                    /* next position candidate count */
-    int i;                     /* counter */
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int nc;               /* next position candidate count */
+    int i;                /* counter */
 
     if (is_a_solution(a, k, input)) {
-        process_solution(a, k,input);
+        process_solution(a, k, input);
     } else {
         k = k + 1;
         construct_candidates(a, k, input, c, &nc);
@@ -15,7 +15,7 @@ void backtrack(int a[], int k, data input) {
             unmake_move(a, k, input);
 
             if (finished) {
-                return;	/* terminate early */
+                return; /* terminate early */
             }
         }
     }

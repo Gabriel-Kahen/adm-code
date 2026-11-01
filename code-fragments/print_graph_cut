@@ -1,6 +1,6 @@
 void print_graph(graph *g) {
-    int i;        /* counter */
-    edgenode *p;  /* temporary pointer */
+    int i;       /* counter */
+    edgenode *p; /* temporary pointer */
 
     for (i = 1; i <= g->nvertices; i++) {
         printf("%d: ", i);
