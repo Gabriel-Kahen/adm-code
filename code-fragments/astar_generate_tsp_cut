@@ -1,3 +1,5 @@
 void solve_tsp(tsp_instance *t, tsp_solution *s) {
-    backtrack(s, 0, t);
+    initialize_solution(s, t);
+    extend_solution(s, t, 1);
+    backtrack(s, 1, t);
 }

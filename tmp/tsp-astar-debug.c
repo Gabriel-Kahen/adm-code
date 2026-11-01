@@ -28,6 +28,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
 #include <math.h>
+#include <float.h>
 #include <stdio.h>
 
 #include "bool.h"
@@ -51,6 +52,9 @@ priority_queue q;           	/* priority queue for branch & bound search */
 
 bool lb_flag = TRUE;		/* use  lower bound to speed branch & bound */
 bool finished = FALSE;
+
+void initialize_solution(tsp_solution *, tsp_instance *);
+void extend_solution(tsp_solution *, tsp_instance *, int);
 
 /* [[[ astar_process_solution_tsp_cut */
 void process_solution(tsp_solution *s, int k, tsp_instance *input) {
@@ -148,7 +152,9 @@ void backtrack(tsp_solution *s, int k, tsp_instance *input) {
 
 /* [[[ astar_generate_tsp_cut */
 void solve_tsp(tsp_instance *t, tsp_solution *s) {
-    backtrack(s, 0, t);
+    initialize_solution(s, t);
+    extend_solution(s, t, 1);
+    backtrack(s, 1, t);
 }
 /* ]]] */
 
@@ -302,7 +308,11 @@ double partial_solution_cost(tsp_solution *s, tsp_instance *t) {
 
 /* [[[ astar_partial_solution_lb_cut */
 double partial_solution_lb(tsp_solution *s, tsp_instance *t) {
-         return(partial_solution_cost(s,t) + (t->n - s->n + 1) * minlb );
+    int remaining = t->n - s->n + (s->n > 0);
+    double bound = partial_solution_cost(s, t);
+    if (lb_flag) bound += remaining * minlb;
+    /* Round conservatively: a lower bound must not round above a tour. */
+    return fmax(0.0, bound - 64 * DBL_EPSILON * (fabs(bound) + 1));
 }
 /* ]]] */
 
