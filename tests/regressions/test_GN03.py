@@ -1,10 +1,12 @@
 import unittest
+
 from support import ROOT, run_c
+
 
 class DegenerateHull(unittest.TestCase):
     def test_extremes_and_small_inputs(self):
         code = f'''#define main archived_main
-#include "{ROOT/'convex-hull.c'}"
+#include "{ROOT / "convex-hull.c"}"
 #undef main
 int main(void) {{
     point p[MAXPOLY+1] = {{{{3,0}},{{1,0}},{{0,0}},{{2,0}}}};
@@ -22,7 +24,13 @@ int main(void) {{
     return h.n!=2 || h.p[0][0]!=0 || h.p[1][0]!=3;
 }}
 '''
-        result = run_c(code, sources=("geometry.c",), flags=("-fsanitize=address,undefined", "-fno-sanitize-recover=all", "-no-pie"))
+        result = run_c(
+            code,
+            sources=("geometry.c",),
+            flags=("-fsanitize=address,undefined", "-fno-sanitize-recover=all", "-no-pie"),
+        )
         self.assertEqual(result.returncode, 0, result.stderr)
 
-if __name__ == "__main__": unittest.main()
+
+if __name__ == "__main__":
+    unittest.main()

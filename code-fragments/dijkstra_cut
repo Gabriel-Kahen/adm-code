@@ -1,46 +1,47 @@
 long long dijkstra(graph *g, int start) {
-    int i;                        /* counter */
-    edgenode *p;                  /* temporary pointer */
-    bool intree[MAXV + 1];        /* is the vertex in the tree yet? */
-    long long distance[MAXV + 1]; /* cost of adding to tree */
-    int v;                        /* current vertex to process */
-    int w;                        /* candidate next vertex */
-    long long dist;               /* cheapest cost to enlarge tree */
-    long long weight = 0;         /* tree weight */
+    int i;
+    edgenode *edge;
+    bool settled[MAXV + 1];
+    long long distance[MAXV + 1]; /* shortest known distance from start */
+    int vertex, neighbor;
+    long long next_distance;
+    long long tree_weight = 0;
 
     for (i = 1; i <= g->nvertices; i++) {
-        intree[i] = false;
+        settled[i] = false;
         distance[i] = MAXINT;
         parent[i] = -1;
     }
 
     distance[start] = 0;
-    v = start;
+    vertex = start;
 
-    while (!intree[v]) {
-        intree[v] = true;
-        if (v != start) {
-            printf("edge (%d,%d) in tree \n", parent[v], v);
-            weight += distance[v] - distance[parent[v]];
+    while (!settled[vertex]) {
+        settled[vertex] = true;
+        if (vertex != start) {
+            printf("edge (%d,%d) in tree \n", parent[vertex], vertex);
+            /* The distance difference is this parent edge's weight, not a full path length. */
+            tree_weight += distance[vertex] - distance[parent[vertex]];
         }
-        p = g->edges[v];
-        while (p != NULL) {
-            w = p->y;
-            if (distance[w] > (distance[v] + p->weight)) { /* CHANGED */
-                distance[w] = distance[v] + p->weight;     /* CHANGED */
-                parent[w] = v;                             /* CHANGED */
+        edge = g->edges[vertex];
+        while (edge != NULL) {
+            neighbor = edge->y;
+            if (distance[neighbor] > (distance[vertex] + edge->weight)) {
+                distance[neighbor] = distance[vertex] + edge->weight;
+                parent[neighbor] = vertex;
             }
-            p = p->next;
+            edge = edge->next;
         }
 
-        dist = MAXINT;
+        /* If none is reachable, vertex stays settled and the outer loop stops. */
+        next_distance = MAXINT;
         for (i = 1; i <= g->nvertices; i++) {
-            if ((!intree[i]) && (dist > distance[i])) {
-                dist = distance[i];
-                v = i;
+            if ((!settled[i]) && (next_distance > distance[i])) {
+                next_distance = distance[i];
+                vertex = i;
             }
         }
     }
 
-    return (weight);
+    return (tree_weight);
 }

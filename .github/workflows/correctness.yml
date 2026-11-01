@@ -36,4 +36,19 @@ jobs:
       - name: Build current sources
         run: make -B -j2 all CC=${{ matrix.cc }}
       - name: Run corrected regression suite
-        run: make test
+        run: make test CC=${{ matrix.cc }}
+
+  readability:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install pinned maintenance tools
+        run: python -m pip install -r requirements-dev.txt
+      - name: Check formatting, Python lint, and generated excerpts
+        run: make check-format check-fragments

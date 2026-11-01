@@ -56,9 +56,10 @@ void read_suitors(void) {
     }
 }
 
+int suitor_compare(const void *left, const void *right);
+
 int main(void) {
     int i; /* counter */
-    int suitor_compare();
 
     read_suitors();
 
@@ -71,7 +72,9 @@ int main(void) {
     return 0;
 }
 
-int suitor_compare(suitor *a, suitor *b) {
+int suitor_compare(const void *left, const void *right) {
+    const suitor *a = left;
+    const suitor *b = right;
     int result; /* result of comparsion */
 
     if (a->height < b->height) {

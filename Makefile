@@ -18,230 +18,164 @@
 # or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
 
-MAKEFILE = Makefile
-SOURCES = backtrack.c 8-queens.c permutations.c subsets.c queue.c war.c \
-	graph.c random.c sorting.c bfs-dfs.c bfs-demo.c dfs-demo.c \
-	connected.c topsort.c wgraph.c prim.c dijkstra.c floyd.c findcycle.c \
-	editdistance.c stringedit.c lcs.c substringedit.c geometry.c \
-	superman.c convex-hull.c triangulate.c 10055.c distance.c name.c \
-	polly.c gcd.c primes.c bignum.c editbrute.c elevator.c order.c \
-	plates.c geotest.c cgtest.c netflow.c paths.c sudoku.c annealing.c \
-	tsp.c fib.c partition.c  biconnected.c stack.c strong.c topsort1.c \
-	bipartite.c priority_queue.c kruskal.c set_union.c list-demo.c \
-	tree-demo.c matrix.c binomial.c subsetsum.c tsp-astar.c tsp-pq.c \
-	convolve.c countedges.c sentinel.c strong1.c
-# criterion_test.c
-OBJECTS = backtrack.o 8-queens.o permutations.o subsets.o queue.o war.o \
-	graph.o random.o sorting.o bfs-dfs.o bfs-demo.o dfs-demo.o \
-	connected.o topsort.o wgraph.o prim.o dijkstra.o floyd.o findcycle.o \
-	editdistance.o stringedit.o lcs.o substringedit.o geometry.o \
-	superman.o convex-hull.o triangulate.o 10055.o distance.o name.o \
-	polly.o gcd.o primes.o bignum.o editbrute.o elevator.o order.o \
-	plates.o geotest.o cgtest.o netflow.o paths.o sudoku.o annealing.o \
-	tsp.o fib.o partition.o biconnected.o stack.o strong.o topsort1.o \
-	bipartite.o priority_queue.o kruskal.o set_union.o list-demo.o \
-	tree-demo.o matrix.o binomial.o subsetsum.o tsp-astar.o tsp-pq.o \
-	convolve.o countedges.o strong1.o
-# criterion_test.o
-BINARIES = 8-queens permutations subsets war sorting bfs-demo \
-	dfs-demo connected topsort prim dijkstra floyd findcycle stringedit \
-	superman editbrute convex-hull triangulate 10055 distance name \
-	polly gcd substringedit primes bignum elevator order plates geotest cgtest \
-	netflow lcs paths sudoku tsp fib partition biconnected strong topsort \
-	bipartite kruskal matrix tree-demo topsort1 list-demo binomial \
-	subsetsum tsp-astar convolve countedges sentinel strong1
-# criterion_test
-INCLUDES = backtrack.h queue.h graph.h editdistance.h editinput.h \
-	   geometry.h annealing.h tsp.h stack.h priority_queue.h set_union.h \
-	   list.h tree.h item.h random.h bfs-dfs.h editbrute.h tsp-astar.h tsp-pq.h
-
+# The default target builds current root-level programs only. Historical
+# examples in original/ and tmp/ are exercised by compatibility regressions.
+.DEFAULT_GOAL := all
 
 CC = gcc
 PYTHON ?= python3
-CFLAGS = -ggdb -Wall -std=c99 -pedantic # -O4 -g -DNDEBUG -pg -Wextra
-LFLAGS = -lm # -g -lm -pg
+CPPFLAGS ?=
+CFLAGS ?= -g -Wall -std=c99 -pedantic
+LDFLAGS ?=
+LDLIBS ?= -lm
 
-.PHONY: make all test lint backup clean tar
+PROGRAMS := \
+    10055 \
+    8-queens \
+    bfs-demo \
+    biconnected \
+    bignum \
+    binomial \
+    bipartite \
+    cgtest \
+    connected \
+    convex-hull \
+    convolve \
+    countedges \
+    dfs-demo \
+    dijkstra \
+    distance \
+    editbrute \
+    elevator \
+    fib \
+    findcycle \
+    floyd \
+    gcd \
+    geotest \
+    kruskal \
+    lcs \
+    list-demo \
+    matrix \
+    name \
+    netflow \
+    order \
+    partition \
+    paths \
+    permutations \
+    plates \
+    polly \
+    prim \
+    primes \
+    sentinel \
+    sorting \
+    stringedit \
+    strong \
+    strong1 \
+    subsets \
+    subsetsum \
+    substringedit \
+    sudoku \
+    superman \
+    topsort \
+    topsort1 \
+    tree-demo \
+    triangulate \
+    tsp \
+    tsp-astar \
+    war
 
-make:	$(BINARIES)
-	
-$(OBJECTS):     $(INCLUDES)
- 
-$(OBJECTS):     $(MAKEFILE)
+# Retain the old variable name for callers that inspect the distribution.
+BINARIES := $(PROGRAMS)
+SOURCES := $(wildcard *.c)
+HEADERS := $(wildcard *.h)
+OBJECTS := $(SOURCES:.c=.o)
+DEPENDENCIES := $(OBJECTS:.o=.d)
 
-all:	$(BINARIES)
+.PHONY: all make test test-regressions test-algorithms clean lint backup tar
 
-test:
-	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests/regressions -p 'test_*.py' -v
+all: $(PROGRAMS)
+make: all
 
-kruskal:	kruskal.o set_union.o wgraph.o
-		$(CC) -o $@ kruskal.o set_union.o wgraph.o $(LFLAGS)
+# Every program has a same-named driver. Extra library objects are listed below.
+$(PROGRAMS): %: %.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS) $(LFLAGS)
 
-bipartite:	bipartite.o queue.o graph.o bfs-dfs.o
-		$(CC) -o $@ bipartite.o queue.o graph.o bfs-dfs.o $(LFLAGS)
+%.o: %.c Makefile
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -c -o $@ $<
 
-topsort1:	topsort1.o queue.o graph.o stack.o bfs-dfs.o
-		$(CC) -o $@ topsort1.o queue.o graph.o stack.o bfs-dfs.o $(LFLAGS)
+bfs-demo: queue.o graph.o bfs-dfs.o
+biconnected: bfs-dfs.o queue.o graph.o
+bipartite: queue.o graph.o bfs-dfs.o
+cgtest: geometry.o
+connected: queue.o graph.o bfs-dfs.o
+convex-hull: geometry.o
+countedges: queue.o graph.o bfs-dfs.o
+dfs-demo: queue.o graph.o bfs-dfs.o
+dijkstra: wgraph.o
+findcycle: queue.o graph.o bfs-dfs.o
+geotest: geometry.o
+kruskal: set_union.o wgraph.o
+lcs: editdistance.o
+netflow: queue.o
+paths: graph.o
+prim: wgraph.o
+sorting: random.o queue.o priority_queue.o
+stringedit: editdistance.o
+strong: bfs-dfs.o queue.o graph.o stack.o
+strong1: bfs-dfs.o queue.o graph.o stack.o
+substringedit: editdistance.o
+superman: geometry.o
+topsort: queue.o graph.o
+topsort1: queue.o graph.o stack.o bfs-dfs.o
+triangulate: geometry.o
+tsp: annealing.o random.o
+tsp-astar: tsp-pq.o
+war: queue.o random.o
 
-strong:		strong.o bfs-dfs.o queue.o graph.o stack.o
-		$(CC) -o $@ strong.o bfs-dfs.o queue.o graph.o stack.o $(LFLAGS)
+# Each suite runs in its own process so direct test-script imports stay simple.
+test: test-regressions test-algorithms test-tooling
 
-biconnected:	biconnected.o bfs-dfs.o queue.o graph.o
-		$(CC) -o $@ biconnected.o bfs-dfs.o queue.o graph.o $(LFLAGS)
+test-regressions:
+	CC="$(CC)" PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests/regressions -p 'test_*.py' -v
 
-partition:	partition.c
-		$(CC) $(CFLAGS) -o $@ partition.c $(LFLAGS)
+test-algorithms:
+	CC="$(CC)" PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests/algorithms -p 'test_*.py' -v
 
-fib:		fib.c
-		$(CC) $(CFLAGS) -o $@ fib.c $(LFLAGS)
+# Source maintenance uses pinned optional tools from requirements-dev.txt.
+.PHONY: format check-format fragments check-fragments check test-tooling
 
-tsp:		annealing.o random.o tsp.o 
-		$(CC) -o $@ annealing.o random.o tsp.o $(LFLAGS)
+format:
+	$(PYTHON) tools/format_code.py
+	$(MAKE) fragments
 
-tsp-astar:	tsp-astar.o tsp-pq.o
-		$(CC) -o $@ tsp-astar.o tsp-pq.o $(LFLAGS)
+check-format:
+	$(PYTHON) tools/format_code.py --check
 
-sudoku:		sudoku.o
-		$(CC) -o $@ sudoku.o $(LFLAGS)
+fragments:
+	$(PYTHON) tools/fragments.py
 
-8-queens:	8-queens.o
-		$(CC) -o $@ 8-queens.o $(LFLAGS)
+check-fragments:
+	$(PYTHON) tools/fragments.py --check
 
-paths:		paths.o graph.o
-		$(CC) -o $@ paths.o graph.o $(LFLAGS)
+test-tooling:
+	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests/tooling -p 'test_*.py' -v
 
-permutations:	permutations.o
-		$(CC) -o $@ permutations.o $(LFLAGS)
+check: check-format check-fragments test
 
-subsets:	subsets.o
-		$(CC) -o $@ subsets.o $(LFLAGS)
+clean:
+	rm -f $(PROGRAMS) $(OBJECTS) $(DEPENDENCIES) core a.out tests/*.o
 
-sorting:	random.o queue.o priority_queue.o sorting.o
-		$(CC) -o $@ random.o queue.o priority_queue.o sorting.o $(LFLAGS)
-
-war:		queue.o random.o war.o
-		$(CC) -o $@ queue.o random.o war.o $(LFLAGS)
-
-bignum:		bignum.o
-		$(CC) -o $@ bignum.o $(LFLAGS)
-
-bfs-demo:	queue.o graph.o bfs-dfs.o bfs-demo.o
-		$(CC) -o $@ queue.o graph.o bfs-dfs.o bfs-demo.o $(LFLAGS)
-
-dfs-demo:	queue.o graph.o bfs-dfs.o dfs-demo.o
-		$(CC) -o $@ queue.o graph.o bfs-dfs.o dfs-demo.o $(LFLAGS)
-
-connected:	queue.o graph.o bfs-dfs.o connected.o
-		$(CC) -o $@ queue.o graph.o bfs-dfs.o connected.o $(LFLAGS)
-
-topsort:	queue.o graph.o topsort.o
-		$(CC) -o $@ queue.o graph.o topsort.o $(LFLAGS)
-
-findcycle:	queue.o graph.o bfs-dfs.o findcycle.o
-		$(CC) -o $@ queue.o graph.o bfs-dfs.o findcycle.o $(LFLAGS)
-
-prim:		wgraph.o prim.o
-		$(CC) -o $@ wgraph.o prim.o $(LFLAGS)
-
-dijkstra:	wgraph.o dijkstra.o
-		$(CC) -o $@ wgraph.o dijkstra.o $(LFLAGS)
-
-floyd:		floyd.o
-		$(CC) -o $@ floyd.o $(LFLAGS)
-
-editbrute:	editbrute.o
-		$(CC) -o $@ editbrute.o $(LFLAGS)
-
-stringedit:	editdistance.o stringedit.o
-		$(CC) -o $@ editdistance.o stringedit.o $(LFLAGS)
-
-lcs:		editdistance.o lcs.o
-		$(CC) -o $@ editdistance.o lcs.o $(LFLAGS)
-
-substringedit:	editdistance.o substringedit.o
-		$(CC) -o $@ editdistance.o substringedit.o $(LFLAGS)
-
-superman:	geometry.o superman.o
-		$(CC) -o $@ geometry.o superman.o $(LFLAGS)
-
-convex-hull:	geometry.o convex-hull.o
-		$(CC) -o $@ geometry.o convex-hull.o $(LFLAGS)
-
-triangulate:	geometry.o triangulate.o
-		$(CC) -o $@ geometry.o triangulate.o $(LFLAGS)
-
-10055:		10055.o
-		$(CC) -o $@ 10055.o $(LFLAGS)
-
-distance:	distance.o
-		$(CC) -o $@ distance.o -lm
-
-name:		name.o
-		$(CC) -o $@ name.o $(LFLAGS)
-
-polly:		polly.o
-		$(CC) -o $@ polly.o $(LFLAGS)
-
-gcd:		gcd.o
-		$(CC) -o $@ gcd.o $(LFLAGS)
-
-primes:		primes.o
-		$(CC) -o $@ primes.o $(LFLAGS)
-
-elevator:	elevator.o
-		$(CC) -o $@ elevator.o $(LFLAGS)
-
-plates:		plates.o
-		$(CC) -o $@ plates.o $(LFLAGS)
-
-order:		order.o
-		$(CC) -o $@ order.o $(LFLAGS)
-
-geotest:	geometry.o geotest.o
-		$(CC) -o $@ geometry.o geotest.o $(LFLAGS)
-
-cgtest:		geometry.o cgtest.o
-		$(CC) -o $@ geometry.o cgtest.o $(LFLAGS)
-
-netflow:	netflow.o queue.o
-		$(CC) -o $@ netflow.o queue.o $(LFLAGS)
-
-matrix:		matrix.o
-		$(CC) -o $@ matrix.o $(LFLAGS)
-
-list-demo:	list-demo.o
-		$(CC) -o $@ list-demo.o $(LFLAGS)
-
-tree-demo:	tree-demo.o
-		$(CC) -o $@ tree-demo.o $(LFLAGS)
-
-convolve:	convolve.o
-		$(CC) -o $@ convolve.o $(LFLAGS)
-
-countedges:	countedges.o queue.o graph.o bfs-dfs.o
-		$(CC) -o $@ queue.o graph.o countedges.o bfs-dfs.o $(LFLAGS)
-
-sentinel:	sentinel.o
-		$(CC) -o $@ sentinel.o $(LFLAGS)
-
-strong1:	strong1.o bfs-dfs.o queue.o graph.o stack.o
-		$(CC) -o $@ strong1.o bfs-dfs.o queue.o graph.o stack.o $(LFLAGS)
-
-#criterion_test:		criterion_test.o
-#		$(CC) -o $@ criterion_test.o $(LFLAGS) -lcriterion
-
-lint:	
+# Legacy distribution utilities; regular development uses all, test, and clean.
+lint:
 	lint -h $(SOURCES)
 
-backup:	$(SOURCES) $(INCLUDES)
-	cp $(SOURCES) backup
-	cp $(INCLUDES) backup
- 
-clean: 	
-	rm -f core *.o a.out $(BINARIES)
-	rm -f ./tests/*.o
+backup:
+	mkdir -p backup
+	cp $(SOURCES) $(HEADERS) Makefile backup/
 
-tar:	
-	make clean
+tar:
+	$(MAKE) clean
 	tar cvf /tmp/bookprograms.tar .
 
+# Compiler-generated dependencies rebuild only the affected translation units.
+-include $(DEPENDENCIES)

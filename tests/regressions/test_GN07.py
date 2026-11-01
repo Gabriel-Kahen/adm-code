@@ -1,5 +1,7 @@
 import unittest
+
 from support import ROOT, run_c
+
 
 class IntegerPointDistance(unittest.TestCase):
     def test_large_coordinates(self):
@@ -7,7 +9,7 @@ class IntegerPointDistance(unittest.TestCase):
             code = f'''#include <stdio.h>
 #include <limits.h>
 #define main archived_main
-#include "{ROOT/name}"
+#include "{ROOT / name}"
 #undef main
 int main(void) {{
     point a={{0,0,0}}, b={{50000,0,0}};
@@ -18,7 +20,12 @@ int main(void) {{
     return distance(a,b)!=expected;
 }}
 '''
-            result = run_c(code, flags=("-std=gnu89", "-w", "-fsanitize=undefined", "-fno-sanitize-recover=all"))
+            result = run_c(
+                code,
+                flags=("-std=gnu89", "-w", "-fsanitize=undefined", "-fno-sanitize-recover=all"),
+            )
             self.assertEqual(result.returncode, 0, result.stderr)
 
-if __name__ == "__main__": unittest.main()
+
+if __name__ == "__main__":
+    unittest.main()

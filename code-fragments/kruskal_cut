@@ -1,28 +1,29 @@
 long long kruskal(graph *g) {
-    int i;                /* counter */
-    union_find s;         /* union-find data structure */
-    edge_pair *e;         /* storage for all input edges */
-    int nedges;           /* extracted non-loop edge count */
-    long long weight = 0; /* cost of the minimum spanning tree */
+    int i;                 /* counter */
+    union_find components; /* union-find data structure */
+    edge_pair *edges;      /* storage for all input edges */
+    int edge_count;        /* extracted non-loop edge count */
+    long long weight = 0;  /* cost of the minimum spanning tree */
 
-    union_find_init(&s, g->nvertices);
+    union_find_init(&components, g->nvertices);
 
-    e = malloc((g->nedges ? g->nedges : 1) * sizeof(*e));
-    if (e == NULL) {
+    edges = malloc((g->nedges ? g->nedges : 1) * sizeof(*edges));
+    if (edges == NULL) {
         perror("kruskal edge allocation");
         exit(EXIT_FAILURE);
     }
-    nedges = to_edge_array(g, e);
-    qsort(e, nedges, sizeof(*e), &weight_compare);
+    /* The extracted count excludes self-loops and determines the initialized range. */
+    edge_count = to_edge_array(g, edges);
+    qsort(edges, edge_count, sizeof(*edges), &weight_compare);
 
-    for (i = 0; i < nedges; i++) {
-        if (!same_component(&s, e[i].x, e[i].y)) {
-            printf("edge (%d,%d) in MST\n", e[i].x, e[i].y);
-            weight = weight + e[i].weight;
-            union_sets(&s, e[i].x, e[i].y);
+    for (i = 0; i < edge_count; i++) {
+        if (!same_component(&components, edges[i].x, edges[i].y)) {
+            printf("edge (%d,%d) in MST\n", edges[i].x, edges[i].y);
+            weight = weight + edges[i].weight;
+            union_sets(&components, edges[i].x, edges[i].y);
         }
     }
 
-    free(e);
+    free(edges);
     return (weight);
 }

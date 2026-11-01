@@ -1,7 +1,7 @@
 void print_books(int s[], int start, int end) {
     int i; /* counter */
 
-    printf("\{");
+    printf("{");
     for (i = start; i <= end; i++) {
         printf(" %d ", s[i]);
     }

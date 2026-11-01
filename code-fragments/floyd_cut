@@ -3,9 +3,11 @@ void floyd(adjacency_matrix *g) {
     int k;               /* intermediate vertex counter */
     long long through_k; /* distance through vertex k */
 
+    /* Phase k permits intermediate vertices 1..k on each shortest path. */
     for (k = 1; k <= g->nvertices; k++) {
         for (i = 1; i <= g->nvertices; i++) {
             for (j = 1; j <= g->nvertices; j++) {
+                /* The sentinel represents no path and must never participate in addition. */
                 if (g->weight[i][k] == MAXINT || g->weight[k][j] == MAXINT) {
                     continue;
                 }

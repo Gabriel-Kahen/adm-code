@@ -152,7 +152,7 @@ int main(void) {
     double r; /* plate radius */
 
     int i; /* counters */
-    int xmax, ymax;
+    int xmax;
 
     printf("input box width, box length, and plate radius:\n");
     scanf("%lf %lf %lf", &w, &l, &r);
@@ -164,7 +164,6 @@ int main(void) {
     /* print all the possible hexes in the box */
 
     xmax = floor(w / (2 * r));
-    ymax = dense_layers(w, l, r);
 
     for (i = 0; i < xmax; i++) {
         printf("(0,%d) has %d on top.\n", i, plates_on_top(0, i, w, l, r));

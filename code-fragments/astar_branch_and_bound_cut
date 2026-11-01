@@ -10,6 +10,7 @@ void branch_and_bound(tsp_solution *s, tsp_instance *t) {
     pq_init(&q);
     pq_insert(&q, s);
 
+    /* Queue keys are conservative lower bounds, not complete-tour costs. */
     while (!empty_pq(&q) && top_pq(&q).cost < best_cost) {
         *s = extract_min(&q);
         if (is_a_solution(s, s->n, t)) {

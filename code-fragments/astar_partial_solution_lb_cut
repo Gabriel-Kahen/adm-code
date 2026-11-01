@@ -12,8 +12,9 @@ double partial_solution_cost(tsp_solution *s, tsp_instance *t) {
 double partial_solution_lb(tsp_solution *s, tsp_instance *t) {
     int remaining = t->n - s->n + (s->n > 0);
     double bound = partial_solution_cost(s, t);
-    if (lb_flag)
+    if (lb_flag) {
         bound += remaining * minlb;
+    }
     /* Round conservatively: a lower bound must not round above a tour. */
     return fmax(0.0, bound - 64 * DBL_EPSILON * (fabs(bound) + 1));
 }

@@ -7,7 +7,7 @@ edgenode *find_edge(flow_graph *g, int x, int y) {
         if (p->v == y) {
             return (p);
         }
-        p = (edgenode *)p->next;
+        p = p->next;
     }
 
     return (NULL);
