@@ -27,6 +27,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
 
+#include <limits.h>
 #include <stdlib.h>
 #include "bool.h"
 
@@ -38,7 +39,7 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 #define	MAXV		100		/* maximum number of vertices */
 #define MAXDEGREE	50		/* maximum outdegree of a vertex */
 
-#define MAXINT	100007
+#define MAXINT (LLONG_MAX / 4)
 
 typedef struct {
 	int v;				/* neighboring vertex */
@@ -54,7 +55,7 @@ typedef struct {
 } graph;
 
 typedef struct {
-        int weight[MAXV+1][MAXV+1];    	/* adjacency/weight info */
+        long long weight[MAXV+1][MAXV+1];    	/* adjacency/weight info */
         int nvertices;                  /* number of vertices in the graph */
 } adjacency_matrix;
 
@@ -109,7 +110,7 @@ print_adjacency_matrix(adjacency_matrix *g)
         for (i=1; i<=g->nvertices; i++) {
                 printf("%3d: ",i);
                 for (j=1; j<=g->nvertices; j++)
-                                printf(" %3d",g->weight[i][j]);
+                                printf(" %3lld",g->weight[i][j]);
                 printf("\n");
         }
 }
@@ -120,7 +121,7 @@ floyd(adjacency_matrix *g)
 {
 	int i,j;			/* dimension counters */
 	int k;				/* intermediate vertex counter */
-	int through_k;			/* distance through vertex k */
+	long long through_k;			/* distance through vertex k */
 
 	for (k=1; k<=g->nvertices; k++)
 		for (i=1; i<=g->nvertices; i++)

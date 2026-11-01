@@ -27,11 +27,12 @@ http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
 
+#include <limits.h>
 #include <stdlib.h>
 #include "bool.h"
 #include "wgraph.h"
 
-#define MAXINT	100007
+#define MAXINT (LLONG_MAX / 4)
 
 int parent[MAXV];               /* discovery relation */
 
@@ -43,11 +44,11 @@ prim(graph *g, int start)
 {
 	int i,j;			/* counters */
 	bool intree[MAXV];		/* is the vertex in the tree yet? */
-	int distance[MAXV];		/* distance vertex is from start */
+	long long distance[MAXV];		/* distance vertex is from start */
 	int v;				/* current vertex to process */
 	int w;				/* candidate next vertex */
-	int weight;			/* edge weight */
-	int dist;			/* best current distance from start */
+	long long weight;			/* edge weight */
+	long long dist;			/* best current distance from start */
 
 	for (i=1; i<=g->nvertices; i++) {
 		intree[i] = FALSE;

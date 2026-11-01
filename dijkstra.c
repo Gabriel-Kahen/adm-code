@@ -20,28 +20,29 @@ or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <stdbool.h>
 #include "bfs-dfs.h"
 
-#define MAXINT  100007
+#define MAXINT (LLONG_MAX / 4)
 
 int parent[MAXV+1];    /* discovery relation */
 
 /* WAS prim(g,start) */
 
 /* [[[ dijkstra_cut */
-int dijkstra(graph *g, int start) {
+long long dijkstra(graph *g, int start) {
     int i;                 /* counter */
     edgenode *p;           /* temporary pointer */
     bool intree[MAXV+1];   /* is the vertex in the tree yet? */
-    int distance[MAXV+1];  /* cost of adding to tree */
+    long long distance[MAXV+1];  /* cost of adding to tree */
     int v;                 /* current vertex to process */
     int w;                 /* candidate next vertex */
-    int dist;              /* cheapest cost to enlarge tree */
-    int weight = 0;        /* tree weight */
+    long long dist;              /* cheapest cost to enlarge tree */
+    long long weight = 0;        /* tree weight */
 
     for (i = 1; i <= g->nvertices; i++) {
         intree[i] = false;
@@ -85,12 +86,12 @@ int dijkstra(graph *g, int start) {
 int main(void) {
     graph g;
     int i;
-    int weight;
+    long long weight;
 
     read_graph(&g, false);
     weight = dijkstra(&g, 1);
 
-    printf("Total SPST edgeweight = %d \n",weight);
+    printf("Total SPST edgeweight = %lld \n",weight);
 
     for (i = 1; i <= g.nvertices; i++) {
         find_path(1, i, parent);
