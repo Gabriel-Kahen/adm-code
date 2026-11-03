@@ -98,7 +98,7 @@ Tour exact_tsp(const std::vector<Point> &points, const std::string &method) {
         } else {
             auto later = [](const State &a, const State &b) { return a.bound > b.bound; };
             TourQueue<State, decltype(later)> ready(later);
-            ready.push(first);
+            ready.push(std::move(first));
             while (!ready.empty()) {
                 State state = ready.top();
                 ready.pop();
