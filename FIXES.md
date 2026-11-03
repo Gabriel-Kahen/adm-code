@@ -1,8 +1,8 @@
 # Fixes to the original code
 
 Concise index of the 50 audit findings and supporting corrections, including
-historical copies. [Audit details](AUDIT_FIXES.md) contain PRs, upstream links,
-and tests; [receipts](audit/fixes/) retain individual records.
+historical copies. [Audit details](https://github.com/Gabriel-Kahen/adm-code/blob/357b45cd6c1dd48e9ca2b5bd23a7390c6b0e234d/AUDIT_FIXES.md) contain PRs, upstream links,
+and tests; [receipts](https://github.com/Gabriel-Kahen/adm-code/tree/357b45cd6c1dd48e9ca2b5bd23a7390c6b0e234d/audit/fixes) retain individual records.
 
 ## Search, trees, and strings
 
