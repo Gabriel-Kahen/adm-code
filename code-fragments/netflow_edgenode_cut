@@ -1,7 +1,0 @@
-typedef struct edgenode {
-    int v;                 /* neighboring vertex */
-    long long capacity;    /* capacity of edge */
-    long long flow;        /* signed net flow; reverse edge stores its negative */
-    long long residual;    /* residual capacity of edge */
-    struct edgenode *next; /* next edge in list */
-} edgenode;
