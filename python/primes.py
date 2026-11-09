@@ -22,9 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+import math
 
+from ._c import EOF, printf, scanf
 
 
 def prime_factorization(x):
@@ -35,7 +35,7 @@ def prime_factorization(x):
         printf("%d\n", 2)
         c = c // 2
     i = 3
-    while (i <= (sqrt(c) + 1)):
+    while (i <= (math.sqrt(c) + 1)):
         if (c % i == 0):
             printf("%ld\n", i)
             c = c // i
@@ -54,4 +54,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

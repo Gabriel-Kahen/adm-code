@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Geometry {
     public static final double PI = 3.1415926; /* ratio of circumference to diameter */
     public static final double EPSILON = 0.000001; /* a quantity small enough to be zero */
@@ -76,12 +78,12 @@ public class Geometry {
 
     public static void intersection_point(Geometry.line l1, Geometry.line l2, double[] p) {
         if (same_lineQ(l1, l2)) {
-            C.printf("Warning: Identical lines, all points intersect.\n");
+            System.out.print("Warning: Identical lines, all points intersect.\n");
             p[X] = (p[Y] = 0.0);
             return;
         }
         if (parallelQ(l1, l2)) {
-            C.printf("Error: Distinct parallel lines do not intersect.\n");
+            System.out.print("Error: Distinct parallel lines do not intersect.\n");
             return;
         }
         p[X] = (((l2.b * l1.c) - (l1.b * l2.c)) / ((l2.a * l1.b) - (l1.a * l2.b)));
@@ -182,27 +184,27 @@ public class Geometry {
     public static void print_points(double[][] p, int n) {
         int i = 0; /* counter */
         for (i = 0; (i < n); i++) {
-            C.printf("(%lf,%lf)\n", p[i][X], p[i][Y]);
+            System.out.printf(Locale.US, "(%f,%f)\n", p[i][X], p[i][Y]);
         }
     }
 
     public static void print_polygon(Geometry.polygon p) {
         int i = 0; /* counter */
         for (i = 0; (i < p.n); i++) {
-            C.printf("(%lf,%lf)\n", p.p[i][X], p.p[i][Y]);
+            System.out.printf(Locale.US, "(%f,%f)\n", p.p[i][X], p.p[i][Y]);
         }
     }
 
     public static void print_point(double[] p) {
-        C.printf("%7.3lf %7.3lf\n", p[X], p[Y]);
+        System.out.printf(Locale.US, "%7.3f %7.3f\n", p[X], p[Y]);
     }
 
     public static void print_line(Geometry.line l) {
-        C.printf("(a=%7.3lf,b=%7.3lf,c=%7.3lf)\n", l.a, l.b, l.c);
+        System.out.printf(Locale.US, "(a=%7.3f,b=%7.3f,c=%7.3f)\n", l.a, l.b, l.c);
     }
 
     public static void print_segment(Geometry.segment s) {
-        C.printf("segment: ");
+        System.out.print("segment: ");
         print_point(s.p1);
         print_point(s.p2);
     }

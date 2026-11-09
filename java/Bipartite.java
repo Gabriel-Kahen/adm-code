@@ -18,6 +18,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Bipartite {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -50,7 +52,7 @@ public class Bipartite {
     public static void process_edge(int x, int y) {
         if ((color[x] == color[y])) {
             bipartite = false;
-            C.printf("Warning: not bipartite, due to (%d,%d)\n", x, y);
+            System.out.printf(Locale.US, "Warning: not bipartite, due to (%d,%d)\n", x, y);
         }
         color[y] = complement(color[x]);
     }
@@ -82,9 +84,9 @@ public class Bipartite {
         Graph.print_graph(g);
         twocolor(g);
         for (i = 1; (i <= g.nvertices); i++) {
-            C.printf(" %d", color[i]);
+            System.out.printf(Locale.US, " %d", color[i]);
         }
-        C.printf("\n");
+        System.out.print("\n");
         return 0;
     }
 

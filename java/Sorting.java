@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Sorting {
     public static final int PQ_SIZE = 1000;
     public static final int QUEUESIZE = 1000;
@@ -169,57 +171,57 @@ public class Sorting {
         }
         Random.random_permutation(s, NELEM);
         insertion_sort(s, NELEM);
-        C.printf("\n\nInsertion sort: \n");
+        System.out.print("\n\nInsertion sort: \n");
         for (i = 0; (i < NELEM); i++) {
-            C.printf("%d ", s[i]);
+            System.out.printf(Locale.US, "%d ", s[i]);
         }
         for (i = 0; (i < NELEM); i++) {
             s[i] = (NELEM - i);
         }
         Random.random_permutation(s, NELEM);
         selection_sort(s, NELEM);
-        C.printf("\n\nSelection sort: \n");
+        System.out.print("\n\nSelection sort: \n");
         for (i = 0; (i < NELEM); i++) {
-            C.printf("%d ", s[i]);
+            System.out.printf(Locale.US, "%d ", s[i]);
         }
         for (i = 0; (i < NELEM); i++) {
             s[i] = (NELEM - i);
         }
         Random.random_permutation(s, NELEM);
         quicksort(s, 0, (NELEM - 1));
-        C.printf("\n\nQuicksort: \n");
+        System.out.print("\n\nQuicksort: \n");
         for (i = 0; (i < NELEM); i++) {
-            C.printf("%d ", s[i]);
+            System.out.printf(Locale.US, "%d ", s[i]);
         }
         for (i = 0; (i < NELEM); i++) {
             s[i] = (NELEM - i);
         }
         Random.random_permutation(s, NELEM);
         heapsort_(s, NELEM);
-        C.printf("\n\nHeapsort sort: \n");
+        System.out.print("\n\nHeapsort sort: \n");
         for (i = 0; (i < NELEM); i++) {
-            C.printf("%d ", s[i]);
+            System.out.printf(Locale.US, "%d ", s[i]);
         }
         for (i = 0; (i < NELEM); i++) {
             s[i] = (NELEM - i);
         }
         Random.random_permutation(s, NELEM);
         merge_sort(s, 0, (NELEM - 1));
-        C.printf("\n\nMergesort: \n");
+        System.out.print("\n\nMergesort: \n");
         for (i = 0; (i < NELEM); i++) {
-            C.printf("%d ", s[i]);
+            System.out.printf(Locale.US, "%d ", s[i]);
         }
-        C.printf("\n");
-        C.printf("\n");
+        System.out.print("\n");
+        System.out.print("\n");
         /* test binary search */
-        C.printf("Binary Search: \n");
+        System.out.print("Binary Search: \n");
         for (i = 0; (i < NELEM); i++) {
             s[i] = (2 * (NELEM - i));
         }
         Random.random_permutation(s, NELEM);
         heapsort_(s, NELEM);
         for (i = 2; (i < ((2 * NELEM) + 1)); i += 2) {
-            C.printf("%d found in %d\n", i, binary_search(s, i, 0, (NELEM - 1)));
+            System.out.printf(Locale.US, "%d found in %d\n", i, binary_search(s, i, 0, (NELEM - 1)));
         }
         return 0;
     }

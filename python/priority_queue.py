@@ -22,8 +22,8 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+
+from ._c import printf
 
 class priority_queue:
     def __init__(self):

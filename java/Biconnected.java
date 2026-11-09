@@ -18,6 +18,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Biconnected {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -38,19 +40,19 @@ public class Biconnected {
         int time_parent = 0; /* earliest reachable time for parent[v] */
         if ((BfsDfs.parent[v] == (-1))) { /* test if v is the root */
             if ((tree_out_degree[v] > 1)) {
-                C.printf("root articulation vertex: %d \n", v);
+                System.out.printf(Locale.US, "root articulation vertex: %d \n", v);
             }
             return;
         }
         root = (BfsDfs.parent[BfsDfs.parent[v]] == (-1)); /* is parent[v] the root? */
         if (!(root)) { /* is parent[v] the root of the DFS tree? */
             if ((reachable_ancestor[v] == BfsDfs.parent[v])) {
-                C.printf("parent articulation vertex: %d \n", BfsDfs.parent[v]);
+                System.out.printf(Locale.US, "parent articulation vertex: %d \n", BfsDfs.parent[v]);
             }
             if ((reachable_ancestor[v] == v)) {
-                C.printf("bridge articulation vertex: %d \n", BfsDfs.parent[v]);
+                System.out.printf(Locale.US, "bridge articulation vertex: %d \n", BfsDfs.parent[v]);
                 if ((tree_out_degree[v] > 0)) { /* is v is not a leaf? */
-                    C.printf("bridge articulation vertex: %d \n", v);
+                    System.out.printf(Locale.US, "bridge articulation vertex: %d \n", v);
                 }
             }
         }

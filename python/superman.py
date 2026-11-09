@@ -22,8 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+import math
+
+from ._c import address, fprintf, printf, scanf, stderr
 from . import geometry
 
 # maximum number of circles
@@ -57,8 +58,8 @@ def superman():
         geometry.closest_point(c[i].c, l, close)
         d = geometry.distance(c[i].c, close)
         if (((d >= 0) and (d < c[i].r)) and geometry.point_in_box(close, s, t)):
-            xray += (2 * sqrt(((c[i].r * c[i].r) - (d * d))))
-            angle = acos((d / c[i].r))
+            xray += (2 * math.sqrt(((c[i].r * c[i].r) - (d * d))))
+            angle = math.acos((d / c[i].r))
             around += (((2 * angle) / (2 * geometry.PI)) * ((2 * geometry.PI) * c[i].r))
             printf("circle %d (%7.3lf,%7.3lf,%7.3lf) is %7.3lf away from l, xray=%7.3lf around=%7.3lf angle=%7.3lf.\n", i, c[i].c[geometry.X], c[i].c[geometry.Y], c[i].r, d, xray, around, angle)
         i += 1
@@ -90,4 +91,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

@@ -25,8 +25,11 @@ indices, sentinels, loop order, tie breaking, and demonstrations. In particular:
 Language-required changes, such as references instead of C pointers, scalar
 out-parameters, Java classes, and input/output adapters, do not replace the
 teaching algorithms. The original comments and copyright notices remain.
-`java/C.java` and `python/_c.py` contain only the C I/O, string, reference/value,
-numeric, and runtime-primitive adapters; algorithms remain in their matching files.
+Use native operators, initialization, math, and library calls when they express
+the same operation directly. `java/C.java` and `python/_c.py` retain adapters
+where C behavior needs translation, such as streaming input, NUL-terminated
+buffers, output parameters, and struct value copies. Algorithms remain in their
+matching files.
 
 ## Build and run
 

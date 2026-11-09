@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Partition {
     public static final int MAXN = 45; /* largest number of books */
     public static final int MAXK = 10; /* largest number of dividers */
@@ -41,22 +43,22 @@ public class Partition {
 
     public static void print_books(int[] s, int start, int end) {
         int i = 0; /* counter */
-        C.printf("{");
+        System.out.print("{");
         for (i = start; (i <= end); i++) {
-            C.printf(" %d ", s[i]);
+            System.out.printf(Locale.US, " %d ", s[i]);
         }
-        C.printf("}\n");
+        System.out.print("}\n");
     }
 
     public static void print_matrix(long[][] m, int n, int k) {
         int i = 0; /* counters */
         int j = 0;
-        C.printf("\n");
+        System.out.print("\n");
         for (i = 1; (i <= n); i++) {
             for (j = 1; (j <= k); j++) {
-                C.printf(" %lld ", m[i][j]);
+                System.out.printf(Locale.US, " %d ", m[i][j]);
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
     }
 
@@ -78,7 +80,7 @@ public class Partition {
         int j = 0;
         int x = 0;
         if ((((((n < 1) || (n > MAXN)) || (k < 1)) || (k > MAXK)) || (k > n))) {
-            C.fprintf("invalid partition dimensions\n");
+            System.err.print("invalid partition dimensions\n");
             return;
         }
         prefix_sum[0] = 0; /* construct prefix sums */

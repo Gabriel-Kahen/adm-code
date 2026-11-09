@@ -22,8 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+import math
+
+from ._c import address, offset, printf, scanf
 from . import annealing
 from . import random
 
@@ -89,7 +90,7 @@ def distance(s, x, y, t):
         i = t.n
     if (j == 0):
         j = t.n
-    return hypot((float(t.p[s.p[i]].x) - t.p[s.p[j]].x), (float(t.p[s.p[i]].y) - t.p[s.p[j]].y))
+    return math.hypot((float(t.p[s.p[i]].x) - t.p[s.p[j]].x), (float(t.p[s.p[i]].y) - t.p[s.p[j]].y))
 
 
 def solution_cost(s, t):
@@ -144,29 +145,27 @@ def random_solution(s):
 
 
 def transition(s, t, i, j):
-    i = [i]
-    j = [j]
     # willbe: before and after costs
     # neighbors: i,j neighboring tour positions?
     neighbors = False
-    if (i[0] == j[0]):
+    if (i == j):
         return 0.0
-    if (i[0] > j[0]):
-        return transition(s, t, j[0], i[0])
-    if (i[0] == (j[0] - 1)):
+    if (i > j):
+        return transition(s, t, j, i)
+    if (i == (j - 1)):
         neighbors = True
-    if ((i[0] == 1) and (j[0] == s.n)):
-        random.swap(i, j)
+    if ((i == 1) and (j == s.n)):
+        i, j = j, i
         neighbors = True
     if neighbors:
-        was = (distance(s, (i[0] - 1), i[0], t) + distance(s, j[0], (j[0] + 1), t))
+        was = (distance(s, (i - 1), i, t) + distance(s, j, (j + 1), t))
     else:
-        was = (((distance(s, (i[0] - 1), i[0], t) + distance(s, i[0], (i[0] + 1), t)) + distance(s, (j[0] - 1), j[0], t)) + distance(s, j[0], (j[0] + 1), t))
-    random.swap(address(s.p, i[0]), address(s.p, j[0]))
+        was = (((distance(s, (i - 1), i, t) + distance(s, i, (i + 1), t)) + distance(s, (j - 1), j, t)) + distance(s, j, (j + 1), t))
+    random.swap(s.p, i, j)
     if neighbors:
-        willbe = (distance(s, (i[0] - 1), i[0], t) + distance(s, j[0], (j[0] + 1), t))
+        willbe = (distance(s, (i - 1), i, t) + distance(s, j, (j + 1), t))
     else:
-        willbe = (((distance(s, (i[0] - 1), i[0], t) + distance(s, i[0], (i[0] + 1), t)) + distance(s, (j[0] - 1), j[0], t)) + distance(s, j[0], (j[0] + 1), t))
+        willbe = (((distance(s, (i - 1), i, t) + distance(s, i, (i + 1), t)) + distance(s, (j - 1), j, t)) + distance(s, j, (j + 1), t))
     return (willbe - was)
 
 
@@ -210,4 +209,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

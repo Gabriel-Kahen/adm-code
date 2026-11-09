@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Strong {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -38,11 +40,11 @@ public class Strong {
     public static void pop_component(int v) {
         int t = 0; /* vertex placeholder */
         components_found = (components_found + 1);
-        C.printf("%d is in component %d \n", v, components_found);
+        System.out.printf(Locale.US, "%d is in component %d \n", v, components_found);
         scc[v] = components_found;
         while (((t = Stack.pop(active)) != v)) {
             scc[t] = components_found;
-            C.printf("%d is in component %d \n", t, components_found);
+            System.out.printf(Locale.US, "%d is in component %d \n", t, components_found);
         }
     }
 

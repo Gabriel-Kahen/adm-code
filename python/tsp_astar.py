@@ -22,8 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+import math
+
+from ._c import DBL_EPSILON, address, copy_struct, printf, scanf
 from . import tsp_pq
 
 # maximum number of points
@@ -218,7 +219,7 @@ def sq(x):
 
 
 def d(x1, y1, x2, y2):
-    return hypot((float(x1) - x2), (float(y1) - y2))
+    return math.hypot((float(x1) - x2), (float(y1) - y2))
 
 
 def d1(i, j, t):
@@ -268,7 +269,7 @@ def partial_solution_lb(s, t):
     if lb_flag:
         bound += (remaining * minlb)
     # Round conservatively: a lower bound must not round above a tour.
-    return fmax(0.0, (bound - ((64 * DBL_EPSILON) * (fabs(bound) + 1))))
+    return max(0.0, (bound - ((64 * DBL_EPSILON) * (abs(bound) + 1))))
 
 
 def initialize_solution(s, t):
@@ -401,4 +402,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

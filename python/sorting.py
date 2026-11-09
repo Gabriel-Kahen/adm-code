@@ -22,8 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+from ._c import printf
 from . import priority_queue
 from . import queue
 from . import random
@@ -57,7 +56,7 @@ def insertion_sort(s, n):
     while (i < n):
         j = i
         while ((j > 0) and (s[j] < s[(j - 1)])):
-            random.swap(address(s, j), address(s, (j - 1)))
+            random.swap(s, j, j - 1)
             j = (j - 1)
         i += 1
 
@@ -73,7 +72,7 @@ def selection_sort(s, n):
             if (s[j] < s[min]):
                 min = j
             j += 1
-        random.swap(address(s, i), address(s, min))
+        random.swap(s, i, min)
         i += 1
 
 
@@ -87,10 +86,10 @@ def partition(s, l, h):
     i = l
     while (i < h):
         if (s[i] < s[p]):
-            random.swap(address(s, i), address(s, firsthigh))
+            random.swap(s, i, firsthigh)
             firsthigh += 1
         i += 1
-    random.swap(address(s, p), address(s, firsthigh))
+    random.swap(s, p, firsthigh)
     return firsthigh
 
 
@@ -244,4 +243,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

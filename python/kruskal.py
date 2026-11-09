@@ -22,8 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+from functools import cmp_to_key
+
+from ._c import EXIT_FAILURE, perror, printf
 from . import graph
 from . import set_union
 from . import wgraph
@@ -81,10 +82,10 @@ def kruskal(g):
     edges = [edge_pair() for _ in range((g.nedges if g.nedges else 1))]
     if (edges == None):
         perror("kruskal edge allocation")
-        exit(EXIT_FAILURE)
+        raise SystemExit(EXIT_FAILURE)
     # The extracted count excludes self-loops and determines the initialized range.
     edge_count = to_edge_array(g, edges)
-    qsort(edges, edge_count, weight_compare, 0)
+    edges[:edge_count] = sorted(edges[:edge_count], key=cmp_to_key(weight_compare))
     i = 0
     while (i < edge_count):
         if (not set_union.same_component(components, edges[i].x, edges[i].y)):
@@ -106,4 +107,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

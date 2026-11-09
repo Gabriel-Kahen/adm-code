@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Editdistance {
     public interface Callbacks {
         void row_init(int i, cell[][] m);
@@ -97,21 +99,21 @@ public class Editdistance {
         int y = 0;
         x = C.strlen(s);
         y = C.strlen(t);
-        C.printf("   ");
+        System.out.print("   ");
         for (i = 0; (i < y); i++) {
-            C.printf("  %c", t[i]);
+            System.out.printf(Locale.US, "  %c", t[i]);
         }
-        C.printf("\n");
+        System.out.print("\n");
         for (i = 0; (i < x); i++) {
-            C.printf("%c: ", s[i]);
+            System.out.printf(Locale.US, "%c: ", s[i]);
             for (j = 0; (j < y); j++) {
                 if (costQ) {
-                    C.printf(" %2d", m[i][j].cost);
+                    System.out.printf(Locale.US, " %2d", m[i][j].cost);
                 } else {
-                    C.printf(" %2d", m[i][j].parent);
+                    System.out.printf(Locale.US, " %2d", m[i][j].parent);
                 }
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
     }
 

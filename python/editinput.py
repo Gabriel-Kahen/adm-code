@@ -8,9 +8,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
-
+from ._c import EOF, getchar
 
 
 # Read a bounded token with the edit-distance sentinel in slot zero.
@@ -19,7 +17,7 @@ def read_edit_string(s, limit):
     s[0] = ord(' ')
     while True:
         c = getchar()
-        if not (((c != EOF) and isspace(unsigned(c)))):
+        if not (((c != EOF) and chr(c).isspace())):
             break
     if (c == EOF):
         return 0
@@ -29,7 +27,7 @@ def read_edit_string(s, limit):
         length += 1
         s[length] = int(c)
         c = getchar()
-        if not (((c != EOF) and (not isspace(unsigned(c))))):
+        if not (((c != EOF) and (not chr(c).isspace()))):
             break
     s[(length + 1)] = ord('\0')
     return 1

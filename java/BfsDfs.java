@@ -18,6 +18,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class BfsDfs {
     public interface Callbacks {
         void process_vertex_early(int v);
@@ -92,7 +94,7 @@ public class BfsDfs {
         if ((processed[y] && (entry_time[y] < entry_time[x]))) {
             return CROSS;
         }
-        C.printf("Warning: self loop (%d,%d)\n", x, y);
+        System.out.printf(Locale.US, "Warning: self loop (%d,%d)\n", x, y);
         return (-1);
     }
 
@@ -145,16 +147,16 @@ public class BfsDfs {
 
     public static int find_path(int start, int end, int[] parents) {
         if ((end == (-1))) {
-            C.printf("\nNo path");
+            System.out.print("\nNo path");
             return 0;
         }
         if ((start == end)) {
-            C.printf("\n%d", start);
+            System.out.printf(Locale.US, "\n%d", start);
         } else {
             if (!((find_path(start, parents[end], parents) != 0))) {
                 return 0;
             }
-            C.printf(" %d", end);
+            System.out.printf(Locale.US, " %d", end);
         }
         return 1;
     }

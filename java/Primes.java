@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Primes {
 
     public static void prime_factorization(long x) {
@@ -26,20 +28,20 @@ public class Primes {
         long c = 0; /* remaining product to factor */
         c = x;
         while (((c % 2) == 0)) {
-            C.printf("%d\n", 2);
+            System.out.printf(Locale.US, "%d\n", 2);
             c = (c / 2);
         }
         i = 3;
         while ((i <= (Math.sqrt(c) + 1))) {
             if (((c % i) == 0)) {
-                C.printf("%ld\n", i);
+                System.out.printf(Locale.US, "%d\n", i);
                 c = (c / i);
             } else {
                 i = (i + 2);
             }
         }
         if ((c > 1)) {
-            C.printf("%ld\n", c);
+            System.out.printf(Locale.US, "%d\n", c);
         }
     }
 
@@ -49,7 +51,7 @@ public class Primes {
             int _read0 = C.scan("%ld");
             if (_read0 > 0) p = C.scanLong(0);
             if (!((_read0 != -1))) break;
-            C.printf("prime factorization of p=%ld \n", p);
+            System.out.printf(Locale.US, "prime factorization of p=%d \n", p);
             prime_factorization(p);
         }
         return 0;

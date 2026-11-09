@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class ListDemo {
     public static class list {
         int item = 0; /* data item */
@@ -68,10 +70,10 @@ public class ListDemo {
 
     public static void print_list(ListDemo.list l) {
         while ((l != null)) {
-            C.printf("%d ", l.item);
+            System.out.printf(Locale.US, "%d ", l.item);
             l = l.next;
         }
-        C.printf("\n");
+        System.out.print("\n");
     }
 
     public static list delete_list(list l, list x) {
@@ -101,7 +103,7 @@ public class ListDemo {
             if ((Character.toLowerCase(c) == 'i')) {
                 int _read1 = C.scan("%d");
                 if (_read1 > 0) d = C.scanInt(0);
-                C.printf("new item: %d\n", d);
+                System.out.printf(Locale.US, "new item: %d\n", d);
                 l = insert_list(l, d);
             }
             if ((Character.toLowerCase(c) == 's')) {
@@ -109,9 +111,9 @@ public class ListDemo {
                 if (_read2 > 0) d = C.scanInt(0);
                 tmp = search_list(l, d);
                 if ((tmp == null)) {
-                    C.printf("item %d not found\n", d);
+                    System.out.printf(Locale.US, "item %d not found\n", d);
                 } else {
-                    C.printf("item %d found\n", d);
+                    System.out.printf(Locale.US, "item %d found\n", d);
                 }
             }
             if ((Character.toLowerCase(c) == 'd')) {
@@ -119,10 +121,10 @@ public class ListDemo {
                 if (_read3 > 0) d = C.scanInt(0);
                 tmp = search_list(l, d);
                 if ((tmp == null)) {
-                    C.printf("item to delete %d not found\n", d);
+                    System.out.printf(Locale.US, "item to delete %d not found\n", d);
                 } else {
                     l = delete_list(l, tmp);
-                    C.printf("item %d deleted\n", d);
+                    System.out.printf(Locale.US, "item %d deleted\n", d);
                 }
             }
         }

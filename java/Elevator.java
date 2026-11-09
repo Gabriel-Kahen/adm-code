@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Elevator {
     public static final int NFLOORS = 25; /* the height of the building in floors */
     public static final int MAX_RIDERS = 50; /* what is the capacity of the elevator? */
@@ -88,7 +90,7 @@ public class Elevator {
         if ((stops_to_go > 1)) {
             reconstruct_path(p[lastfloor][stops_to_go], (stops_to_go - 1));
         }
-        C.printf("%d\n", lastfloor);
+        System.out.printf(Locale.US, "%d\n", lastfloor);
     }
 
     public static void print_matrix(int[][] m) {
@@ -96,9 +98,9 @@ public class Elevator {
         int j = 0;
         for (j = 0; (j <= nstops); j++) {
             for (i = 0; (i <= NFLOORS); i++) {
-                C.printf("%3d", m[i][j]);
+                System.out.printf(Locale.US, "%3d", m[i][j]);
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
     }
 
@@ -109,25 +111,25 @@ public class Elevator {
         if (_read0 > 0) nriders = C.scanInt(0);
         if (_read0 > 1) nstops = C.scanInt(1);
         if ((((((_read0 != 2) || (nriders < 0)) || (nriders > MAX_RIDERS)) || (nstops < 0)) || (nstops > MAX_RIDERS))) {
-            C.fprintf("invalid elevator dimensions\n");
+            System.err.print("invalid elevator dimensions\n");
             return 1;
         }
         for (i = 1; (i <= nriders); i++) {
             int _read1 = C.scan("%d");
             if (_read1 > 0) stops[i] = C.scanInt(0);
             if ((((_read1 != 1) || (stops[i] < 0)) || (stops[i] > NFLOORS))) {
-                C.fprintf("invalid destination floor\n");
+                System.err.print("invalid destination floor\n");
                 return 1;
             }
         }
         for (i = 1; (i <= nriders); i++) {
-            C.printf("%d\n", stops[i]);
+            System.out.printf(Locale.US, "%d\n", stops[i]);
         }
         laststop = optimize_floors();
         print_matrix(m);
-        C.printf("\n");
+        System.out.print("\n");
         print_matrix(p);
-        C.printf("cost = %d\n", m[laststop][nstops]);
+        System.out.printf(Locale.US, "cost = %d\n", m[laststop][nstops]);
         reconstruct_path(laststop, nstops);
         return 0;
     }

@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Order {
     public static final double PI = 3.1415926; /* ratio of circumference to diameter */
     public static final double EPSILON = 0.000001; /* a quantity small enough to be zero */
@@ -28,7 +30,7 @@ public class Order {
     public static final int MAXPOLY = 200; /* maximum number of points in a polygon */
 
     public static void process(int i, int j) {
-        C.printf("(%d,%d)\n", i, j);
+        System.out.printf(Locale.US, "(%d,%d)\n", i, j);
     }
 
     public static void row_major(int n, int m) {
@@ -76,15 +78,15 @@ public class Order {
     }
 
     public static int main() {
-        C.printf("row_major\n");
+        System.out.print("row_major\n");
         row_major(5, 5);
-        C.printf("\ncolumn_major\n");
+        System.out.print("\ncolumn_major\n");
         column_major(3, 3);
-        C.printf("\nsnake_order\n");
+        System.out.print("\nsnake_order\n");
         snake_order(5, 5);
-        C.printf("\ndiagonal_order\n");
+        System.out.print("\ndiagonal_order\n");
         diagonal_order(3, 4);
-        C.printf("\ndiagonal_order\n");
+        System.out.print("\ndiagonal_order\n");
         diagonal_order(4, 3);
         return 0;
     }

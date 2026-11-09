@@ -22,8 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+from ._c import EOF, EXIT_FAILURE, copy_struct, fprintf, printf, scanf, stderr
 
 # maximum length bignum
 # positive sign bit
@@ -45,7 +44,7 @@ MINUS = (-1)
 
 def bignum_capacity_error():
     fprintf(stderr, "bignum capacity exceeded\n")
-    exit(EXIT_FAILURE)
+    raise SystemExit(EXIT_FAILURE)
 
 
 def print_bignum(n):
@@ -78,8 +77,8 @@ def int_to_bignum(s, n):
         n.digits[i] = int(0)
         i += 1
     n.lastdigit = (-1)
-    # Unsigned subtraction also handles INT_MIN, whose signed negation does not fit.
-    magnitude = (unsigned(0 - unsigned(s)) if (s < 0) else unsigned(s))
+    # Python integers also represent the magnitude of INT_MIN.
+    magnitude = abs(s)
     while (magnitude > 0):
         n.lastdigit += 1
         n.digits[n.lastdigit] = magnitude % 10
@@ -287,4 +286,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

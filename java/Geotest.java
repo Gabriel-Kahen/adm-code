@@ -58,7 +58,7 @@ public class Geotest {
             Geometry.points_to_line(q1, q2, l2);
             Geometry.print_line(l1);
             Geometry.print_line(l2);
-            C.printf("slope and line tests\n");
+            System.out.print("slope and line tests\n");
             Geometry.point_and_slope_to_line(p1, (-l1.a), l3);
             Geometry.print_line(l3);
             Geometry.point_and_slope_to_line(p2, (-l1.a), l3);
@@ -67,12 +67,12 @@ public class Geotest {
             Geometry.print_line(l3);
             Geometry.point_and_slope_to_line(q2, (-l2.a), l3);
             Geometry.print_line(l3);
-            C.printf("parallel lines test\n");
+            System.out.print("parallel lines test\n");
             C.printf("%d\n", Geometry.parallelQ(l1, l2));
-            C.printf("intersection point\n");
+            System.out.print("intersection point\n");
             Geometry.intersection_point(l1, l2, i);
             Geometry.print_point(i);
-            C.printf("closest point\n");
+            System.out.print("closest point\n");
             Geometry.closest_point(p1, l1, i);
             Geometry.print_point(i);
             Geometry.closest_point(p2, l1, i);
@@ -89,7 +89,7 @@ public class Geotest {
             Geometry.print_point(i);
             Geometry.closest_point(q2, l2, i);
             Geometry.print_point(i);
-            C.printf("--------------------------------\n");
+            System.out.print("--------------------------------\n");
         }
         return 0;
     }

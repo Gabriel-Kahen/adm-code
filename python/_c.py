@@ -1,12 +1,9 @@
 """Small adapters for the C examples' I/O and value/reference semantics."""
 
 import copy
-import math
 import os
 import re
 import sys
-import random as _random
-from functools import cmp_to_key
 
 LONG_MAX = LLONG_MAX = 9223372036854775807
 LONG_MIN = -9223372036854775808
@@ -55,45 +52,8 @@ class offset:
         return len(self.array) - self.start
 
 
-def unsigned(value):
-    return value & 0xffffffff
-
-
-def assign(destination, value):
-    destination[0] = value
-    return value
-
-
-def increment(destination, amount, postfix):
-    old = destination[0]
-    destination[0] += amount
-    return old if postfix else destination[0]
-
-
 def copy_struct(destination, source):
     destination.__dict__.update(copy.deepcopy(source.__dict__))
-
-
-def struct_init(destination, values):
-    for name, value in zip(destination.__dict__, values):
-        setattr(destination, name, value)
-    return destination
-
-
-def array_init(destination, values):
-    for i, value in enumerate(values):
-        if isinstance(destination[i], list) and isinstance(value, list):
-            array_init(destination[i], value)
-        else:
-            destination[i] = value
-    return destination
-
-
-def char_array(text, size):
-    result = [0] * size
-    for i, char in enumerate(text[:size]):
-        result[i] = ord(char)
-    return result
 
 
 def string(value):
@@ -121,35 +81,6 @@ def strcpy(destination, source):
     for i, value in enumerate(values):
         destination[i] = value
     return destination
-
-
-def strncpy(destination, source, n):
-    values = [ord(c) for c in string(source)]
-    for i in range(n):
-        destination[i] = values[i] if i < len(values) else 0
-    return destination
-
-
-def memcpy(destination, source, n):
-    for i in range(n):
-        destination[i] = copy.deepcopy(source[i])
-    return destination
-
-
-def memmove(destination, source, n):
-    values = [copy.deepcopy(source[i]) for i in range(n)]
-    return memcpy(destination, values, n)
-
-
-def memset(destination, value, n):
-    for i in range(min(n, len(destination))):
-        destination[i] = value
-    return destination
-
-
-def qsort(array, n, compare, start=0):
-    # qsort is the C library call; the book's sorting algorithms stay handwritten.
-    array[start:start + n] = sorted(array[start:start + n], key=cmp_to_key(compare))
 
 
 _lookahead = None
@@ -258,68 +189,5 @@ def fprintf(stream, fmt, *values):
     return len(text)
 
 
-def putchar(c):
-    sys.stdout.write(chr(c))
-    return c
-
-
-def tolower(c):
-    return ord(chr(c).lower()) if 0 <= c < 128 else c
-
-
-def toupper(c):
-    return ord(chr(c).upper()) if 0 <= c < 128 else c
-
-
-def isspace(c):
-    return 0 <= c < 128 and chr(c).isspace()
-
-
-def isalpha(c):
-    return 0 <= c < 128 and chr(c).isalpha()
-
-
-def isdigit(c):
-    return ord('0') <= c <= ord('9')
-
-
-# rand() is a primitive supplied by the language runtime, as in the C program.
-_rng = _random.Random(1)
-
-def rand():
-    return _rng.getrandbits(31)
-
-
-def srand(seed):
-    _rng.seed(seed)
-
-
-def exit(code=0):
-    raise SystemExit(code)
-
-
-def free(value):
-    pass
-
-
-sqrt, pow, acos, sin, cos, fabs, floor, ceil = math.sqrt, math.pow, math.acos, math.sin, math.cos, math.fabs, math.floor, math.ceil
-fmin, fmax = min, max
-
-def exp(value):
-    try:
-        return math.exp(value)
-    except OverflowError:
-        return math.inf
-
-labs = abs
-
-
 def perror(prefix):
     sys.stderr.write(prefix + ": " + os.strerror(errno) + "\n")
-
-
-def fputs(text, stream):
-    return stream.write(string(text))
-
-
-hypot = math.hypot

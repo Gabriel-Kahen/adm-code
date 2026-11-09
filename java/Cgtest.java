@@ -57,12 +57,12 @@ public class Cgtest {
             Geometry.points_to_line(q1, q2, l2);
             Geometry.print_segment(s1);
             Geometry.print_segment(s2);
-            C.printf("segments_intersect test\n");
+            System.out.print("segments_intersect test\n");
             C.printf("%d\n", Geometry.segments_intersect(s1, s2));
-            C.printf("intersection point\n");
+            System.out.print("intersection point\n");
             Geometry.intersection_point(l1, l2, i);
             Geometry.print_point(i);
-            C.printf("--------------------------------\n");
+            System.out.print("--------------------------------\n");
         }
         return 0;
     }

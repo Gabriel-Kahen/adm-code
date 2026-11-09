@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Lcs {
     public static final int MAXLEN = 101; /* longest possible string */
     public static final int MATCH = 0; /* enumerated type symbol for match */
@@ -91,7 +93,7 @@ public class Lcs {
 
     public static void match_out(char[] s, char[] t, int i, int j) {
         if ((s[i] == t[j])) {
-            C.printf("%c", s[i]);
+            System.out.printf(Locale.US, "%c", s[i]);
         }
     }
 
@@ -120,15 +122,15 @@ public class Lcs {
         char[] t = new char[(MAXLEN + 2)];
         s[0] = (t[0] = ' ');
         if ((!((read_edit_string(s, MAXLEN) != 0)) || !((read_edit_string(t, MAXLEN) != 0)))) {
-            C.fprintf("expected two strings of at most %d characters\n", MAXLEN);
+            System.err.printf(Locale.US, "expected two strings of at most %d characters\n", MAXLEN);
             return 1;
         }
         complen = Editdistance.string_compare(s, t, m);
         lcslen = ((((C.strlen(s) + C.strlen(t)) - 2) - complen) / 2);
-        C.printf("length of longest common subsequence = %d\n", lcslen);
+        System.out.printf(Locale.US, "length of longest common subsequence = %d\n", lcslen);
         goal_cell(s, t, i, j);
         Editdistance.reconstruct_path(s, t, i[0], j[0], m);
-        C.printf("\n");
+        System.out.print("\n");
         return 0;
     }
 

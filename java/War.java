@@ -21,6 +21,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class War {
     public static final int QUEUESIZE = 1000;
     public static final int NGAMES = 50;
@@ -43,11 +45,11 @@ public class War {
         int i = 0;
         i = q.first;
         while ((i != q.last)) {
-            C.printf("%c%c ", value(q.q[i]), suit(q.q[i]));
+            System.out.printf(Locale.US, "%c%c ", value(q.q[i]), suit(q.q[i]));
             i = ((i + 1) % QUEUESIZE);
         }
-        C.printf("%2d ", q.q[i]);
-        C.printf("\n");
+        System.out.printf(Locale.US, "%2d ", q.q[i]);
+        System.out.print("\n");
     }
 
     /*     Rank the card with given value and suit.    */
@@ -63,14 +65,14 @@ public class War {
                 }
             }
         }
-        C.printf("Warning: bad input value=%d, suit=%d\n", value, suit);
+        System.out.printf(Locale.US, "Warning: bad input value=%d, suit=%d\n", (int)value, (int)suit);
         return (-1);
     }
 
     public static void testcards() {
         int i = 0; /* counter */
         for (i = 0; (i < NCARDS); i++) {
-            C.printf(" i=%d card[i]=%c%c rank=%d\n", i, value(i), suit(i), rank_card(value(i), suit(i)));
+            System.out.printf(Locale.US, " i=%d card[i]=%c%c rank=%d\n", i, value(i), suit(i), rank_card(value(i), suit(i)));
         }
     }
 
@@ -128,15 +130,15 @@ public class War {
             }
         }
         if ((!((Queue.empty_queue(a) != 0)) && (Queue.empty_queue(b) != 0))) {
-            C.printf("a wins in %d steps \n", steps);
+            System.out.printf(Locale.US, "a wins in %d steps \n", steps);
         } else {
             if (((Queue.empty_queue(a) != 0) && !((Queue.empty_queue(b) != 0)))) {
-                C.printf("b wins in %d steps \n", steps);
+                System.out.printf(Locale.US, "b wins in %d steps \n", steps);
             } else {
                 if ((!((Queue.empty_queue(a) != 0)) && !((Queue.empty_queue(b) != 0)))) {
-                    C.printf("game tied after %d steps, |a|=%d |b|=%d \n", steps, a.count, b.count);
+                    System.out.printf(Locale.US, "game tied after %d steps, |a|=%d |b|=%d \n", steps, a.count, b.count);
                 } else {
-                    C.printf("a and b tie in %d steps \n", steps);
+                    System.out.printf(Locale.US, "a and b tie in %d steps \n", steps);
                 }
             }
         }

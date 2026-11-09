@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class PriorityQueue {
     public static final int PQ_SIZE = 1000;
     public static class priority_queue {
@@ -79,7 +81,7 @@ public class PriorityQueue {
 
     public static void pq_insert(PriorityQueue.priority_queue q, int x) {
         if ((q.n >= PQ_SIZE)) {
-            C.printf("Warning: priority queue overflow! \n");
+            System.out.print("Warning: priority queue overflow! \n");
         } else {
             q.n = (q.n + 1);
             q.q[q.n] = x;
@@ -90,7 +92,7 @@ public class PriorityQueue {
     public static int extract_min(PriorityQueue.priority_queue q) {
         int min = (-1); /* minimum value */
         if ((q.n <= 0)) {
-            C.printf("Warning: empty priority queue.\n");
+            System.out.print("Warning: empty priority queue.\n");
         } else {
             min = q.q[1];
             q.q[1] = q.q[q.n];
@@ -107,9 +109,9 @@ public class PriorityQueue {
     public static void print_pq(PriorityQueue.priority_queue q) {
         int i = 0; /* counter */
         for (i = 1; (i <= q.n); i++) {
-            C.printf("%d ", q.q[i]);
+            System.out.printf(Locale.US, "%d ", q.q[i]);
         }
-        C.printf("\n");
+        System.out.print("\n");
     }
 
     public static void make_heap_fast(PriorityQueue.priority_queue q, int[] s, int n) {

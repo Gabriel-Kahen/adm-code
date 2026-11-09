@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Tsp {
     public static final int NMAX = 1001;
     public static final boolean TRACE_OUTPUT = false; /* print the swaps as they happen */
@@ -67,7 +69,7 @@ public class Tsp {
     public static void print_tsp(Tsp.tsp_instance t) {
         int i = 0; /* counter */
         for (i = 1; (i <= t.n); i++) {
-            C.printf("%d %d %d\n", i, t.p[i].x, t.p[i].y);
+            System.out.printf(Locale.US, "%d %d %d\n", i, t.p[i].x, t.p[i].y);
         }
     }
 
@@ -124,9 +126,9 @@ public class Tsp {
     public static void print_solution(Tsp.tsp_solution s) {
         int i = 0; /* counter */
         for (i = 1; (i <= s.n); i++) {
-            C.printf(" %d", s.p[i]);
+            System.out.printf(Locale.US, " %d", s.p[i]);
         }
-        C.printf("\n------------------------------------------------------\n");
+        System.out.print("\n------------------------------------------------------\n");
     }
 
     public static void read_solution(Tsp.tsp_solution s) {
@@ -182,28 +184,28 @@ public class Tsp {
         Tsp.tsp_solution s = new Tsp.tsp_solution(); /* tsp solution */
         read_tsp(t);
         read_solution(s);
-        C.printf("OPTIMAL SOLUTION COST = %7.1f\n", solution_cost(s, t));
+        System.out.printf(Locale.US, "OPTIMAL SOLUTION COST = %7.1f\n", solution_cost(s, t));
         print_solution(s);
         initialize_solution(t.n, s);
-        C.printf("solution_cost = %7.1f\n", solution_cost(s, t));
+        System.out.printf(Locale.US, "solution_cost = %7.1f\n", solution_cost(s, t));
         print_solution(s);
         Annealing.solution_count = 0;
         Annealing.random_sampling(t, 10000, s);
-        C.printf("random_sampling %d iterations, cost = %7.1f\n", Annealing.solution_count, solution_cost(s, t));
+        System.out.printf(Locale.US, "random_sampling %d iterations, cost = %7.1f\n", Annealing.solution_count, solution_cost(s, t));
         print_solution(s);
         initialize_solution(t.n, s);
-        C.printf("solution_cost = %7.1f\n", solution_cost(s, t));
+        System.out.printf(Locale.US, "solution_cost = %7.1f\n", solution_cost(s, t));
         print_solution(s);
         Annealing.solution_count = 0;
         Annealing.repeated_hill_climbing(t, 40, s);
-        C.printf("repeated hill_climbing %d iterations, cost = %7.1f\n", Annealing.solution_count, solution_cost(s, t));
+        System.out.printf(Locale.US, "repeated hill_climbing %d iterations, cost = %7.1f\n", Annealing.solution_count, solution_cost(s, t));
         print_solution(s);
         initialize_solution(t.n, s);
-        C.printf("solution_cost = %7.1f\n", solution_cost(s, t));
+        System.out.printf(Locale.US, "solution_cost = %7.1f\n", solution_cost(s, t));
         print_solution(s);
         Annealing.solution_count = 0;
         Annealing.repeated_annealing(t, 3, s);
-        C.printf("repeated annealing %d iterations, cost = %7.1f\n", Annealing.solution_count, solution_cost(s, t));
+        System.out.printf(Locale.US, "repeated annealing %d iterations, cost = %7.1f\n", Annealing.solution_count, solution_cost(s, t));
         print_solution(s);
         return 0;
     }

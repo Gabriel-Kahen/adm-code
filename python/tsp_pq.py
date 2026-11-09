@@ -22,8 +22,10 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+
+import copy
+
+from ._c import EXIT_FAILURE, copy_struct, fprintf, printf, stderr
 
 class priority_queue:
     def __init__(self):
@@ -89,7 +91,7 @@ def bubble_down(q, p):
 def pq_insert(q, x):
     if (q.n >= PQ_SIZE):
         fprintf(stderr, "TSP priority queue capacity exceeded\n")
-        exit(EXIT_FAILURE)
+        raise SystemExit(EXIT_FAILURE)
     else:
         q.n = (q.n + 1)
         copy_struct(q.q[q.n], x)
@@ -100,8 +102,8 @@ def extract_min(q):
     # min: minimum value
     min = tsp_astar.tsp_solution()
     if (q.n <= 0):
-        fputs("Cannot extract from an empty priority queue.\n", stderr)
-        exit(EXIT_FAILURE)
+        stderr.write("Cannot extract from an empty priority queue.\n")
+        raise SystemExit(EXIT_FAILURE)
     copy_struct(min, q.q[1])
     copy_struct(q.q[1], q.q[q.n])
     q.n = (q.n - 1)
@@ -111,8 +113,8 @@ def extract_min(q):
 
 def top_pq(q):
     if (q.n <= 0):
-        fputs("Cannot inspect an empty priority queue.\n", stderr)
-        exit(EXIT_FAILURE)
+        stderr.write("Cannot inspect an empty priority queue.\n")
+        raise SystemExit(EXIT_FAILURE)
     return copy.deepcopy(q.q[1])
 
 
@@ -158,7 +160,6 @@ def heap_compare(q, i, count, x):
         count = heap_compare(q, pq_young_child(i), (count - 1), x)
         count = heap_compare(q, (pq_young_child(i) + 1), count, x)
     return count
-
 
 
 from . import tsp_astar

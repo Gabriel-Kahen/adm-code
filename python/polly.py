@@ -22,8 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+from functools import cmp_to_key
+
+from ._c import EOF, printf, scanf, strcmp
 
 # maximum length of name
 # maximum number of suitors
@@ -68,7 +69,7 @@ def read_suitors():
 def main():
     # i: counter
     read_suitors()
-    qsort(suitors, nsuitors, suitor_compare, 0)
+    suitors[:nsuitors] = sorted(suitors[:nsuitors], key=cmp_to_key(suitor_compare))
     i = 0
     while (i < nsuitors):
         printf("%s, %s\n", suitors[i].last, suitors[i].first)
@@ -94,4 +95,4 @@ def suitor_compare(left, right):
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

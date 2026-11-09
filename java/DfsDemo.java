@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class DfsDemo {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -31,31 +33,31 @@ public class DfsDemo {
     public static void process_vertex_early(int v) {
         BfsDfs.time = (BfsDfs.time + 1);
         BfsDfs.entry_time[v] = BfsDfs.time;
-        C.printf("entered vertex %d at time %d\n", v, BfsDfs.entry_time[v]);
+        System.out.printf(Locale.US, "entered vertex %d at time %d\n", v, BfsDfs.entry_time[v]);
     }
 
     public static void process_vertex_late(int v) {
         BfsDfs.time = (BfsDfs.time + 1);
         BfsDfs.exit_time[v] = BfsDfs.time;
-        C.printf("exit vertex %d at time %d\n", v, BfsDfs.exit_time[v]);
+        System.out.printf(Locale.US, "exit vertex %d at time %d\n", v, BfsDfs.exit_time[v]);
     }
 
     public static void process_edge(int x, int y) {
         int edge_class = 0;
         edge_class = BfsDfs.edge_classification(x, y);
         if ((edge_class == BACK)) {
-            C.printf("back edge (%d,%d)\n", x, y);
+            System.out.printf(Locale.US, "back edge (%d,%d)\n", x, y);
         } else {
             if ((edge_class == TREE)) {
-                C.printf("tree edge (%d,%d)\n", x, y);
+                System.out.printf(Locale.US, "tree edge (%d,%d)\n", x, y);
             } else {
                 if ((edge_class == FORWARD)) {
-                    C.printf("forward edge (%d,%d)\n", x, y);
+                    System.out.printf(Locale.US, "forward edge (%d,%d)\n", x, y);
                 } else {
                     if ((edge_class == CROSS)) {
-                        C.printf("cross edge (%d,%d)\n", x, y);
+                        System.out.printf(Locale.US, "cross edge (%d,%d)\n", x, y);
                     } else {
-                        C.printf("edge (%d,%d)\n not in valid class=%d", x, y, edge_class);
+                        System.out.printf(Locale.US, "edge (%d,%d)\n not in valid class=%d", x, y, edge_class);
                     }
                 }
             }
@@ -77,7 +79,7 @@ public class DfsDemo {
         for (i = 1; (i <= g.nvertices); i++) {
             BfsDfs.find_path(1, i, BfsDfs.parent);
         }
-        C.printf("\n");
+        System.out.print("\n");
         return 0;
     }
 

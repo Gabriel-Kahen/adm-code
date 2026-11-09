@@ -18,6 +18,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Convolve {
     public static final int MAXN = 100; /* largest n or m */
 
@@ -76,9 +78,9 @@ public class Convolve {
             }
         }
         for (i = 0; (i < ((m + n) - 1)); i++) {
-            C.printf("%d ", c[i]);
+            System.out.printf(Locale.US, "%d ", c[i]);
         }
-        C.printf("\n");
+        System.out.print("\n");
         return 0;
     }
 

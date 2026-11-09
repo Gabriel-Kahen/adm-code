@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Queue {
     public static final int QUEUESIZE = 1000;
     public static class queue {
@@ -36,7 +38,7 @@ public class Queue {
 
     public static void enqueue(Queue.queue q, int x) {
         if ((q.count >= QUEUESIZE)) {
-            C.printf("Warning: queue overflow enqueue x=%d\n", x);
+            System.out.printf(Locale.US, "Warning: queue overflow enqueue x=%d\n", x);
         } else {
             q.last = ((q.last + 1) % QUEUESIZE);
             q.q[q.last] = x;
@@ -47,7 +49,7 @@ public class Queue {
     public static int dequeue(Queue.queue q) {
         int x = 0;
         if ((q.count <= 0)) {
-            C.printf("Warning: empty queue dequeue.\n");
+            System.out.print("Warning: empty queue dequeue.\n");
         }
         x = q.q[q.first];
         q.first = ((q.first + 1) % QUEUESIZE);
@@ -70,11 +72,11 @@ public class Queue {
         int i = 0;
         i = q.first;
         while ((i != q.last)) {
-            C.printf("%d ", q.q[i]);
+            System.out.printf(Locale.US, "%d ", q.q[i]);
             i = ((i + 1) % QUEUESIZE);
         }
-        C.printf("%2d ", q.q[i]);
-        C.printf("\n");
+        System.out.printf(Locale.US, "%2d ", q.q[i]);
+        System.out.print("\n");
     }
 
 }

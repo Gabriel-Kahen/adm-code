@@ -21,6 +21,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Plates {
 
     /*
@@ -130,18 +132,18 @@ public class Plates {
         double r = 0; /* plate radius */
         int i = 0; /* counters */
         int xmax = 0;
-        C.printf("input box width, box length, and plate radius:\n");
+        System.out.print("input box width, box length, and plate radius:\n");
         int _read0 = C.scan("%lf %lf %lf");
         if (_read0 > 0) w = C.scanDouble(0);
         if (_read0 > 1) l = C.scanDouble(1);
         if (_read0 > 2) r = C.scanDouble(2);
-        C.printf("box width=%lf, box length=%lf, and plate radius=%lf:\n", w, l, r);
-        C.printf("dense packing = %d\n", dense_plates(w, l, r));
-        C.printf("grid packing = %d\n", grid_plates(w, l, r));
+        System.out.printf(Locale.US, "box width=%f, box length=%f, and plate radius=%f:\n", w, l, r);
+        System.out.printf(Locale.US, "dense packing = %d\n", dense_plates(w, l, r));
+        System.out.printf(Locale.US, "grid packing = %d\n", grid_plates(w, l, r));
         /* print all the possible hexes in the box */
         xmax = (int)(Math.floor((w / (2 * r))));
         for (i = 0; (i < xmax); i++) {
-            C.printf("(0,%d) has %d on top.\n", i, plates_on_top(0, i, w, l, r));
+            System.out.printf(Locale.US, "(0,%d) has %d on top.\n", i, plates_on_top(0, i, w, l, r));
         }
         return 0;
     }

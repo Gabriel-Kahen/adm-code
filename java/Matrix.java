@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Matrix {
     public static final int MAXV = 100; /* maximum number of vertices */
     public static final int MAXDEGREE = 50; /* maximum outdegree of a vertex */
@@ -58,11 +60,11 @@ public class Matrix {
         int j = 0;
         for (i = 1; (i <= g.rows); i++) {
             for (j = 1; (j <= g.columns); j++) {
-                C.printf(" %d", g.m[i][j]);
+                System.out.printf(Locale.US, " %d", g.m[i][j]);
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
-        C.printf("\n");
+        System.out.print("\n");
     }
 
     public static void multiply(Matrix.matrix a, Matrix.matrix b, Matrix.matrix c) {
@@ -70,7 +72,7 @@ public class Matrix {
         int j = 0;
         int k = 0;
         if ((a.columns != b.rows)) {
-            C.printf("Error: bounds dont match!\n");
+            System.out.print("Error: bounds dont match!\n");
             return;
         }
         c.rows = a.rows;

@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Sudoku {
     public static final int BASED = 3; /* base dimension, 3*3 blocks */
     public static final int DIMENSION = 9; /* 9*9 board */
@@ -87,9 +89,9 @@ public class Sudoku {
         int i = 0; /* counter */
         for (i = 1; (i <= DIMENSION); i++) {
             if (possible[i]) {
-                C.printf(" %d", i);
+                System.out.printf(Locale.US, " %d", i);
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
     }
 
@@ -114,7 +116,7 @@ public class Sudoku {
         if ((board.m[p.x][p.y] == 0)) {
             board.freecount = (board.freecount - 1);
         } else {
-            C.printf("Warning: filling already filled square (%d,%d)\n", p.x, p.y);
+            System.out.printf(Locale.US, "Warning: filling already filled square (%d,%d)\n", p.x, p.y);
         }
         board.m[p.x][p.y] = v;
     }
@@ -123,7 +125,7 @@ public class Sudoku {
         if ((board.m[p.x][p.y] != 0)) {
             board.freecount = (board.freecount + 1);
         } else {
-            C.printf("Warning: freeing already empty square (%d,%d)\n", p.x, p.y);
+            System.out.printf(Locale.US, "Warning: freeing already empty square (%d,%d)\n", p.x, p.y);
         }
         board.m[p.x][p.y] = 0;
     }
@@ -165,24 +167,24 @@ public class Sudoku {
     public static void print_board(Sudoku.boardtype board) {
         int i = 0; /* counters */
         int j = 0;
-        C.printf("\nThere are %d free board positions.\n", board.freecount);
+        System.out.printf(Locale.US, "\nThere are %d free board positions.\n", board.freecount);
         for (i = 0; (i < DIMENSION); i++) {
             for (j = 0; (j < DIMENSION); j++) {
                 if ((board.m[i][j] == 0)) {
-                    C.printf(" ");
+                    System.out.print(" ");
                 } else {
-                    C.printf("%c", ('0' + board.m[i][j]));
+                    System.out.printf(Locale.US, "%c", ('0' + board.m[i][j]));
                 }
                 if ((((j + 1) % BASED) == 0)) {
-                    C.printf("|");
+                    System.out.print("|");
                 }
             }
-            C.printf("\n");
+            System.out.print("\n");
             if ((((i + 1) % BASED) == 0)) {
                 for (j = 0; (j < ((DIMENSION + BASED) - 1)); j++) {
-                    C.printf("-");
+                    System.out.print("-");
                 }
-                C.printf("\n");
+                System.out.print("\n");
             }
         }
     }
@@ -233,7 +235,7 @@ public class Sudoku {
 
     public static void process_solution(int[] a, int k, Sudoku.boardtype board) {
         finished = true;
-        C.printf("process solution\n");
+        System.out.print("process solution\n");
         print_board(board);
     }
 
@@ -291,12 +293,12 @@ public class Sudoku {
     public static void solve_problem(Sudoku.boardtype board) {
         int[] a = new int[((DIMENSION * DIMENSION) + 1)];
         Sudoku.boardtype temp = new Sudoku.boardtype();
-        C.printf("----------------------------------\n");
+        System.out.print("----------------------------------\n");
         steps = 0;
         copy_board(board, temp);
         finished = false;
         backtrack(a, 0, temp);
-        C.printf("It took %d steps to find this solution ", steps);
+        System.out.printf(Locale.US, "It took %d steps to find this solution ", steps);
         C.printf("for fast=%d  smart=%d\n", fast, smart);
     }
 

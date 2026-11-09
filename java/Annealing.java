@@ -21,6 +21,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Annealing {
     public static final int NMAX = 1001;
     public static final boolean TRACE_OUTPUT = false; /* print the swaps as they happen */
@@ -39,7 +41,7 @@ public class Annealing {
     public static void solution_count_update(Tsp.tsp_solution s, Tsp.tsp_instance t) {
         solution_count = (solution_count + 1);
         if (((solution_count == 1) || ((solution_count % PRINT_FREQUENCY) == 0))) {
-            C.printf("%d %7.1f\n", solution_count, Tsp.solution_cost(s, t));
+            System.out.printf(Locale.US, "%d %7.1f\n", solution_count, Tsp.solution_cost(s, t));
         }
     }
 

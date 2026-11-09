@@ -22,16 +22,20 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+from random import Random
 
+from ._c import RAND_MAX, printf
+
+
+# The runtime supplies random bits, as rand() does in C.
+rng = Random(1)
 
 
 # These functions generate random numbers in the designated ranges
-def swap(a, b):
-    x = a[0]
-    a[0] = b[0]
-    b[0] = x
+def swap(a, i, j):
+    x = a[i]
+    a[i] = a[j]
+    a[j] = x
 
 
 # lower/upper bounds on numb
@@ -39,7 +43,7 @@ def random_int(low, high):
     # r: random number
     i = RAND_MAX // (high - low + 1)
     i *= ((high - low) + 1)
-    while ((j := rand()) >= i):
+    while ((j := rng.getrandbits(31)) >= i):
         continue
     r = (j % (high - low + 1) + low)
     if ((r < low) or (r > high)):
@@ -52,7 +56,7 @@ def random_int(low, high):
 def random_permutation(a, n):
     i = n
     while (i > 1):
-        swap(address(a, (i - 1)), address(a, random_int(0, (i - 1))))
+        swap(a, i - 1, random_int(0, i - 1))
         i -= 1
 
 
@@ -62,7 +66,7 @@ def random_float(low, high):
     # r: random number
     i = RAND_MAX // (high - low)
     i *= (high - low)
-    while ((j := rand()) >= i):
+    while ((j := rng.getrandbits(31)) >= i):
         continue
     r = (((j / i) * (high - low)) + low)
     if ((r < low) or (r > high)):

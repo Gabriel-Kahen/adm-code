@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Sentinel {
     public static final int MAXINT = 1000000;
     public static int[] a = new int[100];
@@ -38,9 +40,9 @@ public class Sentinel {
             i = (i - 1);
         }
         a[(i + 1)] = x;
-        C.printf("without sentinel, i=%d a[1]=%d\n", i, a[1]);
+        System.out.printf(Locale.US, "without sentinel, i=%d a[1]=%d\n", i, a[1]);
         for (i = 1; (i <= 25); i++) {
-            C.printf("%d ", a[i]);
+            System.out.printf(Locale.US, "%d ", a[i]);
         }
         x = (-2);
         n = 21;
@@ -51,9 +53,9 @@ public class Sentinel {
             i = (i - 1);
         }
         a[(i + 1)] = x;
-        C.printf("\nwith sentinel, i=%d a[1]=%d\n", i, a[1]);
+        System.out.printf(Locale.US, "\nwith sentinel, i=%d a[1]=%d\n", i, a[1]);
         for (i = 1; (i <= 25); i++) {
-            C.printf("%d ", a[i]);
+            System.out.printf(Locale.US, "%d ", a[i]);
         }
         return 0;
     }

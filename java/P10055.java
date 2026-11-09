@@ -1,5 +1,7 @@
 /* Direct translation of 10055.c */
 
+import java.util.Locale;
+
 public class P10055 {
 
     public static int main() {
@@ -16,7 +18,7 @@ public class P10055 {
             } else {
                 r = (p - q);
             }
-            C.printf("%ld\n", r);
+            System.out.printf(Locale.US, "%d\n", r);
         }
         return 0;
     }

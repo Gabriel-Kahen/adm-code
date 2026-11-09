@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Superman {
     public static final int MAXN = 100; /* maximum number of circles */
     public static final double PI = 3.1415926; /* ratio of circumference to diameter */
@@ -54,11 +56,11 @@ public class Superman {
                 xray += (2 * Math.sqrt(((c[i].r * c[i].r) - (d * d))));
                 angle = Math.acos((d / c[i].r));
                 around += (((2 * angle) / (2 * PI)) * ((2 * PI) * c[i].r));
-                C.printf("circle %d (%7.3lf,%7.3lf,%7.3lf) is %7.3lf away from l, xray=%7.3lf around=%7.3lf angle=%7.3lf.\n", i, c[i].c[X], c[i].c[Y], c[i].r, d, xray, around, angle);
+                System.out.printf(Locale.US, "circle %d (%7.3f,%7.3f,%7.3f) is %7.3f away from l, xray=%7.3f around=%7.3f angle=%7.3f.\n", i, c[i].c[X], c[i].c[Y], c[i].r, d, xray, around, angle);
             }
         }
         travel = ((Geometry.distance(s, t) - xray) + around);
-        C.printf("Superman sees through %7.3lf units, and flies %7.3lf units\n", xray, travel);
+        System.out.printf(Locale.US, "Superman sees through %7.3f units, and flies %7.3f units\n", xray, travel);
     }
 
     public static int main() {
@@ -72,7 +74,7 @@ public class Superman {
         int _read2 = C.scan("%d");
         if (_read2 > 0) ncircles = C.scanInt(0);
         if (((ncircles < 0) || (ncircles > MAXN))) {
-            C.fprintf("circle count exceeds capacity\n");
+            System.err.print("circle count exceeds capacity\n");
             return 1;
         }
         for (i = 1; (i <= ncircles); i++) {
@@ -81,11 +83,11 @@ public class Superman {
             if (_read3 > 1) c[i].c[Y] = C.scanDouble(1);
             if (_read3 > 2) c[i].r = C.scanDouble(2);
         }
-        C.printf("%7.3lf %7.3lf\n", s[X], s[Y]);
-        C.printf("%7.3lf %7.3lf\n", t[X], t[Y]);
-        C.printf("%d\n", ncircles);
+        System.out.printf(Locale.US, "%7.3f %7.3f\n", s[X], s[Y]);
+        System.out.printf(Locale.US, "%7.3f %7.3f\n", t[X], t[Y]);
+        System.out.printf(Locale.US, "%d\n", ncircles);
         for (i = 1; (i <= ncircles); i++) {
-            C.printf("%7.3lf %7.3lf %7.3lf\n", c[i].c[X], c[i].c[Y], c[i].r);
+            System.out.printf(Locale.US, "%7.3f %7.3f %7.3f\n", c[i].c[X], c[i].c[Y], c[i].r);
         }
         superman();
         return 0;

@@ -18,6 +18,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class EightQueens {
     public static final int MAXCANDIDATES = 100; /* max possible next extensions */
     public static final int NMAX = 100; /* maximum solution size */
@@ -90,7 +92,7 @@ public class EightQueens {
         for (i = 1; (i <= 10); i++) {
             solution_count = 0;
             backtrack(a, 0, i);
-            C.printf("n=%d  solution_count=%d\n", i, solution_count);
+            System.out.printf(Locale.US, "n=%d  solution_count=%d\n", i, solution_count);
         }
         return 0;
     }

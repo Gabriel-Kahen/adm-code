@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Stack {
     public static final int STACKSIZE = 1000;
     public static class stack {
@@ -34,7 +36,7 @@ public class Stack {
 
     public static void push(Stack.stack s, int x) {
         if ((s.count >= STACKSIZE)) {
-            C.printf("Warning: stack overflow push x=%d\n", x);
+            System.out.printf(Locale.US, "Warning: stack overflow push x=%d\n", x);
         } else {
             s.top = (s.top + 1);
             s.s[s.top] = x;
@@ -45,7 +47,7 @@ public class Stack {
     public static int pop(Stack.stack s) {
         int x = 0;
         if ((s.count <= 0)) {
-            C.printf("Warning: empty stack pop.\n");
+            System.out.print("Warning: empty stack pop.\n");
         }
         x = s.s[s.top];
         s.top = (s.top - 1);
@@ -60,9 +62,9 @@ public class Stack {
     public static void print_stack(Stack.stack s) {
         int i = 0; /* counter */
         for (i = (s.count - 1); (i >= 0); i--) {
-            C.printf("%d ", s.s[i]);
+            System.out.printf(Locale.US, "%d ", s.s[i]);
         }
-        C.printf("\n");
+        System.out.print("\n");
     }
 
 }

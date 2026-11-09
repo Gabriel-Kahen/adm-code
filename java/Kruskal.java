@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Kruskal {
     public static final int TREE = 0; /* tree edge */
     public static final int BACK = 1; /* back edge */
@@ -84,7 +86,7 @@ public class Kruskal {
         java.util.Arrays.sort(edges, 0, (0 + edge_count), Kruskal::weight_compare);
         for (i = 0; (i < edge_count); i++) {
             if (!(SetUnion.same_component(components, edges[i].x, edges[i].y))) {
-                C.printf("edge (%d,%d) in MST\n", edges[i].x, edges[i].y);
+                System.out.printf(Locale.US, "edge (%d,%d) in MST\n", edges[i].x, edges[i].y);
                 weight = (weight + edges[i].weight);
                 SetUnion.union_sets(components, edges[i].x, edges[i].y);
             }
@@ -101,7 +103,7 @@ public class Kruskal {
             print_graph(&g);
         */
         weight = kruskal(g);
-        C.printf("Out of Kruskal: weight=%lld \n", weight);
+        System.out.printf(Locale.US, "Out of Kruskal: weight=%d \n", weight);
         return 0;
     }
 
