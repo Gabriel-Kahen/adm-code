@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import address, fprintf, printf, scanf, stderr
+from ._c import fprintf, printf, scanf, stderr
 
 # largest number of books
 MAXN = 45
@@ -34,13 +34,16 @@ def max(a, b):
     return (a if (a > b) else b)
 
 
-def read_partition(s, n, k):
+def read_partition(s):
+    n = 0
+    k = 0
     # i: counter
-    scanf("%d %d\n", n, k)
+    _, n, k = scanf("%d %d\n", n, k)
     i = 1
-    while (i <= n[0]):
-        scanf("%d\n", address(s, i))
+    while (i <= n):
+        _, s[i] = scanf("%d\n", s[i])
         i += 1
+    return n, k
 
 
 def print_books(s, start, end):
@@ -54,7 +57,7 @@ def print_books(s, start, end):
 
 
 def print_matrix(m, n, k):
-    # j: counters
+    # i, j: counters
     printf("\n")
     i = 1
     while (i <= n):
@@ -116,11 +119,9 @@ def main():
     # s: book thicknesses to partition
     s = [0 for _ in range((MAXN + 1))]
     # n: how many books?
-    n = [0]
     # k: how many partitions?
-    k = [0]
-    read_partition(s, n, k)
-    partition(s, n[0], k[0])
+    n, k = read_partition(s)
+    partition(s, n, k)
     return 0
 
 

@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import LLONG_MAX, address, printf, scanf
+from ._c import LLONG_MAX, printf, scanf
 
 # maximum number of vertices
 # maximum outdegree of a vertex
@@ -62,7 +62,7 @@ MAXINT = LLONG_MAX // 4
 
 
 def initialize_adjacency_matrix(g):
-    # j: counters
+    # i, j: counters
     g.nvertices = 0
     i = 1
     while (i <= MAXV):
@@ -76,26 +76,26 @@ def initialize_adjacency_matrix(g):
 def read_adjacency_matrix(g, directed):
     # i: counter
     # m: number of edges
-    m = [0]
-    # w: placeholder for edge and weight
-    x = [0]
-    y = [0]
-    w = [0]
+    m = 0
+    # x, y, w: placeholder for edge and weight
+    x = 0
+    y = 0
+    w = 0
     initialize_adjacency_matrix(g)
-    scanf("%d %d\n", address(g, 'nvertices'), m)
+    _, g.nvertices, m = scanf("%d %d\n", g.nvertices, m)
     i = 1
-    while (i <= m[0]):
-        scanf("%d %d %d\n", x, y, w)
-        if (w[0] < g.weight[x[0]][y[0]]):
-            g.weight[x[0]][y[0]] = w[0]
+    while (i <= m):
+        _, x, y, w = scanf("%d %d %d\n", x, y, w)
+        if (w < g.weight[x][y]):
+            g.weight[x][y] = w
         if (not directed):
-            if (w[0] < g.weight[y[0]][x[0]]):
-                g.weight[y[0]][x[0]] = w[0]
+            if (w < g.weight[y][x]):
+                g.weight[y][x] = w
         i += 1
 
 
 def print_graph(g):
-    # j: counters
+    # i, j: counters
     i = 1
     while (i <= g.nvertices):
         printf("%d: ", i)
@@ -109,7 +109,7 @@ def print_graph(g):
 
 
 def print_adjacency_matrix(g):
-    # j: counters
+    # i, j: counters
     i = 1
     while (i <= g.nvertices):
         printf("%3d: ", i)
@@ -122,7 +122,7 @@ def print_adjacency_matrix(g):
 
 
 def floyd(g):
-    # j: dimension counters
+    # i, j: dimension counters
     # k: intermediate vertex counter
     # through_k: distance through vertex k
     # Phase k permits intermediate vertices 1..k on each shortest path.

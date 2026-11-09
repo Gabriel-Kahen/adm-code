@@ -30,9 +30,10 @@ from . import editinput
 m = [[editdistance.cell() for _ in range((editdistance.MAXLEN + 1))] for _ in range((editdistance.MAXLEN + 1))]
 
 
-def goal_cell(s, t, i, j):
-    i[0] = (strlen(s) - 1)
-    j[0] = (strlen(t) - 1)
+def goal_cell(s, t):
+    i = (strlen(s) - 1)
+    j = (strlen(t) - 1)
+    return i, j
 
 
 def match(c, d):
@@ -88,8 +89,6 @@ def main():
     editdistance.match_out = match_out
     editdistance.insert_out = insert_out
     editdistance.delete_out = delete_out
-    i = [0]
-    j = [0]
     # s: input strings
     s = [0 for _ in range((editdistance.MAXLEN + 2))]
     t = [0 for _ in range((editdistance.MAXLEN + 2))]
@@ -102,9 +101,9 @@ def main():
     editdistance.print_matrix(s, t, True, m)
     printf("\n")
     editdistance.print_matrix(s, t, False, m)
-    goal_cell(s, t, i, j)
-    printf("%d %d\n", i[0], j[0])
-    editdistance.reconstruct_path(s, t, i[0], j[0], m)
+    i, j = goal_cell(s, t)
+    printf("%d %d\n", i, j)
+    editdistance.reconstruct_path(s, t, i, j, m)
     printf("\n")
     return 0
 

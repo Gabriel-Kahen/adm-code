@@ -68,7 +68,7 @@ public class Netflow {
         if ((parallel_edge != null)) {
             parallel_edge.capacity += w;
             parallel_edge.residual += w;
-            if (!(directed)) {
+            if (!directed) {
                 insert_flow_edge(g, y, x, true, w);
             }
             return;
@@ -81,7 +81,7 @@ public class Netflow {
         edge.next = g.edges[x];
         g.edges[x] = edge; /* insert at head of list */
         g.degree[x]++;
-        if (!(directed)) {
+        if (!directed) {
             insert_flow_edge(g, y, x, true, w);
         } else {
             g.nedges++;
@@ -91,7 +91,7 @@ public class Netflow {
     public static void read_flow_graph(Netflow.flow_graph g, boolean directed) {
         int i = 0; /* counter */
         int m = 0; /* number of edges */
-        int x = 0;
+        int x = 0; /* placeholder for edge and weight */
         int y = 0;
         int w = 0;
         initialize_graph(g);
@@ -103,7 +103,7 @@ public class Netflow {
             if (_read1 > 0) x = C.scanInt(0);
             if (_read1 > 1) y = C.scanInt(1);
             if (_read1 > 2) w = C.scanInt(2);
-            insert_flow_edge(g, x, y, directed, w); /* placeholder for edge and weight */
+            insert_flow_edge(g, x, y, directed, w);
         }
     }
 
@@ -177,7 +177,7 @@ public class Netflow {
         Queue.init_queue(q);
         Queue.enqueue(q, start);
         discovered[start] = true;
-        while (!((Queue.empty_queue(q) != 0))) {
+        while (Queue.empty_queue(q) == 0) {
             v = Queue.dequeue(q);
             process_vertex_early(v);
             processed[v] = true;
@@ -185,10 +185,10 @@ public class Netflow {
             while ((p != null)) {
                 y = p.v;
                 if (valid_edge(p)) {
-                    if (!(processed[y])) {
+                    if (!processed[y]) {
                         process_edge(v, y);
                     }
-                    if (!(discovered[y])) {
+                    if (!discovered[y]) {
                         Queue.enqueue(q, y);
                         discovered[y] = true;
                         parent[y] = v;
@@ -208,7 +208,7 @@ public class Netflow {
         if ((start == end)) {
             System.out.printf(Locale.US, "\n%d", start);
         } else {
-            if (!((find_path(start, parents[end], parents) != 0))) {
+            if (find_path(start, parents[end], parents) == 0) {
                 return 0;
             }
             System.out.printf(Locale.US, " %d", end);

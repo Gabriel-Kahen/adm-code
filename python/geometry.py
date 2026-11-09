@@ -52,7 +52,7 @@ class polygon:
 
 class segment:
     def __init__(self):
-        # p2: endpoints of line segment
+        # p1, p2: endpoints of line segment
         self.p1 = [0.0 for _ in range(DIMENSION)]
         self.p2 = [0.0 for _ in range(DIMENSION)]
 

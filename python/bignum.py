@@ -206,7 +206,7 @@ def multiply_bignum(a, b, c):
     row = bignum()
     # tmp: placeholder bignum
     tmp = bignum()
-    # j: counters
+    # i, j: counters
     initialize_bignum(c)
     copy_struct(row, a)
     i = 0
@@ -228,7 +228,7 @@ def divide_bignum(a, b, c):
     row = bignum()
     # tmp: placeholder bignum
     tmp = bignum()
-    # bsign: temporary signs
+    # asign, bsign: temporary signs
     # i: counters
     initialize_bignum(c)
     c.signbit = (a.signbit * b.signbit)
@@ -255,16 +255,19 @@ def divide_bignum(a, b, c):
 
 
 def main():
-    a = [0]
-    b = [0]
+    a = 0
+    b = 0
     n1 = bignum()
     n2 = bignum()
     n3 = bignum()
     zero = bignum()
-    while (scanf("%d %d\n", a, b) != EOF):
-        printf("a = %d    b = %d\n", a[0], b[0])
-        int_to_bignum(a[0], n1)
-        int_to_bignum(b[0], n2)
+    while True:
+        nread, a, b = scanf("%d %d\n", a, b)
+        if nread == EOF:
+            break
+        printf("a = %d    b = %d\n", a, b)
+        int_to_bignum(a, n1)
+        int_to_bignum(b, n2)
         add_bignum(n1, n2, n3)
         printf("addition -- ")
         print_bignum(n3)

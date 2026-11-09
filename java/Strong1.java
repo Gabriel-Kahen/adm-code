@@ -48,12 +48,12 @@ public class Strong1 {
         p = g.edges[v];
         while ((p != null)) {
             y = p.y;
-            if (!(BfsDfs.discovered[y])) {
+            if (!BfsDfs.discovered[y]) {
                 BfsDfs.parent[y] = v;
                 process_edge2(v, y);
                 dfs2(g, y);
             } else {
-                if (((!(BfsDfs.processed[y]) && (BfsDfs.parent[v] != y)) || (g.directed != 0))) {
+                if (((!BfsDfs.processed[y] && (BfsDfs.parent[v] != y)) || (g.directed != 0))) {
                     process_edge2(v, y);
                 }
             }
@@ -95,16 +95,16 @@ public class Strong1 {
         Stack.init_stack(dfs1order);
         BfsDfs.initialize_search(g);
         for (i = 1; (i <= g.nvertices); i++) {
-            if (!(BfsDfs.discovered[i])) {
+            if (!BfsDfs.discovered[i]) {
                 BfsDfs.dfs(g, i);
             }
         }
         gt = Graph.transpose(g);
         BfsDfs.initialize_search(gt);
         components_found = 0;
-        while (!((Stack.empty_stack(dfs1order) != 0))) {
+        while (Stack.empty_stack(dfs1order) == 0) {
             v = Stack.pop(dfs1order);
-            if (!(BfsDfs.discovered[v])) {
+            if (!BfsDfs.discovered[v]) {
                 components_found++;
                 System.out.printf(Locale.US, "Component %d:", components_found);
                 dfs2(gt, v);

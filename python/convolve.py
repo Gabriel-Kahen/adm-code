@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import address, printf, scanf
+from ._c import printf, scanf
 
 # largest n or m
 MAXN = 100
@@ -43,14 +43,14 @@ def min(x, y):
 
 
 def main():
-    # j: counters
-    # a: sequences
+    # i, j: counters
+    # a, b, c: sequences
     a = [0 for _ in range(MAXN)]
     b = [0 for _ in range(MAXN)]
     c = [0 for _ in range(((2 * MAXN) - 1))]
-    # m: sequence lengths
-    n = [0]
-    m = [0]
+    # n, m: sequence lengths
+    n = 0
+    m = 0
     i = 0
     while (i < MAXN):
         b[i] = 0
@@ -60,27 +60,29 @@ def main():
     while (i < ((2 * MAXN) - 1)):
         c[i] = 0
         i += 1
-    if (((scanf("%d", m) != 1) or (m[0] < 1)) or (m[0] > MAXN)):
+    nread, m = scanf("%d", m)
+    if (((nread != 1) or (m < 1)) or (m > MAXN)):
         return 1
     i = 0
-    while (i < m[0]):
-        scanf("%d", address(a, i))
+    while (i < m):
+        _, a[i] = scanf("%d", a[i])
         i += 1
-    if (((scanf("%d", n) != 1) or (n[0] < 1)) or (n[0] > MAXN)):
+    nread, n = scanf("%d", n)
+    if (((nread != 1) or (n < 1)) or (n > MAXN)):
         return 1
     i = 0
-    while (i < n[0]):
-        scanf("%d", address(b, i))
+    while (i < n):
+        _, b[i] = scanf("%d", b[i])
         i += 1
     i = 0
-    while (i < ((n[0] + m[0]) - 1)):
-        j = max(0, (i - (n[0] - 1)))
-        while (j <= min((m[0] - 1), i)):
+    while (i < ((n + m) - 1)):
+        j = max(0, (i - (n - 1)))
+        while (j <= min((m - 1), i)):
             c[i] = (c[i] + (a[j] * b[(i - j)]))
             j += 1
         i += 1
     i = 0
-    while (i < ((m[0] + n[0]) - 1)):
+    while (i < ((m + n) - 1)):
         printf("%d ", c[i])
         i += 1
     printf("\n")

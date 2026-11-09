@@ -22,7 +22,7 @@ public class Backtrack {
     public interface Callbacks {
         int is_a_solution(int[] a, int k, char[] input);
         void process_solution(int[] a, int k, char[] input);
-        void construct_candidates(int[] a, int k, char[] input, int[] c, int[] nc);
+        int construct_candidates(int[] a, int k, char[] input, int[] c);
         void make_move(int[] a, int k, char[] input);
         void unmake_move(int[] a, int k, char[] input);
     }
@@ -34,14 +34,13 @@ public class Backtrack {
 
     public static void backtrack(int[] a, int k, char[] input) {
         int[] c = new int[MAXCANDIDATES]; /* candidates for next position */
-        int[] nc = new int[]{0}; /* next position candidate count */
         int i = 0; /* counter */
         if ((callbacks.is_a_solution(a, k, input) != 0)) {
             callbacks.process_solution(a, k, input);
         } else {
             k = (k + 1);
-            callbacks.construct_candidates(a, k, input, c, nc);
-            for (i = 0; (i < nc[0]); i++) {
+            int nc = callbacks.construct_candidates(a, k, input, c); /* next position candidate count */
+            for (i = 0; (i < nc); i++) {
                 a[k] = c[i];
                 callbacks.make_move(a, k, input);
                 backtrack(a, k, input);

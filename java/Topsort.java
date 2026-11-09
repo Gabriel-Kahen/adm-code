@@ -60,7 +60,7 @@ public class Topsort {
             }
         }
         j = 0;
-        while (!((Queue.empty_queue(zeroin) != 0))) {
+        while (Queue.empty_queue(zeroin) == 0) {
             j = (j + 1);
             x = Queue.dequeue(zeroin);
             sorted[j] = x;

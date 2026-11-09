@@ -52,10 +52,10 @@ def unmake_move(a, k, n):
 
 # What are possible elements of the next slot in the 8-queens
 # problem?
-def construct_candidates(a, k, n, c, ncandidates):
-    # j: counters
+def construct_candidates(a, k, n, c):
+    # i, j: counters
     # legal_move: might the move be legal?
-    ncandidates[0] = 0
+    ncandidates = 0
     i = 1
     while (i <= n):
         legal_move = True
@@ -69,24 +69,24 @@ def construct_candidates(a, k, n, c, ncandidates):
                 legal_move = False
             j += 1
         if legal_move:
-            c[ncandidates[0]] = i
-            ncandidates[0] = (ncandidates[0] + 1)
+            c[ncandidates] = i
+            ncandidates = (ncandidates + 1)
         i += 1
+    return ncandidates
 
 
 def backtrack(a, k, input):
     # c: candidates for next position
     c = [0 for _ in range(MAXCANDIDATES)]
-    # ncandidates: next position candidate count
-    ncandidates = [0]
     # i: counter
     if is_a_solution(a, k, input):
         process_solution(a, k, input)
     else:
         k = (k + 1)
-        construct_candidates(a, k, input, c, ncandidates)
+        # ncandidates: next position candidate count
+        ncandidates = construct_candidates(a, k, input, c)
         i = 0
-        while (i < ncandidates[0]):
+        while (i < ncandidates):
             a[k] = c[i]
             make_move(a, k, input)
             backtrack(a, k, input)

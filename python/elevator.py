@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import address, fprintf, printf, scanf, stderr
+from ._c import fprintf, printf, scanf, stderr
 
 # the height of the building in floors
 NFLOORS = 25
@@ -62,7 +62,7 @@ def floors_walked(previous, current):
 # m[i][j] denotes the cost of serving all the riders using j stops,
 # the last of which is at floor i.  Zero is the originating floor.
 def optimize_floors():
-    # k: counters
+    # i, j, k: counters
     # cost: costs placeholder
     # laststop: the elevator's last stop
     if ((((nriders < 0) or (nriders > MAX_RIDERS)) or (nstops < 0)) or (nstops > MAX_RIDERS)):
@@ -102,7 +102,7 @@ def reconstruct_path(lastfloor, stops_to_go):
 
 
 def print_matrix(m):
-    # j: counters
+    # i, j: counters
     j = 0
     while (j <= nstops):
         i = 0
@@ -114,13 +114,16 @@ def print_matrix(m):
 
 
 def main():
+    global nriders, nstops
     # i: counter
-    if (((((scanf("%d %d", address(globals(), 'nriders'), address(globals(), 'nstops')) != 2) or (nriders < 0)) or (nriders > MAX_RIDERS)) or (nstops < 0)) or (nstops > MAX_RIDERS)):
+    nread, nriders, nstops = scanf("%d %d", nriders, nstops)
+    if (((((nread != 2) or (nriders < 0)) or (nriders > MAX_RIDERS)) or (nstops < 0)) or (nstops > MAX_RIDERS)):
         fprintf(stderr, "invalid elevator dimensions\n")
         return 1
     i = 1
     while (i <= nriders):
-        if (((scanf("%d", address(stops, i)) != 1) or (stops[i] < 0)) or (stops[i] > NFLOORS)):
+        nread, stops[i] = scanf("%d", stops[i])
+        if (((nread != 1) or (stops[i] < 0)) or (stops[i] > NFLOORS)):
             fprintf(stderr, "invalid destination floor\n")
             return 1
         i += 1

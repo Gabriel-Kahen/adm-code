@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import EOF, address, printf, scanf
+from ._c import EOF, printf, scanf
 
 class tree:
     def __init__(self):
@@ -63,18 +63,18 @@ def search_tree(l, x):
 
 def insert_tree(l, x, parent):
     # p: temporary pointer
-    if (l[0] == None):
+    if (l == None):
         p = tree()
         p.item = x
         p.right = None
         p.left = p.right
         p.parent = parent
-        l[0] = p
-        return
-    if (x < l[0].item):
-        insert_tree(address(l[0], 'left'), x, l[0])
+        return p
+    if (x < l.item):
+        l.left = insert_tree(l.left, x, l)
     else:
-        insert_tree(address(l[0], 'right'), x, l[0])
+        l.right = insert_tree(l.right, x, l)
+    return l
 
 
 def print_tree(l):
@@ -125,11 +125,10 @@ def delete_tree(t, x):
     child = (removed.left if (removed.left != None) else removed.right)
     if (removed.parent == None):
         t = child
+    elif (removed.parent.left == removed):
+        removed.parent.left = child
     else:
-        if (removed.parent.left == removed):
-            removed.parent.left = child
-        else:
-            removed.parent.right = child
+        removed.parent.right = child
     if (child != None):
         child.parent = removed.parent
     if (removed != target):
@@ -151,33 +150,36 @@ def traverse_tree(l):
 
 def main():
     # c: input character
-    c = [0]
+    c = 0
     # d: input item
-    d = [0]
+    d = 0
     # l: tree under construction
-    l = [None]
+    l = None
     # tmp: returned tree from search
-    l[0] = init_tree()
-    while (scanf("%c", c) != EOF):
-        if (chr(c[0]).lower() == 'p'):
-            print_tree(l[0])
+    l = init_tree()
+    while True:
+        nread, c = scanf("%c", c)
+        if nread == EOF:
+            break
+        if (chr(c).lower() == 'p'):
+            print_tree(l)
             printf("\n")
-        if (chr(c[0]).lower() == 'i'):
-            scanf("%d", d)
-            printf("new item: %d\n", d[0])
-            insert_tree(l, d[0], None)
-        if (chr(c[0]).lower() == 's'):
-            scanf("%d", d)
-            tmp = search_tree(l[0], d[0])
+        if (chr(c).lower() == 'i'):
+            _, d = scanf("%d", d)
+            printf("new item: %d\n", d)
+            l = insert_tree(l, d, None)
+        if (chr(c).lower() == 's'):
+            _, d = scanf("%d", d)
+            tmp = search_tree(l, d)
             if (tmp == None):
-                printf("item %d not found\n", d[0])
+                printf("item %d not found\n", d)
             else:
-                printf("item %d found\n", d[0])
-        if (chr(c[0]).lower() == 'd'):
-            scanf("%d", d)
-            printf(" deleting item %d\n", d[0])
-            l[0] = delete_tree(l[0], d[0])
-            print_tree(l[0])
+                printf("item %d found\n", d)
+        if (chr(c).lower() == 'd'):
+            _, d = scanf("%d", d)
+            printf(" deleting item %d\n", d)
+            l = delete_tree(l, d)
+            print_tree(l)
             printf("\n")
     return 0
 

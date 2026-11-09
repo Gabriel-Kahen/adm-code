@@ -45,7 +45,7 @@ public class Permutations {
     }
 
     /*    What are possible elements of the next slot in the permutation?  */
-    public static void construct_candidates(int[] a, int k, int n, int[] c, int[] nc) {
+    public static int construct_candidates(int[] a, int k, int n, int[] c) {
         int i = 0; /* counter */
         boolean[] in_perm = new boolean[(NMAX + 1)]; /* what is now in the permutation? */
         for (i = 1; (i <= NMAX); i++) {
@@ -54,25 +54,25 @@ public class Permutations {
         for (i = 1; (i < k); i++) {
             in_perm[a[i]] = true;
         }
-        nc[0] = 0;
+        int nc = 0;
         for (i = 1; (i <= n); i++) {
-            if (!(in_perm[i])) {
-                c[nc[0]] = i;
-                nc[0] = (nc[0] + 1);
+            if (!in_perm[i]) {
+                c[nc] = i;
+                nc = (nc + 1);
             }
         }
+        return nc;
     }
 
     public static void backtrack(int[] a, int k, int input) {
         int[] c = new int[MAXCANDIDATES]; /* candidates for next position */
-        int[] ncandidates = new int[]{0}; /* next position candidate count */
         int i = 0; /* counter */
         if ((is_a_solution(a, k, input) != 0)) {
             process_solution(a, k, input);
         } else {
             k = (k + 1);
-            construct_candidates(a, k, input, c, ncandidates);
-            for (i = 0; (i < ncandidates[0]); i++) {
+            int ncandidates = construct_candidates(a, k, input, c); /* next position candidate count */
+            for (i = 0; (i < ncandidates); i++) {
                 a[k] = c[i];
                 make_move(a, k, input);
                 backtrack(a, k, input);

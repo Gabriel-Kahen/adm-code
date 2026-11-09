@@ -84,7 +84,7 @@ public class Strong {
         Stack.init_stack(active);
         BfsDfs.initialize_search(g);
         for (i = 1; (i <= g.nvertices); i++) {
-            if (!(BfsDfs.discovered[i])) {
+            if (!BfsDfs.discovered[i]) {
                 BfsDfs.dfs(g, i);
             }
         }

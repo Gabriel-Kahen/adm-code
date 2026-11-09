@@ -31,15 +31,16 @@ m = [[editdistance.cell() for _ in range((editdistance.MAXLEN + 1))] for _ in ra
 
 
 # For normal edit distance computation
-def goal_cell(s, t, i, j):
+def goal_cell(s, t):
     # k: counter
-    i[0] = (strlen(s) - 1)
-    j[0] = 0
+    i = (strlen(s) - 1)
+    j = 0
     k = 1
     while (k < strlen(t)):
-        if (m[i[0]][k].cost < m[i[0]][j[0]].cost):
-            j[0] = k
+        if (m[i][k].cost < m[i][j].cost):
+            j = k
         k += 1
+    return i, j
 
 
 def match(c, d):
@@ -93,8 +94,6 @@ def main():
     editdistance.match_out = match_out
     editdistance.insert_out = insert_out
     editdistance.delete_out = delete_out
-    i = [0]
-    j = [0]
     # s: input strings
     s = [0 for _ in range((editdistance.MAXLEN + 2))]
     t = [0 for _ in range((editdistance.MAXLEN + 2))]
@@ -107,9 +106,9 @@ def main():
     editdistance.print_matrix(s, t, True, m)
     printf("\n")
     editdistance.print_matrix(s, t, False, m)
-    goal_cell(s, t, i, j)
-    printf("%d %d\n", i[0], j[0])
-    editdistance.reconstruct_path(s, t, i[0], j[0], m)
+    i, j = goal_cell(s, t)
+    printf("%d %d\n", i, j)
+    editdistance.reconstruct_path(s, t, i, j, m)
     printf("\n")
     return 0
 

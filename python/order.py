@@ -30,7 +30,7 @@ def process(i, j):
 
 
 def row_major(n, m):
-    # j: counters
+    # i, j: counters
     i = 1
     while (i <= n):
         j = 1
@@ -41,7 +41,7 @@ def row_major(n, m):
 
 
 def column_major(n, m):
-    # j: counters
+    # i, j: counters
     j = 1
     while (j <= m):
         i = 1
@@ -52,7 +52,7 @@ def column_major(n, m):
 
 
 def snake_order(n, m):
-    # j: counters
+    # i, j: counters
     i = 1
     while (i <= n):
         j = 1

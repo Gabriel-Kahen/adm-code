@@ -35,7 +35,7 @@ public class Biconnected {
     }
 
     public static void process_vertex_late(int v) {
-        boolean root = false;
+        boolean root = false; /* is parent[v] the root of the DFS tree? */
         int time_v = 0; /* earliest reachable time for v */
         int time_parent = 0; /* earliest reachable time for parent[v] */
         if ((BfsDfs.parent[v] == (-1))) { /* test if v is the root */
@@ -45,7 +45,7 @@ public class Biconnected {
             return;
         }
         root = (BfsDfs.parent[BfsDfs.parent[v]] == (-1)); /* is parent[v] the root? */
-        if (!(root)) { /* is parent[v] the root of the DFS tree? */
+        if (!root) {
             if ((reachable_ancestor[v] == BfsDfs.parent[v])) {
                 System.out.printf(Locale.US, "parent articulation vertex: %d \n", BfsDfs.parent[v]);
             }
@@ -83,7 +83,7 @@ public class Biconnected {
         }
         BfsDfs.initialize_search(g);
         for (i = 1; (i <= g.nvertices); i++) {
-            if (!(BfsDfs.discovered[i])) {
+            if (!BfsDfs.discovered[i]) {
                 BfsDfs.dfs(g, i);
             }
         }

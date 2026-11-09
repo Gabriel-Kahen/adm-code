@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import address, printf, scanf
+from ._c import printf, scanf
 from . import geometry
 
 
@@ -64,7 +64,7 @@ def ear_Q(i, j, k, p):
 
 
 def triangulate(p, t):
-    # l: left/right neighbor indices
+    # l, r: left/right neighbor indices
     l = [0 for _ in range(geometry.MAXPOLY)]
     r = [0 for _ in range(geometry.MAXPOLY)]
     # i: counter
@@ -101,7 +101,7 @@ def area_triangulation(p):
 def area(p):
     # total area so far
     total = 0.0
-    # j: counters
+    # i, j: counters
     i = 0
     while (i < p.n):
         j = (i + 1) % p.n
@@ -114,10 +114,10 @@ def main():
     # p: input polygon
     p = geometry.polygon()
     # i: counter
-    scanf("%d", address(p, 'n'))
+    _, p.n = scanf("%d", p.n)
     i = 0
     while (i < p.n):
-        scanf("%lf %lf", address(p.p[i], geometry.X), address(p.p[i], geometry.Y))
+        _, p.p[i][geometry.X], p.p[i][geometry.Y] = scanf("%lf %lf", p.p[i][geometry.X], p.p[i][geometry.Y])
         i += 1
     printf(" area via triangulation = %f\n", area_triangulation(p))
     printf(" area slick = %f\n", area(p))
@@ -125,7 +125,7 @@ def main():
 
 
 def print_triangulation(t):
-    # j: counters
+    # i, j: counters
     i = 0
     while (i < t.n):
         j = 0

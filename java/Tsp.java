@@ -148,7 +148,7 @@ public class Tsp {
     public static double transition(Tsp.tsp_solution s, Tsp.tsp_instance t, int i, int j) {
         double was = 0; /* before and after costs */
         double willbe = 0;
-        boolean neighbors = false;
+        boolean neighbors = false; /* i,j neighboring tour positions? */
         neighbors = false;
         if ((i == j)) {
             return 0.0;
@@ -165,7 +165,7 @@ public class Tsp {
             j = temporary;
             neighbors = true;
         }
-        if (neighbors) { /* i,j neighboring tour positions? */
+        if (neighbors) {
             was = (distance(s, (i - 1), i, t) + distance(s, j, (j + 1), t));
         } else {
             was = (((distance(s, (i - 1), i, t) + distance(s, i, (i + 1), t)) + distance(s, (j - 1), j, t)) + distance(s, j, (j + 1), t));

@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import address, printf, scanf
+from ._c import printf, scanf
 
 # #define _NULL       0       null pointer
 # DFS edge types
@@ -96,21 +96,21 @@ def insert_edge(g, x, y, directed):
 def read_graph(g, directed):
     # i: counter
     # m: number of edges
-    m = [0]
-    # y: vertices in edge (x,y)
-    x = [0]
-    y = [0]
+    m = 0
+    # x, y: vertices in edge (x,y)
+    x = 0
+    y = 0
     initialize_graph(g, directed)
-    scanf("%d %d", address(g, 'nvertices'), m)
+    _, g.nvertices, m = scanf("%d %d", g.nvertices, m)
     i = 1
-    while (i <= m[0]):
-        scanf("%d %d", x, y)
-        insert_edge(g, x[0], y[0], directed)
+    while (i <= m):
+        _, x, y = scanf("%d %d", x, y)
+        insert_edge(g, x, y, directed)
         i += 1
 
 
 def delete_edge(g, x, y, directed):
-    # p_back: temporary pointers
+    # p, p_back: temporary pointers
     p = g.edges[x]
     p_back = None
     while (p != None):

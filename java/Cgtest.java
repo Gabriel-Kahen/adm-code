@@ -41,7 +41,7 @@ public class Cgtest {
             int _read0 = C.scan("%lf %lf");
             if (_read0 > 0) p1[X] = C.scanDouble(0);
             if (_read0 > 1) p1[Y] = C.scanDouble(1);
-            if (!((_read0 != -1))) break;
+            if (_read0 == -1) break;
             int _read1 = C.scan("%lf %lf");
             if (_read1 > 0) p2[X] = C.scanDouble(0);
             if (_read1 > 1) p2[Y] = C.scanDouble(1);

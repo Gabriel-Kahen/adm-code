@@ -48,8 +48,8 @@ def topsort(g, sorted):
     indegree = [0 for _ in range((graph.MAXV + 1))]
     # zeroin: vertices of indegree 0
     zeroin = queue.queue()
-    # y: current and next vertex
-    # j: counters
+    # x, y: current and next vertex
+    # i, j: counters
     # p: temporary pointer
     compute_indegrees(g, indegree)
     queue.init_queue(zeroin)

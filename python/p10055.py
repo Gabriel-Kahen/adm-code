@@ -12,13 +12,16 @@ from ._c import EOF, printf, scanf
 
 
 def main():
-    p = [0]
-    q = [0]
-    while (scanf("%ld %ld", p, q) != EOF):
-        if (q[0] > p[0]):
-            r = (q[0] - p[0])
+    p = 0
+    q = 0
+    while True:
+        nread, p, q = scanf("%ld %ld", p, q)
+        if nread == EOF:
+            break
+        if (q > p):
+            r = (q - p)
         else:
-            r = (p[0] - q[0])
+            r = (p - q)
         printf("%ld\n", r)
     return 0
 

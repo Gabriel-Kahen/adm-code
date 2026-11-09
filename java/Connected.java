@@ -48,7 +48,7 @@ public class Connected {
         BfsDfs.initialize_search(g);
         c = 0;
         for (i = 1; (i <= g.nvertices); i++) {
-            if (!(BfsDfs.discovered[i])) {
+            if (!BfsDfs.discovered[i]) {
                 c = (c + 1);
                 System.out.printf(Locale.US, "Component %d:", c);
                 BfsDfs.bfs(g, i);

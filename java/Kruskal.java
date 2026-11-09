@@ -83,7 +83,7 @@ public class Kruskal {
         }
         /* The extracted count excludes self-loops and determines the initialized range. */
         edge_count = to_edge_array(g, edges);
-        java.util.Arrays.sort(edges, 0, (0 + edge_count), Kruskal::weight_compare);
+        java.util.Arrays.sort(edges, 0, edge_count, Kruskal::weight_compare);
         for (i = 0; (i < edge_count); i++) {
             if (!(SetUnion.same_component(components, edges[i].x, edges[i].y))) {
                 System.out.printf(Locale.US, "edge (%d,%d) in MST\n", edges[i].x, edges[i].y);

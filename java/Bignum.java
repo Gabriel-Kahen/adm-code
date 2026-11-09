@@ -74,8 +74,8 @@ public class Bignum {
             n.digits[i] = ((char)0);
         }
         n.lastdigit = (-1);
-        /* Unsigned subtraction also handles INT_MIN, whose signed negation does not fit. */
-        magnitude = ((s < 0) ? (0L - ((long)s)) : ((long)s));
+        /* Widen before taking the magnitude so INT_MIN fits. */
+        magnitude = Math.abs((long)s);
         while ((magnitude > 0)) {
             n.lastdigit++;
             n.digits[n.lastdigit] = (char)((magnitude % 10));
@@ -274,7 +274,7 @@ public class Bignum {
             int _read0 = C.scan("%d %d\n");
             if (_read0 > 0) a = C.scanInt(0);
             if (_read0 > 1) b = C.scanInt(1);
-            if (!((_read0 != -1))) break;
+            if (_read0 == -1) break;
             System.out.printf(Locale.US, "a = %d    b = %d\n", a, b);
             int_to_bignum(a, n1);
             int_to_bignum(b, n2);

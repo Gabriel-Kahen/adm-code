@@ -28,55 +28,55 @@ public class ConvexHull {
     public static final int MAXPOLY = 200; /* maximum number of points in a polygon */
     public static double[] first_point = new double[DIMENSION]; /* first hull point */
 
-    public static void sort_and_remove_duplicates(double[][] in, int[] n) {
+    public static int sort_and_remove_duplicates(double[][] in, int n) {
         int i = 0; /* counter */
         int input_count = 0; /* number of points before deletion */
         int unique_count = 0; /* index marked for potential deletion */
-        java.util.Arrays.sort(in, 0, (0 + n[0]), ConvexHull::leftlower);
-        input_count = n[0];
+        java.util.Arrays.sort(in, 0, n, ConvexHull::leftlower);
+        input_count = n;
         /* in[0..unique_count-1] is the compacted distinct prefix. */
         unique_count = 1;
         for (i = 1; (i < input_count); i++) {
             if (((in[(unique_count - 1)][X] == in[i][X]) && (in[(unique_count - 1)][Y] == in[i][Y]))) {
-                n[0]--;
+                n--;
             } else {
                 Geometry.copy_point(in[i], in[unique_count]);
                 unique_count = (unique_count + 1);
             }
         }
+        return n;
     }
 
-    public static void convex_hull(double[][] in, int n_value, Geometry.polygon hull) {
-        int[] n = {n_value};
+    public static void convex_hull(double[][] in, int n, Geometry.polygon hull) {
         int i = 0; /* input counter */
         int top = 0; /* current hull size */
-        if ((n[0] <= 0)) {
+        if ((n <= 0)) {
             hull.n = 0;
             return;
         }
-        sort_and_remove_duplicates(in, n);
+        n = sort_and_remove_duplicates(in, n);
         /* A collinear hull is a segment, not a closed scan with a sentinel. */
-        for (i = 1; ((i + 1) < n[0]); i++) {
-            if (!(Geometry.collinear(in[0], in[(n[0] - 1)], in[i]))) {
+        for (i = 1; ((i + 1) < n); i++) {
+            if (!(Geometry.collinear(in[0], in[(n - 1)], in[i]))) {
                 break;
             }
         }
-        if (((n[0] <= 2) || ((i + 1) == n[0]))) {
+        if (((n <= 2) || ((i + 1) == n))) {
             Geometry.copy_point(in[0], hull.p[0]);
             hull.n = 1;
-            if ((n[0] > 1)) {
-                Geometry.copy_point(in[(n[0] - 1)], hull.p[1]);
+            if ((n > 1)) {
+                Geometry.copy_point(in[(n - 1)], hull.p[1]);
                 hull.n = 2;
             }
             return;
         }
         Geometry.copy_point(in[0], first_point);
-        java.util.Arrays.sort(in, 1, (1 + (n[0] - 1)), ConvexHull::smaller_angle);
+        java.util.Arrays.sort(in, 1, n, ConvexHull::smaller_angle);
         Geometry.copy_point(first_point, hull.p[0]);
         Geometry.copy_point(in[1], hull.p[1]);
         top = 1;
         i = 2;
-        while ((i < n[0])) {
+        while ((i < n)) {
             if (Geometry.cw(hull.p[(top - 1)], hull.p[top], in[i])) {
                 top = (top - 1); /* top not on hull */
             } else {

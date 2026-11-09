@@ -121,7 +121,7 @@ public class Lcs {
         char[] s = new char[(MAXLEN + 2)]; /* input strings */
         char[] t = new char[(MAXLEN + 2)];
         s[0] = (t[0] = ' ');
-        if ((!((read_edit_string(s, MAXLEN) != 0)) || !((read_edit_string(t, MAXLEN) != 0)))) {
+        if (((read_edit_string(s, MAXLEN) == 0) || (read_edit_string(t, MAXLEN) == 0))) {
             System.err.printf(Locale.US, "expected two strings of at most %d characters\n", MAXLEN);
             return 1;
         }

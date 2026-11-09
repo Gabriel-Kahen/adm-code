@@ -58,18 +58,18 @@ def binomial_coefficient(n, k):
 
 
 def main():
-    a = [0]
-    b = [0]
-    n = [0]
-    scanf("%d", n)
+    a = 0
+    b = 0
+    n = 0
+    _, n = scanf("%d", n)
     i = 0
-    while (i < n[0]):
-        scanf("%d %d", a, b)
-        coefficient = binomial_coefficient(a[0], b[0])
+    while (i < n):
+        _, a, b = scanf("%d %d", a, b)
+        coefficient = binomial_coefficient(a, b)
         if (coefficient < 0):
             perror("binomial coefficient")
             return 1
-        printf("%d choose %d = %ld\n", a[0], b[0], coefficient)
+        printf("%d choose %d = %ld\n", a, b, coefficient)
         i += 1
     return 0
 

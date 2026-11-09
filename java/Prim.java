@@ -46,7 +46,7 @@ public class Prim {
         distance[start] = 0;
         vertex = start;
         /* Grow the tree in start's connected component; other parents remain -1. */
-        while (!(in_tree[vertex])) {
+        while (!in_tree[vertex]) {
             in_tree[vertex] = true;
             if ((vertex != start)) {
                 System.out.printf(Locale.US, "edge (%d,%d) in tree \n", Wgraph.parent[vertex], vertex);
@@ -55,7 +55,7 @@ public class Prim {
             edge = g.edges[vertex];
             while ((edge != null)) {
                 neighbor = edge.y;
-                if (((distance[neighbor] > edge.weight) && !(in_tree[neighbor]))) {
+                if (((distance[neighbor] > edge.weight) && !in_tree[neighbor])) {
                     distance[neighbor] = edge.weight;
                     Wgraph.parent[neighbor] = vertex;
                 }
@@ -63,7 +63,7 @@ public class Prim {
             }
             next_distance = MAXINT;
             for (i = 1; (i <= g.nvertices); i++) {
-                if ((!(in_tree[i]) && (next_distance > distance[i]))) {
+                if ((!in_tree[i] && (next_distance > distance[i]))) {
                     next_distance = distance[i];
                     vertex = i;
                 }

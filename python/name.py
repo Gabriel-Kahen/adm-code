@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import address, getchar, offset, printf, scanf, stderr, strlen
+from ._c import getchar, offset, printf, scanf, stderr, strlen
 
 # longest possible string
 MAXLEN = 1001
@@ -47,8 +47,9 @@ def read_quoted_string(s):
 
 
 def read_changes():
+    global nmergers
     # i: counter
-    scanf("%d\n", address(globals(), 'nmergers'))
+    _, nmergers = scanf("%d\n", nmergers)
     i = 0
     while (i < nmergers):
         read_quoted_string(mergers[i][0])
@@ -60,7 +61,7 @@ def read_changes():
 # string s with the contents of string y.
 def replace_x_with_y(s, pos, xlen, y):
     # i: counter
-    # ylen: lengths of relevant strings
+    # slen, ylen: lengths of relevant strings
     slen = strlen(s)
     ylen = strlen(y)
     if (xlen >= ylen):
@@ -82,8 +83,8 @@ def replace_x_with_y(s, pos, xlen, y):
 # Return the position of the first occurrence of the pattern p
 # in the text t, and -1 if it does not occur.
 def findmatch(p, t):
-    # j: counters
-    # tlen: string lengths
+    # i, j: counters
+    # plen, tlen: string lengths
     plen = strlen(p)
     tlen = strlen(t)
     i = 0
@@ -104,13 +105,13 @@ def main():
     s = [0 for _ in range(MAXLEN)]
     # c: input character
     # nlines: number of lines in text
-    nlines = [0]
-    # j: counters
+    nlines = 0
+    # i, j: counters
     # pos: position of pattern in string
     read_changes()
-    scanf("%d\n", nlines)
+    _, nlines = scanf("%d\n", nlines)
     i = 1
-    while (i <= nlines[0]):
+    while (i <= nlines):
         # read text line
         j = 0
         while ((c := getchar()) != ord('\n')):

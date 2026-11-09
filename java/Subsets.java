@@ -31,7 +31,7 @@ public class Subsets {
         int i = 0; /* counter */
         System.out.print("{");
         for (i = 1; (i <= k); i++) {
-            if (((a[i] != 0) == true)) {
+            if (a[i] == 1) {
                 System.out.printf(Locale.US, " %d", i);
             }
         }
@@ -49,22 +49,21 @@ public class Subsets {
         return ((k == n) ? 1 : 0);
     }
 
-    public static void construct_candidates(int[] a, int k, int n, int[] c, int[] nc) {
+    public static int construct_candidates(int[] a, int k, int n, int[] c) {
         c[0] = 1;
         c[1] = 0;
-        nc[0] = 2;
+        return 2;
     }
 
     public static void backtrack(int[] a, int k, int input) {
         int[] c = new int[MAXCANDIDATES]; /* candidates for next position */
-        int[] ncandidates = new int[]{0}; /* next position candidate count */
         int i = 0; /* counter */
         if ((is_a_solution(a, k, input) != 0)) {
             process_solution(a, k, input);
         } else {
             k = (k + 1);
-            construct_candidates(a, k, input, c, ncandidates);
-            for (i = 0; (i < ncandidates[0]); i++) {
+            int ncandidates = construct_candidates(a, k, input, c); /* next position candidate count */
+            for (i = 0; (i < ncandidates); i++) {
                 a[k] = c[i];
                 make_move(a, k, input);
                 backtrack(a, k, input);

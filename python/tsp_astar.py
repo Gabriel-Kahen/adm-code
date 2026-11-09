@@ -24,13 +24,13 @@ if __name__ == "__main__" and not __package__:
 
 import math
 
-from ._c import DBL_EPSILON, address, copy_struct, printf, scanf
+from ._c import DBL_EPSILON, copy_struct, printf, scanf
 from . import tsp_pq
 
 # maximum number of points
 class point:
     def __init__(self):
-        # y: x and y coordinates of point
+        # x, y: x and y coordinates of point
         self.x = 0
         self.y = 0
 
@@ -102,19 +102,17 @@ def unmake_move(s, k, t):
 
 
 # What are possible elements of the next slot in the permutation?
-def construct_candidates(s, k, t, c, ncandidates):
+def construct_candidates(s, k, t, c):
     global constructions
     # i: counter
     # in_perm: what is now in the permutation?
     in_perm = [0 for _ in range((NMAX + 1))]
     constructions += 1
     if (partial_solution_lb(s, t) > best_cost):
-        ncandidates[0] = 0
-        return
+        return 0
     if (k == 1):
         c[0] = 1
-        ncandidates[0] = 1
-        return
+        return 1
     i = 1
     while (i <= NMAX):
         in_perm[i] = False
@@ -123,29 +121,29 @@ def construct_candidates(s, k, t, c, ncandidates):
     while (i < k):
         in_perm[s.p[i]] = True
         i += 1
-    ncandidates[0] = 0
+    ncandidates = 0
     i = 1
     while (i <= t.n):
         if (not in_perm[i]):
-            c[ncandidates[0]] = i
-            ncandidates[0] = (ncandidates[0] + 1)
+            c[ncandidates] = i
+            ncandidates = (ncandidates + 1)
         i += 1
+    return ncandidates
 
 
 # customize backtrack to TSP solutions
 def backtrack(s, k, input):
     # c: candidates for next position
     c = [0 for _ in range(MAXCANDIDATES)]
-    # ncandidates: next position candidate count
-    ncandidates = [0]
     # i: counter
     if is_a_solution(s, k, input):
         process_solution(s, k, input)
     else:
         k = (k + 1)
-        construct_candidates(s, k, input, c, ncandidates)
+        # ncandidates: next position candidate count
+        ncandidates = construct_candidates(s, k, input, c)
         i = 0
-        while (i < ncandidates[0]):
+        while (i < ncandidates):
             s.p[k] = c[i]
             s.n = k
             make_move(s, k, input)
@@ -172,8 +170,6 @@ def branch_and_bound(s, t):
     global best_cost
     # c: candidates for next position
     c = [0 for _ in range(MAXCANDIDATES)]
-    # nc: next position candidate count
-    nc = [0]
     # i: counter
     first_solution(best_solution, t)
     best_cost = solution_cost(best_solution, t)
@@ -187,9 +183,10 @@ def branch_and_bound(s, t):
         if is_a_solution(s, s.n, t):
             process_solution(s, s.n, t)
         else:
-            construct_candidates(s, (s.n + 1), t, c, nc)
+            # nc: next position candidate count
+            nc = construct_candidates(s, (s.n + 1), t, c)
             i = 0
-            while (i < nc[0]):
+            while (i < nc):
                 extend_solution(s, t, c[i])
                 tsp_pq.pq_insert(q, s)
                 contract_solution(s, t)
@@ -197,12 +194,12 @@ def branch_and_bound(s, t):
 
 
 def read_tsp(t):
-    # j: counters
-    j = [0]
-    scanf("%d\n", address(t, 'n'))
+    # i, j: counters
+    j = 0
+    _, t.n = scanf("%d\n", t.n)
     i = 1
     while (i <= t.n):
-        scanf("%d %d %d\n", j, address(t.p[i], 'x'), address(t.p[i], 'y'))
+        _, j, t.p[i].x, t.p[i].y = scanf("%d %d %d\n", j, t.p[i].x, t.p[i].y)
         i += 1
 
 
@@ -320,16 +317,16 @@ def print_solution(s):
 
 def read_solution(s):
     # i: counter
-    scanf("%d\n", address(s, 'n'))
+    _, s.n = scanf("%d\n", s.n)
     i = 1
     while (i <= s.n):
-        scanf("%d", address(s.p, i))
+        _, s.p[i] = scanf("%d", s.p[i])
         i += 1
 
 
 # Compute lower bounds on edge costs for all vertices
 def find_vertex_lower_bounds(t, lb):
-    # j: counters
+    # i, j: counters
     # minweight: min weight edge in graph
     minweight = MAXD
     i = 1

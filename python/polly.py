@@ -54,15 +54,18 @@ nsuitors = 0
 
 def read_suitors():
     global nsuitors
-    height = [0]
-    weight = [0]
+    height = 0
+    weight = 0
     nsuitors = 0
-    while (scanf("%s %s %d %d\n", suitors[nsuitors].first, suitors[nsuitors].last, height, weight) != EOF):
-        suitors[nsuitors].height = abs((height[0] - BESTHEIGHT))
-        if (weight[0] > BESTWEIGHT):
-            suitors[nsuitors].weight = (weight[0] - BESTWEIGHT)
+    while True:
+        nread, suitors[nsuitors].first, suitors[nsuitors].last, height, weight = scanf("%s %s %d %d\n", suitors[nsuitors].first, suitors[nsuitors].last, height, weight)
+        if nread == EOF:
+            break
+        suitors[nsuitors].height = abs((height - BESTHEIGHT))
+        if (weight > BESTWEIGHT):
+            suitors[nsuitors].weight = (weight - BESTWEIGHT)
         else:
-            suitors[nsuitors].weight = (-weight[0])
+            suitors[nsuitors].weight = (-weight)
         nsuitors += 1
 
 

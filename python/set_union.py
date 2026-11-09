@@ -54,7 +54,7 @@ def find(s, x):
 
 
 def union_sets(s, s1, s2):
-    # r2: roots of sets
+    # r1, r2: roots of sets
     r1 = find(s, s1)
     r2 = find(s, s2)
     if (r1 == r2):

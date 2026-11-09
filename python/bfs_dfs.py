@@ -113,17 +113,16 @@ def dfs(g, v):
             parent[y] = v
             process_edge(v, y)
             dfs(g, y)
-        else:
-            if ((not processed[y]) or g.directed):
-                if ((y == v) and (not g.directed)):
-                    self_edge_seen = (not self_edge_seen)
-                    if self_edge_seen:
-                        process_edge(v, y)
-                else:
-                    if ((g.directed or (y != parent[v])) or parent_edge_seen):
-                        process_edge(v, y)
-                    if (y == parent[v]):
-                        parent_edge_seen = True
+        elif ((not processed[y]) or g.directed):
+            if ((y == v) and (not g.directed)):
+                self_edge_seen = (not self_edge_seen)
+                if self_edge_seen:
+                    process_edge(v, y)
+            else:
+                if ((g.directed or (y != parent[v])) or parent_edge_seen):
+                    process_edge(v, y)
+                if (y == parent[v]):
+                    parent_edge_seen = True
         if finished:
             return
         p = p.next

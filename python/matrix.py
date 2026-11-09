@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import address, printf, scanf
+from ._c import printf, scanf
 
 # maximum number of vertices
 # maximum outdegree of a vertex
@@ -42,7 +42,7 @@ MAXINT = 100007
 
 
 def initialize_matrix(m):
-    # j: counters
+    # i, j: counters
     i = 1
     while (i <= m.rows):
         j = 1
@@ -53,19 +53,19 @@ def initialize_matrix(m):
 
 
 def read_matrix(m):
-    # j: counters
-    scanf("%d %d\n", address(m, 'rows'), address(m, 'columns'))
+    # i, j: counters
+    _, m.rows, m.columns = scanf("%d %d\n", m.rows, m.columns)
     i = 1
     while (i <= m.rows):
         j = 1
         while (j <= m.columns):
-            scanf("%d", address(m.m[i], j))
+            _, m.m[i][j] = scanf("%d", m.m[i][j])
             j += 1
         i += 1
 
 
 def print_matrix(g):
-    # j: counters
+    # i, j: counters
     i = 1
     while (i <= g.rows):
         j = 1
@@ -78,7 +78,7 @@ def print_matrix(g):
 
 
 def multiply(a, b, c):
-    # k: dimension counters
+    # i, j, k: dimension counters
     if (a.columns != b.rows):
         printf("Error: bounds dont match!\n")
         return

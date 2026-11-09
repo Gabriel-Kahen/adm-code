@@ -65,7 +65,7 @@ public class Gcd {
             int _read0 = C.scan("%ld %ld");
             if (_read0 > 0) p = C.scanLong(0);
             if (_read0 > 1) q = C.scanLong(1);
-            if (!((_read0 != -1))) break;
+            if (_read0 == -1) break;
             g1 = gcd1(p, q);
             g2 = gcd(p, q, x, y);
             System.out.printf(Locale.US, "gcd of p=%d and q=%d = %d\n", p, q, g1);

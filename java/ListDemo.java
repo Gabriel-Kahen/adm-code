@@ -96,7 +96,7 @@ public class ListDemo {
         while (true) {
             int _read0 = C.scan("%c");
             if (_read0 > 0) c = (char)C.scanInt(0);
-            if (!((_read0 != -1))) break;
+            if (_read0 == -1) break;
             if ((Character.toLowerCase(c) == 'p')) {
                 print_list(l);
             }
