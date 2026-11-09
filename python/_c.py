@@ -55,16 +55,6 @@ class offset:
         return len(self.array) - self.start
 
 
-def c_div(a, b):
-    """C integer division truncates toward zero, including for negative values."""
-    q = abs(a) // abs(b)
-    return -q if (a < 0) != (b < 0) else q
-
-
-def c_mod(a, b):
-    return a - c_div(a, b) * b
-
-
 def unsigned(value):
     return value & 0xffffffff
 
@@ -333,12 +323,3 @@ def fputs(text, stream):
 
 
 hypot = math.hypot
-
-
-def float_div(a, b):
-    """Preserve C's IEEE result where Python would raise on division by zero."""
-    if b == 0.0:
-        if a == 0.0 or math.isnan(a):
-            return math.nan
-        return math.copysign(math.inf, math.copysign(1.0, a) * math.copysign(1.0, b))
-    return a / b

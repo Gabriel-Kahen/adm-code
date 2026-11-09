@@ -27,7 +27,7 @@ from . import _c
 from . import graph
 from . import wgraph
 
-MAXINT = c_div(LLONG_MAX, 4)
+MAXINT = LLONG_MAX // 4
 
 
 # Dijkstra requires nonnegative edge weights. Unreachable vertices keep parent -1.

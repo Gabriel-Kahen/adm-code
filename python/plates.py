@@ -41,7 +41,7 @@ def plates_per_row(row, w, r):
     if (w < (2 * r)):
         return 0
     plates_per_full_row = floor((w / (2 * r)))
-    if (c_mod(row, 2) == 0):
+    if (row % 2 == 0):
         return plates_per_full_row
     # odd row full, too
     if (((w / (2 * r)) - plates_per_full_row) >= 0.5):

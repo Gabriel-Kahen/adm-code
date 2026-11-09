@@ -59,7 +59,7 @@ class adjacency_matrix:
 
 MAXV = 100
 MAXDEGREE = 50
-MAXINT = c_div(LLONG_MAX, 4)
+MAXINT = LLONG_MAX // 4
 
 
 def initialize_adjacency_matrix(g):

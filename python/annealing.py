@@ -59,7 +59,7 @@ solution_count = 0
 def solution_count_update(s, t):
     global solution_count
     solution_count = (solution_count + 1)
-    if ((solution_count == 1) or (c_mod(solution_count, PRINT_FREQUENCY) == 0)):
+    if (solution_count == 1 or solution_count % PRINT_FREQUENCY == 0):
         printf("%d %7.1f\n", solution_count, tsp.solution_cost(s, t))
 
 
@@ -167,7 +167,11 @@ def anneal(t, s):
             delta = tsp.transition(s, t, x, y)
             # did swap reduce cost?
             accept_win = (delta < 0)
-            exponent = (float_div(-delta, current_value) / (K * temperature))
+            # A zero-cost tour gives 0/0 (NaN) in C.
+            if current_value == 0:
+                exponent = float("nan")
+            else:
+                exponent = (-delta / current_value) / (K * temperature)
             accept_loss = (exp(exponent) > random.random_float(0, 1))
             if (accept_win or accept_loss):
                 current_value += delta

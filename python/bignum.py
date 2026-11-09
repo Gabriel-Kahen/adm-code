@@ -82,8 +82,8 @@ def int_to_bignum(s, n):
     magnitude = (unsigned(0 - unsigned(s)) if (s < 0) else unsigned(s))
     while (magnitude > 0):
         n.lastdigit += 1
-        n.digits[n.lastdigit] = c_mod(magnitude, 10)
-        magnitude = c_div(magnitude, 10)
+        n.digits[n.lastdigit] = magnitude % 10
+        magnitude = magnitude // 10
     if (s == 0):
         n.lastdigit = 0
 
@@ -143,7 +143,7 @@ def subtract_bignum(a, b, c):
         if (v < 0):
             v = (v + 10)
             borrow = 1
-        c.digits[i] = c_mod(int(v), 10)
+        c.digits[i] = int(v) % 10
         i += 1
     zero_justify(c)
 
@@ -172,8 +172,8 @@ def add_bignum(a, b, c):
         left_digit = (a.digits[i] if (i <= a.lastdigit) else 0)
         right_digit = (b.digits[i] if (i <= b.lastdigit) else 0)
         sum = ((carry + left_digit) + right_digit)
-        c.digits[i] = c_mod(sum, 10)
-        carry = c_div(sum, 10)
+        c.digits[i] = sum % 10
+        carry = sum // 10
         i += 1
     # Reserve a new digit only when a carry actually needs it.
     if (carry != 0):

@@ -37,11 +37,11 @@ def swap(a, b):
 # lower/upper bounds on numb
 def random_int(low, high):
     # r: random number
-    i = c_div(RAND_MAX, ((high - low) + 1))
+    i = RAND_MAX // (high - low + 1)
     i *= ((high - low) + 1)
     while ((j := rand()) >= i):
         continue
-    r = (c_mod(j, ((high - low) + 1)) + low)
+    r = (j % (high - low + 1) + low)
     if ((r < low) or (r > high)):
         printf("Error: random integer %d out of range [%d,%d]\n", r, low, high)
     return r
@@ -60,7 +60,7 @@ def random_permutation(a, n):
 def random_float(low, high):
     # j: avoid arithmetic trouble
     # r: random number
-    i = c_div(RAND_MAX, (high - low))
+    i = RAND_MAX // (high - low)
     i *= (high - low)
     while ((j := rand()) >= i):
         continue

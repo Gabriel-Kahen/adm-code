@@ -86,8 +86,8 @@ def possible_values(p, board, possible):
         if (board.m[i][y] != 0):
             possible[board.m[i][y]] = False
         i += 1
-    xlow = (BASED * int(c_div(x, BASED)))
-    ylow = (BASED * int(c_div(y, BASED)))
+    xlow = (BASED * int(x // BASED))
+    ylow = (BASED * int(y // BASED))
     i = xlow
     while (i < (xlow + BASED)):
         j = ylow
@@ -185,11 +185,11 @@ def print_board(board):
                 printf(" ")
             else:
                 printf("%c", (int(ord('0')) + board.m[i][j]))
-            if (c_mod((j + 1), BASED) == 0):
+            if ((j + 1) % BASED == 0):
                 printf("|")
             j += 1
         printf("\n")
-        if (c_mod((i + 1), BASED) == 0):
+        if ((i + 1) % BASED == 0):
             j = 0
             while (j < ((DIMENSION + BASED) - 1)):
                 printf("-")

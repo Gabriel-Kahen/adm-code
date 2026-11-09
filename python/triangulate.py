@@ -41,7 +41,7 @@ def point_in_triangle(p, t):
     # i: counter
     i = 0
     while (i < 3):
-        if geometry.cw(t[i], t[c_mod((i + 1), 3)], p):
+        if geometry.cw(t[i], t[(i + 1) % 3], p):
             return False
         i += 1
     return True
@@ -73,8 +73,8 @@ def triangulate(p, t):
     # initialization
     i = 0
     while (i < p.n):
-        l[i] = c_mod(((i - 1) + p.n), p.n)
-        r[i] = c_mod(((i + 1) + p.n), p.n)
+        l[i] = (i - 1 + p.n) % p.n
+        r[i] = (i + 1 + p.n) % p.n
         i += 1
     t.n = 0
     i = (p.n - 1)
@@ -106,7 +106,7 @@ def area(p):
     # j: counters
     i = 0
     while (i < p.n):
-        j = c_mod((i + 1), p.n)
+        j = (i + 1) % p.n
         total += ((p.p[i][geometry.X] * p.p[j][geometry.Y]) - (p.p[j][geometry.X] * p.p[i][geometry.Y]))
         i += 1
     return (total / 2.0)

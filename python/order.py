@@ -59,7 +59,7 @@ def snake_order(n, m):
     while (i <= n):
         j = 1
         while (j <= m):
-            process(i, (j + (((m + 1) - (2 * j)) * c_mod((i + 1), 2))))
+            process(i, j + (m + 1 - 2 * j) * ((i + 1) % 2))
             j += 1
         i += 1
 

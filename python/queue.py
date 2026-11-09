@@ -50,7 +50,7 @@ def enqueue(q, x):
     if (q.count >= QUEUESIZE):
         printf("Warning: queue overflow enqueue x=%d\n", x)
     else:
-        q.last = c_mod((q.last + 1), QUEUESIZE)
+        q.last = (q.last + 1) % QUEUESIZE
         q.q[q.last] = x
         q.count = (q.count + 1)
 
@@ -59,7 +59,7 @@ def dequeue(q):
     if (q.count <= 0):
         printf("Warning: empty queue dequeue.\n")
     x = q.q[q.first]
-    q.first = c_mod((q.first + 1), QUEUESIZE)
+    q.first = (q.first + 1) % QUEUESIZE
     q.count = (q.count - 1)
     return x
 
@@ -78,6 +78,6 @@ def print_queue(q):
     i = q.first
     while (i != q.last):
         printf("%d ", q.q[i])
-        i = c_mod((i + 1), QUEUESIZE)
+        i = (i + 1) % QUEUESIZE
     printf("%2d ", q.q[i])
     printf("\n")

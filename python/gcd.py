@@ -33,8 +33,8 @@ def gcd1(p, q):
         return gcd1(q, p)
     if (q == 0):
         return p
-    printf(" gcd(%ld,%ld) &=& gcd(%ld \\mod %ld, %ld) = gcd(%ld,%ld) \n", p, q, p, q, q, q, c_mod(p, q))
-    return gcd1(q, c_mod(p, q))
+    printf(' gcd(%ld,%ld) &=& gcd(%ld \\mod %ld, %ld) = gcd(%ld,%ld) \n', p, q, p, q, q, q, p % q)
+    return gcd1(q, p % q)
 
 
 # Find the gcd(p,q) and x,y such that p*x + q*y = gcd(p,q)
@@ -49,9 +49,9 @@ def gcd(p, q, x, y):
         x[0] = 1
         y[0] = 0
         return p
-    g = gcd(q, c_mod(p, q), x1, y1)
+    g = gcd(q, p % q, x1, y1)
     x[0] = y1[0]
-    y[0] = (x1[0] - (c_div(p, q) * y1[0]))
+    y[0] = (x1[0] - p // q * y1[0])
     return g
 
 
