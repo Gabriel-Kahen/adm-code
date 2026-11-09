@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Dijkstra {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -47,7 +49,7 @@ public class Dijkstra {
         while (!(settled[vertex])) {
             settled[vertex] = true;
             if ((vertex != start)) {
-                C.printf("edge (%d,%d) in tree \n", Wgraph.parent[vertex], vertex);
+                System.out.printf(Locale.US, "edge (%d,%d) in tree \n", Wgraph.parent[vertex], vertex);
                 /* The distance difference is this parent edge's weight, not a full path length. */
                 tree_weight += (distance[vertex] - distance[Wgraph.parent[vertex]]);
             }
@@ -78,11 +80,11 @@ public class Dijkstra {
         long weight = 0;
         Wgraph.read_graph(g, false);
         weight = dijkstra(g, 1);
-        C.printf("Total SPST edgeweight = %lld \n", weight);
+        System.out.printf(Locale.US, "Total SPST edgeweight = %d \n", weight);
         for (i = 1; (i <= g.nvertices); i++) {
             Wgraph.find_path(1, i, Wgraph.parent);
         }
-        C.printf("\n");
+        System.out.print("\n");
         return 0;
     }
 

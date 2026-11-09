@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Netflow {
     public static final double PI = 3.1415926; /* ratio of circumference to diameter */
     public static final double EPSILON = 0.000001; /* a quantity small enough to be zero */
@@ -135,13 +137,13 @@ public class Netflow {
         int i = 0; /* counter */
         Netflow.edgenode p = null; /* temporary pointer */
         for (i = 1; (i <= g.nvertices); i++) {
-            C.printf("%d: ", i);
+            System.out.printf(Locale.US, "%d: ", i);
             p = g.edges[i];
             while ((p != null)) {
-                C.printf(" %d(%lld,%lld,%lld)", p.v, p.capacity, p.flow, p.residual);
+                System.out.printf(Locale.US, " %d(%d,%d,%d)", p.v, p.capacity, p.flow, p.residual);
                 p = p.next;
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
     }
 
@@ -200,16 +202,16 @@ public class Netflow {
 
     public static int find_path(int start, int end, int[] parents) {
         if ((end == (-1))) {
-            C.printf("\nNo path");
+            System.out.print("\nNo path");
             return 0;
         }
         if ((start == end)) {
-            C.printf("\n%d", start);
+            System.out.printf(Locale.US, "\n%d", start);
         } else {
             if (!((find_path(start, parents[end], parents) != 0))) {
                 return 0;
             }
-            C.printf(" %d", end);
+            System.out.printf(Locale.US, " %d", end);
         }
         return 1;
     }
@@ -277,7 +279,7 @@ public class Netflow {
             flow += p.flow;
             p = p.next;
         }
-        C.printf("total flow = %lld\n", flow);
+        System.out.printf(Locale.US, "total flow = %d\n", flow);
         return 0;
     }
 

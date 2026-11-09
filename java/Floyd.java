@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Floyd {
     public static final int MAXV = 100; /* maximum number of vertices */
     public static final int MAXDEGREE = 50; /* maximum outdegree of a vertex */
@@ -87,13 +89,13 @@ public class Floyd {
         int i = 0; /* counters */
         int j = 0;
         for (i = 1; (i <= g.nvertices); i++) {
-            C.printf("%d: ", i);
+            System.out.printf(Locale.US, "%d: ", i);
             for (j = 1; (j <= g.nvertices); j++) {
                 if ((g.weight[i][j] < MAXINT)) {
-                    C.printf(" %d", j);
+                    System.out.printf(Locale.US, " %d", j);
                 }
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
     }
 
@@ -101,11 +103,11 @@ public class Floyd {
         int i = 0; /* counters */
         int j = 0;
         for (i = 1; (i <= g.nvertices); i++) {
-            C.printf("%3d: ", i);
+            System.out.printf(Locale.US, "%3d: ", i);
             for (j = 1; (j <= g.nvertices); j++) {
-                C.printf(" %3lld", g.weight[i][j]);
+                System.out.printf(Locale.US, " %3d", g.weight[i][j]);
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
     }
 

@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Prim {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -47,7 +49,7 @@ public class Prim {
         while (!(in_tree[vertex])) {
             in_tree[vertex] = true;
             if ((vertex != start)) {
-                C.printf("edge (%d,%d) in tree \n", Wgraph.parent[vertex], vertex);
+                System.out.printf(Locale.US, "edge (%d,%d) in tree \n", Wgraph.parent[vertex], vertex);
                 tree_weight = (tree_weight + next_distance);
             }
             edge = g.edges[vertex];
@@ -75,7 +77,7 @@ public class Prim {
         long weight = 0;
         Wgraph.read_graph(g, false);
         weight = prim(g, 1);
-        C.printf("Out of Prim: weight = %lld \n", weight);
+        System.out.printf(Locale.US, "Out of Prim: weight = %d \n", weight);
         return 0;
     }
 

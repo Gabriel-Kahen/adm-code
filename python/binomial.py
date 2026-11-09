@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
+from ._c import EDOM, ERANGE, LONG_MAX, perror, printf, scanf
 from . import _c
 
 # binomial.c
@@ -35,7 +35,7 @@ MAXN = 100
 # compute n choose k
 # Returns -1 with errno set for invalid arguments or an unrepresentable result.
 def binomial_coefficient(n, k):
-    bc = array_init([0 for _ in range((MAXN + 1))], [0])
+    bc = [0] * (MAXN + 1)
     _c.errno = 0
     if ((((n < 0) or (n > MAXN)) or (k < 0)) or (k > n)):
         _c.errno = EDOM
@@ -75,4 +75,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

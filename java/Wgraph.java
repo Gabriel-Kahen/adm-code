@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Wgraph {
     public static final int TREE = 0; /* tree edge */
     public static final int BACK = 1; /* back edge */
@@ -105,20 +107,20 @@ public class Wgraph {
                 p = p.next;
             }
         }
-        C.printf("Warning: deletion(%d,%d) not found in g.\n", x, y);
+        System.out.printf(Locale.US, "Warning: deletion(%d,%d) not found in g.\n", x, y);
     }
 
     public static void print_graph(Graph.graph g) {
         int i = 0; /* counter */
         Graph.edgenode p = null; /* temporary pointer */
         for (i = 1; (i <= g.nvertices); i++) {
-            C.printf("%d: ", i);
+            System.out.printf(Locale.US, "%d: ", i);
             p = g.edges[i];
             while ((p != null)) {
-                C.printf(" %d", p.y);
+                System.out.printf(Locale.US, " %d", p.y);
                 p = p.next;
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
     }
 
@@ -132,7 +134,7 @@ public class Wgraph {
     }
 
     public static void process_vertex_early(int v) { /* vertex to process */
-        C.printf(" %d", v);
+        System.out.printf(Locale.US, " %d", v);
     }
 
     public static void process_vertex_late(int v) { /* vertex to process */
@@ -190,16 +192,16 @@ public class Wgraph {
 
     public static int find_path(int start, int end, int[] parents) {
         if ((end == (-1))) {
-            C.printf("\nNo path");
+            System.out.print("\nNo path");
             return 0;
         }
         if ((start == end)) {
-            C.printf("\n%d", start);
+            System.out.printf(Locale.US, "\n%d", start);
         } else {
             if (!((find_path(start, parents[end], parents) != 0))) {
                 return 0;
             }
-            C.printf(" %d", end);
+            System.out.printf(Locale.US, " %d", end);
         }
         return 1;
     }
@@ -212,9 +214,9 @@ public class Wgraph {
         for (i = 1; (i <= g.nvertices); i++) {
             if (!(discovered[i])) {
                 c = (c + 1);
-                C.printf("Component %d:", c);
+                System.out.printf(Locale.US, "Component %d:", c);
                 dfs(g, i);
-                C.printf("\n");
+                System.out.print("\n");
             }
         }
     }

@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Distance {
     public static final int DIMENSION = 3;
 
@@ -36,7 +38,7 @@ public class Distance {
     public static int main() {
         int[] a = new int[]{6, 2, 3};
         int[] b = new int[]{6, 3, 4};
-        C.printf("distance = %f\n", distance(a, b));
+        System.out.printf(Locale.US, "distance = %f\n", distance(a, b));
         return 0;
     }
 

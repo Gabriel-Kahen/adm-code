@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class TspAstar {
     public static final int NMAX = 20;
     public static final int PQ_SIZE = 400000;
@@ -184,7 +186,7 @@ public class TspAstar {
     public static void print_tsp(TspAstar.tsp_instance t) {
         int i = 0; /* counter */
         for (i = 1; (i <= t.n); i++) {
-            C.printf("%d %d %d\n", i, t.p[i].x, t.p[i].y);
+            System.out.printf(Locale.US, "%d %d %d\n", i, t.p[i].x, t.p[i].y);
         }
     }
 
@@ -286,11 +288,11 @@ public class TspAstar {
 
     public static void print_solution(TspAstar.tsp_solution s) {
         int i = 0; /* counter */
-        C.printf(" n = %d   ", s.n);
+        System.out.printf(Locale.US, " n = %d   ", s.n);
         for (i = 1; (i <= s.n); i++) {
-            C.printf(" %d", s.p[i]);
+            System.out.printf(Locale.US, " %d", s.p[i]);
         }
-        C.printf("\n------------------------------------------------------\n");
+        System.out.print("\n------------------------------------------------------\n");
     }
 
     public static void read_solution(TspAstar.tsp_solution s) {
@@ -355,10 +357,10 @@ public class TspAstar {
             lb_flag = (i != 0);
             constructions = (evaluations = 0);
             solve_tsp(t, s);
-            C.printf(" evaluations = %ld backtracking lb_flag=%d \n", evaluations, lb_flag);
-            C.printf(" constructions = %ld \n", constructions);
+            C.printf(" evaluations = %d backtracking lb_flag=%d \n", evaluations, lb_flag);
+            System.out.printf(Locale.US, " constructions = %d \n", constructions);
             print_solution(best_solution);
-            C.printf("OPTIMAL SOLUTION COST = %7.1f\n", best_cost);
+            System.out.printf(Locale.US, "OPTIMAL SOLUTION COST = %7.1f\n", best_cost);
             first_solution(s, t);
             best_cost = solution_cost(s, t);
             /*
@@ -367,10 +369,10 @@ public class TspAstar {
             */
             maxqueuesize = (constructions = (evaluations = 0));
             branch_and_bound(s, t);
-            C.printf(" evaluations = %ld  branch-and-bound lb_flag=%d \n", evaluations, lb_flag);
-            C.printf(" constructions = %ld  maxqueuesize = %ld \n", constructions, maxqueuesize);
+            C.printf(" evaluations = %d  branch-and-bound lb_flag=%d \n", evaluations, lb_flag);
+            System.out.printf(Locale.US, " constructions = %d  maxqueuesize = %d \n", constructions, maxqueuesize);
             print_solution(best_solution);
-            C.printf("OPTIMAL B-AND-B SOLUTION COST = %7.1f\n", best_cost);
+            System.out.printf(Locale.US, "OPTIMAL B-AND-B SOLUTION COST = %7.1f\n", best_cost);
         }
         return 0;
     }

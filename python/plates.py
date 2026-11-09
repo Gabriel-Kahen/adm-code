@@ -22,9 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+import math
 
+from ._c import printf, scanf
 
 
 # how many triangular-lattice layers of radius r balls fit in height h?
@@ -32,15 +32,15 @@ def dense_layers(w, h, r):
     # gap: distance between layers
     if (((2 * r) > h) or ((2 * r) > w)):
         return 0
-    gap = ((2.0 * r) * (sqrt(3) / 2.0))
-    return (1 + floor(((h - (2.0 * r)) / gap)))
+    gap = ((2.0 * r) * (math.sqrt(3) / 2.0))
+    return (1 + math.floor(((h - (2.0 * r)) / gap)))
 
 
 def plates_per_row(row, w, r):
     # plates_per_full_row: number of plates in full/even row
     if (w < (2 * r)):
         return 0
-    plates_per_full_row = floor((w / (2 * r)))
+    plates_per_full_row = math.floor((w / (2 * r)))
     if (row % 2 == 0):
         return plates_per_full_row
     # odd row full, too
@@ -54,12 +54,12 @@ def plates_per_row(row, w, r):
 def dense_plates(w, l, r):
     # layers: number of layers of balls
     layers = dense_layers(w, l, r)
-    return ((ceil((layers / 2.0)) * plates_per_row(0, w, r)) + (floor((layers / 2.0)) * plates_per_row(1, w, r)))
+    return ((math.ceil((layers / 2.0)) * plates_per_row(0, w, r)) + (math.floor((layers / 2.0)) * plates_per_row(1, w, r)))
 
 
 def grid_plates(w, h, r):
     # layers: number of layers of balls
-    layers = floor((h / (2 * r)))
+    layers = math.floor((h / (2 * r)))
     return (layers * plates_per_row(0, w, r))
 
 
@@ -69,12 +69,12 @@ def grid_plates(w, h, r):
 # and positive-slope diagonal yh.   The geometric coordinate of
 # such a point is a function of the radius of the disk $r$.
 def hex_to_geo(xh, yh, r, xg, yg):
-    yg[0] = (((2.0 * r) * xh) * (sqrt(3) / 2.0))
+    yg[0] = (((2.0 * r) * xh) * (math.sqrt(3) / 2.0))
     xg[0] = ((((2.0 * r) * xh) * (1.0 / 2.0)) + ((2.0 * r) * yh))
 
 
 def geo_to_hex(xg, yg, r, xh, yh):
-    xh[0] = (((2.0 / sqrt(3)) * yg) / (2.0 * r))
+    xh[0] = (((2.0 / math.sqrt(3)) * yg) / (2.0 * r))
     yh[0] = ((xg - (((2.0 * r) * xh[0]) * (1.0 / 2.0))) / (2.0 * r))
 
 
@@ -86,12 +86,12 @@ def geo_to_hex(xg, yg, r, xh, yh):
 # rectangle with (0,0) as the lower righthand point in the matrix.
 def array_to_hex(xa, ya, xh, yh):
     xh[0] = xa
-    yh[0] = ((ya - xa) + ceil((xa / 2.0)))
+    yh[0] = ((ya - xa) + math.ceil((xa / 2.0)))
 
 
 def hex_to_array(xh, yh, xa, ya):
     xa[0] = xh
-    ya[0] = ((yh + xh) - ceil((xh / 2.0)))
+    ya[0] = ((yh + xh) - math.ceil((xh / 2.0)))
 
 
 def plates_on_top(xh, yh, w, l, r):
@@ -136,7 +136,7 @@ def main():
     printf("dense packing = %d\n", dense_plates(w[0], l[0], r[0]))
     printf("grid packing = %d\n", grid_plates(w[0], l[0], r[0]))
     # print all the possible hexes in the box
-    xmax = floor((w[0] / (2 * r[0])))
+    xmax = math.floor((w[0] / (2 * r[0])))
     i = 0
     while (i < xmax):
         printf("(0,%d) has %d on top.\n", i, plates_on_top(0, i, w[0], l[0], r[0]))
@@ -145,4 +145,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

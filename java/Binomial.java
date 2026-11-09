@@ -14,6 +14,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Binomial {
     public static final int MAXN = 100; /* largest n or k */
 
@@ -62,7 +64,7 @@ public class Binomial {
                 C.perror("binomial coefficient");
                 return 1;
             }
-            C.printf("%d choose %d = %ld\n", a, b, coefficient);
+            System.out.printf(Locale.US, "%d choose %d = %d\n", a, b, coefficient);
         }
         return 0;
     }

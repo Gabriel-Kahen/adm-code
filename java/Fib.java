@@ -14,6 +14,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Fib {
     public static final int MAXN = 92; /* largest n for which F(n) fits in a long */
     public static final int UNKNOWN = -1; /* contents denote an empty cell */
@@ -105,13 +107,13 @@ public class Fib {
         int i = 0;
         int ntest = 92;
         for (i = 0; (i <= ntest); i++) {
-            C.printf("fib_c(%d) = %ld\n", i, fib_c_driver(i));
+            System.out.printf(Locale.US, "fib_c(%d) = %d\n", i, fib_c_driver(i));
         }
         for (i = 0; (i <= ntest); i++) {
-            C.printf("fib_dp(%d) = %ld\n", i, fib_dp(i));
+            System.out.printf(Locale.US, "fib_dp(%d) = %d\n", i, fib_dp(i));
         }
         for (i = 0; (i <= ntest); i++) {
-            C.printf("fib_dp2(%d) = %ld\n", i, fib_ultimate(i));
+            System.out.printf(Locale.US, "fib_dp2(%d) = %d\n", i, fib_ultimate(i));
         }
         /*
             for (i = 0; i <= ntest; i++) {

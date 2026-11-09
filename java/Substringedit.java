@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Substringedit {
     public static final int MAXLEN = 101; /* longest possible string */
     public static final int MATCH = 0; /* enumerated type symbol for match */
@@ -93,18 +95,18 @@ public class Substringedit {
 
     public static void match_out(char[] s, char[] t, int i, int j) {
         if ((s[i] == t[j])) {
-            C.printf("M");
+            System.out.print("M");
         } else {
-            C.printf("S");
+            System.out.print("S");
         }
     }
 
     public static void insert_out(char[] t, int j) {
-        C.printf("I");
+        System.out.print("I");
     }
 
     public static void delete_out(char[] s, int i) {
-        C.printf("D");
+        System.out.print("D");
     }
 
     public static int main() {
@@ -124,17 +126,17 @@ public class Substringedit {
         char[] t = new char[(MAXLEN + 2)];
         s[0] = (t[0] = ' ');
         if ((!((read_edit_string(s, MAXLEN) != 0)) || !((read_edit_string(t, MAXLEN) != 0)))) {
-            C.fprintf("expected two strings of at most %d characters\n", MAXLEN);
+            System.err.printf(Locale.US, "expected two strings of at most %d characters\n", MAXLEN);
             return 1;
         }
-        C.printf("matching cost = %d \n", Editdistance.string_compare(s, t, m));
+        System.out.printf(Locale.US, "matching cost = %d \n", Editdistance.string_compare(s, t, m));
         Editdistance.print_matrix(s, t, true, m);
-        C.printf("\n");
+        System.out.print("\n");
         Editdistance.print_matrix(s, t, false, m);
         goal_cell(s, t, i, j);
-        C.printf("%d %d\n", i[0], j[0]);
+        System.out.printf(Locale.US, "%d %d\n", i[0], j[0]);
         Editdistance.reconstruct_path(s, t, i[0], j[0], m);
-        C.printf("\n");
+        System.out.print("\n");
         return 0;
     }
 

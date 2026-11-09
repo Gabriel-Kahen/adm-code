@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Findcycle {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -35,7 +37,7 @@ public class Findcycle {
 
     public static void process_edge(int x, int y) {
         if ((BfsDfs.parent[y] != x)) { /* found back edge! */
-            C.printf("Cycle from %d to %d:", y, x);
+            System.out.printf(Locale.US, "Cycle from %d to %d:", y, x);
             BfsDfs.find_path(y, x, BfsDfs.parent);
             BfsDfs.finished = true;
         }
@@ -52,7 +54,7 @@ public class Findcycle {
         Graph.print_graph(g);
         BfsDfs.initialize_search(g);
         BfsDfs.dfs(g, 1);
-        C.printf("\n");
+        System.out.print("\n");
         return 0;
     }
 

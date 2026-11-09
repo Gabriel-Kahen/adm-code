@@ -22,8 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+import math
+
+from ._c import printf
 from . import random
 from . import tsp
 
@@ -172,7 +173,11 @@ def anneal(t, s):
                 exponent = float("nan")
             else:
                 exponent = (-delta / current_value) / (K * temperature)
-            accept_loss = (exp(exponent) > random.random_float(0, 1))
+            try:
+                probability = math.exp(exponent)
+            except OverflowError:
+                probability = math.inf
+            accept_loss = (probability > random.random_float(0, 1))
             if (accept_win or accept_loss):
                 current_value += delta
             else:

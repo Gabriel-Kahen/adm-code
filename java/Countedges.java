@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Countedges {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -49,7 +51,7 @@ public class Countedges {
         BfsDfs.initialize_search(g);
         nedges = 0;
         BfsDfs.dfs(g, 1);
-        C.printf("nedges = %d \n", nedges);
+        System.out.printf(Locale.US, "nedges = %d \n", nedges);
         return 0;
     }
 

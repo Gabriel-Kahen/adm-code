@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Permutations {
     public static final int MAXCANDIDATES = 100; /* max possible next extensions */
     public static final int NMAX = 100; /* maximum solution size */
@@ -27,9 +29,9 @@ public class Permutations {
     public static void process_solution(int[] a, int k, int input) {
         int i = 0; /* counter */
         for (i = 1; (i <= k); i++) {
-            C.printf(" %d", a[i]);
+            System.out.printf(Locale.US, " %d", a[i]);
         }
-        C.printf("\n");
+        System.out.print("\n");
     }
 
     public static int is_a_solution(int[] a, int k, int n) {

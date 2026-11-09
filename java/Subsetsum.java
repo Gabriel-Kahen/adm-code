@@ -22,6 +22,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Subsetsum {
     public static final int MAXN = 100; /* largest n */
     public static final int MAXSUM = 10000; /* largest sum we will consider */
@@ -59,7 +61,7 @@ public class Subsetsum {
             report_subset((n - 1), k);
         } else {
             report_subset((n - 1), parent[n][k]);
-            C.printf(" %d ", (k - parent[n][k]));
+            System.out.printf(Locale.US, " %d ", (k - parent[n][k]));
         }
     }
 
@@ -77,17 +79,17 @@ public class Subsetsum {
             int _read1 = C.scan("%d %d");
             if (_read1 > 0) n = C.scanInt(0);
             if (_read1 > 1) k = C.scanInt(1);
-            C.printf("n=%d  k=%d \n", n, k);
+            System.out.printf(Locale.US, "n=%d  k=%d \n", n, k);
             for (i = 0; (i < n); i++) {
                 int _read2 = C.scan("%d");
                 if (_read2 > 0) s[i] = C.scanInt(0);
-                C.printf(" %d ", s[i]);
+                System.out.printf(Locale.US, " %d ", s[i]);
             }
-            C.printf("\n Is %d realizable: %d\n", k, (r = (subset_sum(s, n, k) ? 1 : 0)));
+            System.out.printf(Locale.US, "\n Is %d realizable: %d\n", k, (r = (subset_sum(s, n, k) ? 1 : 0)));
             if ((r != 0)) {
                 report_subset(n, k);
             }
-            C.printf("\n\n");
+            System.out.print("\n\n");
         }
         return 0;
     }

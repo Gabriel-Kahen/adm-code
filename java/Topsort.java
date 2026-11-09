@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Topsort {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -73,7 +75,7 @@ public class Topsort {
             }
         }
         if ((j != g.nvertices)) {
-            C.printf("Not a DAG -- only %d vertices found\n", j);
+            System.out.printf(Locale.US, "Not a DAG -- only %d vertices found\n", j);
         }
     }
 
@@ -85,9 +87,9 @@ public class Topsort {
         Graph.print_graph(g);
         topsort(g, out);
         for (i = 1; (i <= g.nvertices); i++) {
-            C.printf(" %d", out[i]);
+            System.out.printf(Locale.US, " %d", out[i]);
         }
-        C.printf("\n");
+        System.out.print("\n");
         return 0;
     }
 

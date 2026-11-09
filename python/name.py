@@ -22,8 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+from ._c import address, getchar, offset, printf, scanf, stderr, strlen
 
 # longest possible string
 MAXLEN = 1001
@@ -124,12 +123,12 @@ def main():
             oldlen = strlen(mergers[j][0])
             newlen = strlen(mergers[j][1])
             if (oldlen == 0):
-                fputs("A name to replace must not be empty.\n", stderr)
+                stderr.write("A name to replace must not be empty.\n")
                 return 1
             while ((pos := findmatch(mergers[j][0], offset(s, cursor))) != (-1)):
                 pos += cursor
                 if (((strlen(s) - oldlen) + newlen) >= MAXLEN):
-                    fputs("Renamed text exceeds the line capacity.\n", stderr)
+                    stderr.write("Renamed text exceeds the line capacity.\n")
                     return 1
                 replace_x_with_y(s, pos, oldlen, mergers[j][1])
                 cursor = (pos + newlen)
@@ -140,4 +139,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

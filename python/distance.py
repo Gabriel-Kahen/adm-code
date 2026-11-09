@@ -22,8 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+import math
+
+from ._c import printf
 
 DIMENSION = 3
 
@@ -35,15 +36,15 @@ def distance(a, b):
         delta = (float(a[i]) - float(b[i]))
         d += (delta * delta)
         i += 1
-    return sqrt(d)
+    return math.sqrt(d)
 
 
 def main():
-    a = array_init([0 for _ in range(DIMENSION)], [6, 2, 3])
-    b = array_init([0 for _ in range(DIMENSION)], [6, 3, 4])
+    a = [6, 2, 3]
+    b = [6, 3, 4]
     printf("distance = %f\n", distance(a, b))
     return 0
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

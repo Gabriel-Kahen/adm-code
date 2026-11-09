@@ -19,7 +19,11 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Random {
+    private static final java.util.Random generator = new java.util.Random(1);
+
     /*      These functions generate random numbers in the designated ranges */
     public static void swap(int[] a, int i, int[] b, int j) {
         int t = a[i];
@@ -30,16 +34,11 @@ public class Random {
             given array.
     */
     public static void random_permutation(int[] a, int offset, int n) {
-        for (int i = n; i > 1; i--) swap(a, offset + i - 1, a, offset + random_int(0, i - 1));
+        for (int i = n; i > 1; i--) {
+            swap(a, offset + i - 1, a, offset + random_int(0, i - 1));
+        }
     }
 
-
-    public static void swap(int[] a, int[] b) {
-        int x = 0;
-        x = a[0];
-        a[0] = b[0];
-        b[0] = x;
-    }
 
     public static int random_int(int low, int high) { /* lower/upper bounds on numb*/
         int i = 0; /* random number*/
@@ -47,12 +46,12 @@ public class Random {
         int r = 0;
         i = (Integer.MAX_VALUE / ((high - low) + 1));
         i *= ((high - low) + 1);
-        while (((j = C.rand()) >= i)) {
+        while (((j = (generator.nextInt() & Integer.MAX_VALUE)) >= i)) {
             continue;
         }
         r = ((j % ((high - low) + 1)) + low);
         if (((r < low) || (r > high))) {
-            C.printf("Error: random integer %d out of range [%d,%d]\n", r, low, high);
+            System.out.printf(Locale.US, "Error: random integer %d out of range [%d,%d]\n", r, low, high);
         }
         return r;
     }
@@ -70,12 +69,12 @@ public class Random {
         double r = 0; /* random number*/
         i = (Integer.MAX_VALUE / (high - low));
         i *= (high - low);
-        while (((j = C.rand()) >= i)) {
+        while (((j = (generator.nextInt() & Integer.MAX_VALUE)) >= i)) {
             continue;
         }
         r = (((j / i) * (high - low)) + low);
         if (((r < low) || (r > high))) {
-            C.printf("ERROR: random real %f out of range [%d,%d]\n", r, low, high);
+            System.out.printf(Locale.US, "ERROR: random real %f out of range [%d,%d]\n", r, low, high);
         }
         return r;
     }

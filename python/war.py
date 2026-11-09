@@ -22,8 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+from ._c import EOF, getchar, printf
 from . import queue
 from . import random
 
@@ -33,8 +32,8 @@ MAXSTEPS = 100000
 NCARDS = 52
 # number of suits
 NSUITS = 4
-values = char_array("23456789TJQKA", len("23456789TJQKA") + 1)
-suits = char_array("cdhs", len("cdhs") + 1)
+values = [ord(c) for c in "23456789TJQKA"] + [0]
+suits = [ord(c) for c in "cdhs"] + [0]
 
 
 # Return the suit and value of the given card.
@@ -174,4 +173,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

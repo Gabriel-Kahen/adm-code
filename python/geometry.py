@@ -22,8 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+import math
+
+from ._c import printf
 
 # ratio of circumference to diameter
 # a quantity small enough to be zero
@@ -99,11 +100,11 @@ def point_and_slope_to_line(p, m, l):
 
 
 def parallelQ(l1, l2):
-    return ((fabs((l1.a - l2.a)) <= EPSILON) and (fabs((l1.b - l2.b)) <= EPSILON))
+    return ((abs((l1.a - l2.a)) <= EPSILON) and (abs((l1.b - l2.b)) <= EPSILON))
 
 
 def same_lineQ(l1, l2):
-    return (parallelQ(l1, l2) and (fabs((l1.c - l2.c)) <= EPSILON))
+    return (parallelQ(l1, l2) and (abs((l1.c - l2.c)) <= EPSILON))
 
 
 def intersection_point(l1, l2, p):
@@ -117,7 +118,7 @@ def intersection_point(l1, l2, p):
         return
     p[X] = (((l2.b * l1.c) - (l1.b * l2.c)) / ((l2.a * l1.b) - (l1.a * l2.b)))
     # test for vertical line
-    if (fabs(l1.b) > EPSILON):
+    if (abs(l1.b) > EPSILON):
         p[Y] = ((-((l1.a * p[X]) + l1.c)) / l1.b)
     else:
         p[Y] = ((-((l2.a * p[X]) + l2.c)) / l2.b)
@@ -127,12 +128,12 @@ def closest_point(p_in, l, p_c):
     # perp: perpendicular to l through (x,y)
     perp = line()
     # vertical line
-    if (fabs(l.b) <= EPSILON):
+    if (abs(l.b) <= EPSILON):
         p_c[X] = (-l.c)
         p_c[Y] = p_in[Y]
         return
     # horizontal line
-    if (fabs(l.a) <= EPSILON):
+    if (abs(l.a) <= EPSILON):
         p_c[X] = p_in[X]
         p_c[Y] = (-l.c)
         return
@@ -148,7 +149,7 @@ def distance(a, b):
     while (i < DIMENSION):
         d = (d + ((a[i] - b[i]) * (a[i] - b[i])))
         i += 1
-    return sqrt(d)
+    return math.sqrt(d)
 
 
 def copy_point(a, b):
@@ -188,7 +189,7 @@ def segments_intersect(s1, s2):
     d = signed_triangle_area(s2.p1, s2.p2, s1.p2)
     # Test the input endpoints directly; a rounded line intersection can
     # fall just outside a segment that contains its shared endpoint.
-    if (((((fabs(a) <= EPSILON) and point_in_box(s2.p1, s1.p1, s1.p2)) or ((fabs(b) <= EPSILON) and point_in_box(s2.p2, s1.p1, s1.p2))) or ((fabs(c) <= EPSILON) and point_in_box(s1.p1, s2.p1, s2.p2))) or ((fabs(d) <= EPSILON) and point_in_box(s1.p2, s2.p1, s2.p2))):
+    if (((((abs(a) <= EPSILON) and point_in_box(s2.p1, s1.p1, s1.p2)) or ((abs(b) <= EPSILON) and point_in_box(s2.p2, s1.p1, s1.p2))) or ((abs(c) <= EPSILON) and point_in_box(s1.p1, s2.p1, s2.p2))) or ((abs(d) <= EPSILON) and point_in_box(s1.p2, s2.p1, s2.p2))):
         return 1
     return ((((a > EPSILON) and (b < (-EPSILON))) or ((a < (-EPSILON)) and (b > EPSILON))) and (((c > EPSILON) and (d < (-EPSILON))) or ((c < (-EPSILON)) and (d > EPSILON))))
 
@@ -198,7 +199,7 @@ def signed_triangle_area(a, b, c):
 
 
 def triangle_area(a, b, c):
-    return fabs(signed_triangle_area(a, b, c))
+    return abs(signed_triangle_area(a, b, c))
 
 
 def ccw(a, b, c):
@@ -210,7 +211,7 @@ def cw(a, b, c):
 
 
 def collinear(a, b, c):
-    return (fabs(signed_triangle_area(a, b, c)) <= EPSILON)
+    return (abs(signed_triangle_area(a, b, c)) <= EPSILON)
 
 
 def print_points(p, n):

@@ -40,7 +40,7 @@ public class Topsort1 {
         int edge_class = 0;
         edge_class = BfsDfs.edge_classification(x, y);
         if ((edge_class == BACK)) {
-            C.printf("Warning: directed cycle found, not a DAG\n");
+            System.out.print("Warning: directed cycle found, not a DAG\n");
         }
     }
 

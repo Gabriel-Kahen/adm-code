@@ -22,8 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+from ._c import EOF, address, printf, scanf
 
 class tree:
     def __init__(self):
@@ -160,21 +159,21 @@ def main():
     # tmp: returned tree from search
     l[0] = init_tree()
     while (scanf("%c", c) != EOF):
-        if (tolower(c[0]) == ord('p')):
+        if (chr(c[0]).lower() == 'p'):
             print_tree(l[0])
             printf("\n")
-        if (tolower(c[0]) == ord('i')):
+        if (chr(c[0]).lower() == 'i'):
             scanf("%d", d)
             printf("new item: %d\n", d[0])
             insert_tree(l, d[0], None)
-        if (tolower(c[0]) == ord('s')):
+        if (chr(c[0]).lower() == 's'):
             scanf("%d", d)
             tmp = search_tree(l[0], d[0])
             if (tmp == None):
                 printf("item %d not found\n", d[0])
             else:
                 printf("item %d found\n", d[0])
-        if (tolower(c[0]) == ord('d')):
+        if (chr(c[0]).lower() == 'd'):
             scanf("%d", d)
             printf(" deleting item %d\n", d[0])
             l[0] = delete_tree(l[0], d[0])
@@ -184,4 +183,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

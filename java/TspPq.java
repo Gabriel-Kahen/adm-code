@@ -20,6 +20,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class TspPq {
     public static final int NMAX = 20;
     public static final int PQ_SIZE = 400000;
@@ -86,7 +88,7 @@ public class TspPq {
 
     public static void pq_insert(TspPq.priority_queue q, TspAstar.tsp_solution x) {
         if ((q.n >= PQ_SIZE)) {
-            C.fprintf("TSP priority queue capacity exceeded\n");
+            System.err.print("TSP priority queue capacity exceeded\n");
             System.exit(1);
         } else {
             q.n = (q.n + 1);
@@ -105,7 +107,7 @@ public class TspPq {
         q.q[1].set(q.q[q.n]);
         q.n = (q.n - 1);
         bubble_down(q, 1);
-        return min.copy();
+        return min;
     }
 
     public static TspAstar.tsp_solution top_pq(TspPq.priority_queue q) {
@@ -123,9 +125,9 @@ public class TspPq {
     public static void print_pq(TspPq.priority_queue q) {
         int i = 0; /* counter */
         for (i = 1; (i <= q.n); i++) {
-            C.printf("%7.1f ", q.q[i].cost);
+            System.out.printf(Locale.US, "%7.1f ", q.q[i].cost);
         }
-        C.printf("\n");
+        System.out.print("\n");
     }
 
     public static void make_heap_fast(TspPq.priority_queue q, TspAstar.tsp_solution[] s, int n) {

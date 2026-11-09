@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Paths {
     public static final int TREE = 0; /* tree edge */
     public static final int BACK = 1; /* back edge */
@@ -38,11 +40,11 @@ public class Paths {
     public static void process_solution(int[] a, int k, Paths.paths_data input) {
         int i = 0; /* counter */
         solution_count++;
-        C.printf("{");
+        System.out.print("{");
         for (i = 1; (i <= k); i++) {
-            C.printf(" %d", a[i]);
+            System.out.printf(Locale.US, " %d", a[i]);
         }
-        C.printf(" }\n");
+        System.out.print(" }\n");
     }
 
     public static int is_a_solution(int[] a, int k, Paths.paths_data g) {
@@ -117,13 +119,13 @@ public class Paths {
         for (i = 1; (i <= g.g.nvertices); i++) {
             g.s = 1;
             g.t = i;
-            C.printf("\nPaths from 1 to %d:\n", i);
+            System.out.printf(Locale.US, "\nPaths from 1 to %d:\n", i);
             backtrack(a, 0, g);
         }
         for (i = 1; (i <= g.g.nvertices); i++) {
             g.s = i;
             g.t = 1;
-            C.printf("\nPaths from %d to 1:\n", i);
+            System.out.printf(Locale.US, "\nPaths from %d to 1:\n", i);
             backtrack(a, 0, g);
         }
         return 0;

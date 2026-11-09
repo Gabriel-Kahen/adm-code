@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class TreeDemo {
     public static class tree {
         int item = 0; /* data item */
@@ -73,7 +75,7 @@ public class TreeDemo {
     public static void print_tree(TreeDemo.tree l) {
         if ((l != null)) {
             print_tree(l.left);
-            C.printf("%d ", l.item);
+            System.out.printf(Locale.US, "%d ", l.item);
             print_tree(l.right);
         }
     }
@@ -121,7 +123,7 @@ public class TreeDemo {
         TreeDemo.tree removed = null;
         TreeDemo.tree child = null;
         if ((target == null)) {
-            C.printf("Warning: key to be deleted %d is not in tree.\n", x);
+            System.out.printf(Locale.US, "Warning: key to be deleted %d is not in tree.\n", x);
             return t;
         }
         removed = (((target.left != null) && (target.right != null)) ? successor_descendant(target) : target);
@@ -146,7 +148,7 @@ public class TreeDemo {
     }
 
     public static void process_item(int x) {
-        C.printf("%d", x);
+        System.out.printf(Locale.US, "%d", x);
     }
 
     public static void traverse_tree(TreeDemo.tree l) {
@@ -169,12 +171,12 @@ public class TreeDemo {
             if (!((_read0 != -1))) break;
             if ((Character.toLowerCase(c) == 'p')) {
                 print_tree(l);
-                C.printf("\n");
+                System.out.print("\n");
             }
             if ((Character.toLowerCase(c) == 'i')) {
                 int _read1 = C.scan("%d");
                 if (_read1 > 0) d = C.scanInt(0);
-                C.printf("new item: %d\n", d);
+                System.out.printf(Locale.US, "new item: %d\n", d);
                 l = insert_tree(l, d, null);
             }
             if ((Character.toLowerCase(c) == 's')) {
@@ -182,18 +184,18 @@ public class TreeDemo {
                 if (_read2 > 0) d = C.scanInt(0);
                 tmp = search_tree(l, d);
                 if ((tmp == null)) {
-                    C.printf("item %d not found\n", d);
+                    System.out.printf(Locale.US, "item %d not found\n", d);
                 } else {
-                    C.printf("item %d found\n", d);
+                    System.out.printf(Locale.US, "item %d found\n", d);
                 }
             }
             if ((Character.toLowerCase(c) == 'd')) {
                 int _read3 = C.scan("%d");
                 if (_read3 > 0) d = C.scanInt(0);
-                C.printf(" deleting item %d\n", d);
+                System.out.printf(Locale.US, " deleting item %d\n", d);
                 l = delete_tree(l, d);
                 print_tree(l);
-                C.printf("\n");
+                System.out.print("\n");
             }
         }
         return 0;

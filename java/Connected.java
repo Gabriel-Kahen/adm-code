@@ -18,6 +18,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Connected {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -27,11 +29,11 @@ public class Connected {
 
     /* discovery relation */
     public static void process_vertex(int v) {
-        C.printf(" %d", v);
+        System.out.printf(Locale.US, " %d", v);
     }
 
     public static void process_vertex_early(int v) {
-        C.printf(" %d", v);
+        System.out.printf(Locale.US, " %d", v);
     }
 
     public static void process_vertex_late(int v) {
@@ -48,9 +50,9 @@ public class Connected {
         for (i = 1; (i <= g.nvertices); i++) {
             if (!(BfsDfs.discovered[i])) {
                 c = (c + 1);
-                C.printf("Component %d:", c);
+                System.out.printf(Locale.US, "Component %d:", c);
                 BfsDfs.bfs(g, i);
-                C.printf("\n");
+                System.out.print("\n");
             }
         }
     }

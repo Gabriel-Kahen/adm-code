@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Random;
 
 /** Java equivalents of the C examples' stdio and string primitives. */
 final class C {
@@ -8,7 +7,6 @@ final class C {
     private static final java.io.BufferedInputStream input = new java.io.BufferedInputStream(System.in);
     private static int lookahead = -2;
     private static final String[] values = new String[32];
-    private static final Random random = new Random(1);
     private static int peek() {
         if (lookahead == -2) {
             try { lookahead = input.read(); }
@@ -74,37 +72,17 @@ final class C {
     }
     static void strcpy(char[] dest, char[] source) { int i = 0; do { dest[i] = i < source.length ? source[i] : 0; } while (dest[i++] != 0); }
     static void perror(String label) { System.err.println(label + ": " + (errno == 33 ? "Numerical argument out of domain" : errno == 34 ? "Numerical result out of range" : "Success")); }
-    static int rand() { return random.nextInt() & Integer.MAX_VALUE; }
-    static void srand(long seed) { random.setSeed(seed); }
-    static void printf(String format, Object... args) { System.out.writeBytes(format(format, args).getBytes(java.nio.charset.StandardCharsets.ISO_8859_1)); }
-    static void fprintf(String format, Object... args) { System.err.writeBytes(format(format, args).getBytes(java.nio.charset.StandardCharsets.ISO_8859_1)); }
-    private static String format(String format, Object[] args) {
-        StringBuilder result = new StringBuilder();
-        int arg = 0;
-        for (int i = 0; i < format.length(); i++) {
-            char ch = format.charAt(i);
-            if (ch != '%') { result.append(ch); continue; }
-            if (format.charAt(i + 1) == '%') { result.append('%'); i++; continue; }
-            int start = i++;
-            while (i < format.length() && "-+ #0.123456789lhz".indexOf(format.charAt(i)) >= 0) i++;
-            char type = format.charAt(i);
-            String spec = format.substring(start, i + 1).replace("ll", "").replace("l", "").replace("h", "").replace("z", "");
-            Object value = args[arg++];
-            if (value instanceof char[]) value = new String((char[])value, 0, strlen((char[])value));
-            if (value instanceof Boolean) value = (Boolean)value ? 1 : 0;
-            if (type == 'i') spec = spec.substring(0, spec.length() - 1) + 'd';
-            if (type == 'u') { spec = spec.substring(0, spec.length() - 1) + 'd'; value = ((Number)value).longValue() & 0xffffffffL; }
-            if (type == 'c' && value instanceof Number) value = (char)((Number)value).intValue();
-            String rendered = String.format(Locale.US, spec, value);
-            if (type == 'g' || type == 'G') {
-                int exponent = rendered.indexOf(type == 'g' ? 'e' : 'E');
-                String mantissa = exponent < 0 ? rendered : rendered.substring(0, exponent);
-                if (mantissa.indexOf('.') >= 0) mantissa = mantissa.replaceFirst("0+$", "").replaceFirst("\\.$", "");
-                rendered = mantissa + (exponent < 0 ? "" : rendered.substring(exponent));
+    // Mutable NUL-terminated buffers and C booleans need explicit formatting.
+    static void printf(String format, Object... args) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] instanceof char[]) {
+                char[] value = (char[])args[i];
+                args[i] = new String(value, 0, strlen(value));
+            } else if (args[i] instanceof Boolean) {
+                args[i] = (Boolean)args[i] ? 1 : 0;
             }
-            result.append(rendered);
         }
-        return result.toString();
+        System.out.printf(Locale.US, format, args);
     }
     private C() {}
 }

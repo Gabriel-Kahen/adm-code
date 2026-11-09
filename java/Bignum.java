@@ -18,6 +18,8 @@ See our website www.programming-challenges.com for additional information,
 or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Bignum {
     public static final int MAXDIGITS = 100; /* maximum length bignum */
     public static final int PLUS = 1; /* positive sign bit */
@@ -36,19 +38,19 @@ public class Bignum {
     }
 
     public static void bignum_capacity_error() {
-        C.fprintf("bignum capacity exceeded\n");
+        System.err.print("bignum capacity exceeded\n");
         System.exit(1);
     }
 
     public static void print_bignum(Bignum.bignum n) {
         int i = 0;
         if ((n.signbit == MINUS)) {
-            C.printf("- ");
+            System.out.print("- ");
         }
         for (i = n.lastdigit; (i >= 0); i--) {
-            C.printf("%c", ('0' + n.digits[i]));
+            System.out.printf(Locale.US, "%c", ('0' + n.digits[i]));
         }
-        C.printf("\n");
+        System.out.print("\n");
     }
 
     public static void zero_justify(Bignum.bignum n) {
@@ -273,28 +275,28 @@ public class Bignum {
             if (_read0 > 0) a = C.scanInt(0);
             if (_read0 > 1) b = C.scanInt(1);
             if (!((_read0 != -1))) break;
-            C.printf("a = %d    b = %d\n", a, b);
+            System.out.printf(Locale.US, "a = %d    b = %d\n", a, b);
             int_to_bignum(a, n1);
             int_to_bignum(b, n2);
             add_bignum(n1, n2, n3);
-            C.printf("addition -- ");
+            System.out.print("addition -- ");
             print_bignum(n3);
-            C.printf("compare_bignum a ? b = %d\n", compare_bignum(n1, n2));
+            System.out.printf(Locale.US, "compare_bignum a ? b = %d\n", compare_bignum(n1, n2));
             subtract_bignum(n1, n2, n3);
-            C.printf("subtraction -- ");
+            System.out.print("subtraction -- ");
             print_bignum(n3);
             multiply_bignum(n1, n2, n3);
-            C.printf("multiplication -- ");
+            System.out.print("multiplication -- ");
             print_bignum(n3);
             int_to_bignum(0, zero);
             if ((compare_bignum(zero, n2) == 0)) {
-                C.printf("division -- NaN \n");
+                System.out.print("division -- NaN \n");
             } else {
                 divide_bignum(n1, n2, n3);
-                C.printf("division -- ");
+                System.out.print("division -- ");
                 print_bignum(n3);
             }
-            C.printf("--------------------------\n");
+            System.out.print("--------------------------\n");
         }
         return 0;
     }

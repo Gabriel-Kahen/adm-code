@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Triangulate {
     public static final double PI = 3.1415926; /* ratio of circumference to diameter */
     public static final double EPSILON = 0.000001; /* a quantity small enough to be zero */
@@ -117,8 +119,8 @@ public class Triangulate {
             if (_read1 > 0) p.p[i][X] = C.scanDouble(0);
             if (_read1 > 1) p.p[i][Y] = C.scanDouble(1);
         }
-        C.printf(" area via triangulation = %f\n", area_triangulation(p));
-        C.printf(" area slick = %f\n", area(p));
+        System.out.printf(Locale.US, " area via triangulation = %f\n", area_triangulation(p));
+        System.out.printf(Locale.US, " area slick = %f\n", area(p));
         return 0;
     }
 
@@ -127,9 +129,9 @@ public class Triangulate {
         int j = 0;
         for (i = 0; (i < t.n); i++) {
             for (j = 0; (j < 3); j++) {
-                C.printf(" %d ", t.t[i][j]);
+                System.out.printf(Locale.US, " %d ", t.t[i][j]);
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
     }
 

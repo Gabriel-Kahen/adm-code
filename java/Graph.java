@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Graph {
     public static final int QUEUESIZE = 1000;
     public static final int TREE = 0; /* tree edge */
@@ -109,20 +111,20 @@ public class Graph {
                 p = p.next;
             }
         }
-        C.printf("Warning: deletion(%d,%d) not found in g.\n", x, y);
+        System.out.printf(Locale.US, "Warning: deletion(%d,%d) not found in g.\n", x, y);
     }
 
     public static void print_graph(Graph.graph g) {
         int i = 0; /* counter */
         Graph.edgenode p = null; /* temporary pointer */
         for (i = 1; (i <= g.nvertices); i++) {
-            C.printf("%d: ", i);
+            System.out.printf(Locale.US, "%d: ", i);
             p = g.edges[i];
             while ((p != null)) {
-                C.printf(" %d", p.y);
+                System.out.printf(Locale.US, " %d", p.y);
                 p = p.next;
             }
-            C.printf("\n");
+            System.out.print("\n");
         }
     }
 

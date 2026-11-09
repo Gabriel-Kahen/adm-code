@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Strong1 {
     public static final int TREE = 0;
     public static final int BACK = 1;
@@ -77,7 +79,7 @@ public class Strong1 {
     }
 
     public static void process_vertex_early2(int v) {
-        C.printf(" %d", v);
+        System.out.printf(Locale.US, " %d", v);
     }
 
     public static void process_vertex_late2(int v) {
@@ -104,9 +106,9 @@ public class Strong1 {
             v = Stack.pop(dfs1order);
             if (!(BfsDfs.discovered[v])) {
                 components_found++;
-                C.printf("Component %d:", components_found);
+                System.out.printf(Locale.US, "Component %d:", components_found);
                 dfs2(gt, v);
-                C.printf("\n");
+                System.out.print("\n");
             }
         }
     }

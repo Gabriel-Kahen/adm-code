@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class SetUnion {
     public static final int SET_SIZE = 1000;
     public static class union_find {
@@ -67,9 +69,9 @@ public class SetUnion {
     public static void print_union_find(SetUnion.union_find s) {
         int i = 0; /* counter */
         for (i = 1; (i <= s.n); i++) {
-            C.printf("%i  set=%d size=%d \n", i, s.p[i], s.size[i]);
+            System.out.printf(Locale.US, "%d  set=%d size=%d \n", i, s.p[i], s.size[i]);
         }
-        C.printf("\n");
+        System.out.print("\n");
     }
 
 }

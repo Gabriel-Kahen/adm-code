@@ -19,6 +19,8 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
+import java.util.Locale;
+
 public class Subsets {
     public static final int MAXCANDIDATES = 100; /* max possible next extensions */
     public static final int NMAX = 100; /* maximum solution size */
@@ -27,13 +29,13 @@ public class Subsets {
     /* maximum solution size */
     public static void process_solution(int[] a, int k, int input) {
         int i = 0; /* counter */
-        C.printf("{");
+        System.out.print("{");
         for (i = 1; (i <= k); i++) {
             if (((a[i] != 0) == true)) {
-                C.printf(" %d", i);
+                System.out.printf(Locale.US, " %d", i);
             }
         }
-        C.printf(" }\n");
+        System.out.print(" }\n");
     }
 
     public static void make_move(int[] a, int k, int n) {

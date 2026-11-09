@@ -22,8 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import *
-from . import _c
+from functools import cmp_to_key
+
+from ._c import address, scanf
 from . import geometry
 
 TRUE = 1
@@ -36,7 +37,7 @@ def sort_and_remove_duplicates(in_, n):
     # i: counter
     # input_count: number of points before deletion
     # unique_count: index marked for potential deletion
-    qsort(in_, n[0], leftlower, 0)
+    in_[:n[0]] = sorted(in_[:n[0]], key=cmp_to_key(leftlower))
     input_count = n[0]
     # in[0..unique_count-1] is the compacted distinct prefix.
     unique_count = 1
@@ -72,7 +73,7 @@ def convex_hull(in_, n, hull):
             hull.n = 2
         return
     geometry.copy_point(in_[0], first_point)
-    qsort(in_, (n[0] - 1), smaller_angle, 1)
+    in_[1:n[0]] = sorted(in_[1:n[0]], key=cmp_to_key(smaller_angle))
     geometry.copy_point(first_point, hull.p[0])
     geometry.copy_point(in_[1], hull.p[1])
     top = 1
@@ -136,4 +137,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())
