@@ -138,17 +138,17 @@ public class Sorting {
             Queue.enqueue(buffer2, s[i]);
         }
         i = low;
-        while (!(((Queue.empty_queue(buffer1) != 0) || (Queue.empty_queue(buffer2) != 0)))) {
+        while (Queue.empty_queue(buffer1) == 0 && Queue.empty_queue(buffer2) == 0) {
             if ((Queue.headq(buffer1) <= Queue.headq(buffer2))) {
                 s[i++] = Queue.dequeue(buffer1);
             } else {
                 s[i++] = Queue.dequeue(buffer2);
             }
         }
-        while (!((Queue.empty_queue(buffer1) != 0))) {
+        while (Queue.empty_queue(buffer1) == 0) {
             s[i++] = Queue.dequeue(buffer1);
         }
-        while (!((Queue.empty_queue(buffer2) != 0))) {
+        while (Queue.empty_queue(buffer2) == 0) {
             s[i++] = Queue.dequeue(buffer2);
         }
     }

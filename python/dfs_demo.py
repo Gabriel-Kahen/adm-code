@@ -47,17 +47,14 @@ def process_edge(x, y):
     class_ = bfs_dfs.edge_classification(x, y)
     if (class_ == graph.BACK):
         printf("back edge (%d,%d)\n", x, y)
+    elif (class_ == graph.TREE):
+        printf("tree edge (%d,%d)\n", x, y)
+    elif (class_ == graph.FORWARD):
+        printf("forward edge (%d,%d)\n", x, y)
+    elif (class_ == graph.CROSS):
+        printf("cross edge (%d,%d)\n", x, y)
     else:
-        if (class_ == graph.TREE):
-            printf("tree edge (%d,%d)\n", x, y)
-        else:
-            if (class_ == graph.FORWARD):
-                printf("forward edge (%d,%d)\n", x, y)
-            else:
-                if (class_ == graph.CROSS):
-                    printf("cross edge (%d,%d)\n", x, y)
-                else:
-                    printf("edge (%d,%d)\n not in valid class=%d", x, y, class_)
+        printf("edge (%d,%d)\n not in valid class=%d", x, y, class_)
 
 
 def main():

@@ -75,7 +75,7 @@ public class Annealing {
         double candidate_cost = 0; /* cost after the proposed swap */
         int i = 0; /* counters */
         int j = 0;
-        boolean stuck = false;
+        boolean stuck = false; /* did I get a better solution? */
         Tsp.initialize_solution(t.n, s);
         Tsp.random_solution(s);
         cost = Tsp.solution_cost(s, t);
@@ -96,7 +96,7 @@ public class Annealing {
                     solution_count_update(s, t);
                 }
             }
-        } while (!(stuck)); /* did I get a better solution? */
+        } while (!stuck);
     }
 
     public static void repeated_hill_climbing(Tsp.tsp_instance t, int nsamples, Tsp.tsp_solution bestsol) {
@@ -130,7 +130,7 @@ public class Annealing {
         int y = 0;
         int i = 0; /* counters */
         int j = 0;
-        boolean accept_win = false;
+        boolean accept_win = false; /* conditions to accept transition */
         boolean accept_loss = false;
         double temperature = 0; /* the current system temp */
         double current_value = 0; /* value of current state */
@@ -151,7 +151,7 @@ public class Annealing {
                 accept_win = (delta < 0); /* did swap reduce cost? */
                 exponent = (((-delta) / current_value) / (K * temperature));
                 accept_loss = (Math.exp(exponent) > Random.random_float(0, 1));
-                if ((accept_win || accept_loss)) { /* conditions to accept transition */
+                if ((accept_win || accept_loss)) {
                     current_value += delta;
                 } else {
                     Tsp.transition(s, t, x, y); /* reverse transition */

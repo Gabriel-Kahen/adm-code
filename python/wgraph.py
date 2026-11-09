@@ -22,17 +22,9 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import address, printf, scanf
+from ._c import printf, scanf
 from . import graph
 
-# i: counter
-# p: temporary pointer
-# i: counter
-# m: number of edges
-# w: placeholder for edge and weight
-# p_back: temporary pointers
-# i: counter
-# p: temporary pointer
 # processed: which vertices have been processed
 processed = [0 for _ in range((graph.MAXV + 1))]
 # discovered: which vertices have been found
@@ -50,6 +42,7 @@ finished = False
 
 
 def initialize_graph(g, directed):
+    # i: counter
     g.nvertices = 0
     g.nedges = 0
     g.directed = directed
@@ -64,6 +57,7 @@ def initialize_graph(g, directed):
 
 
 def insert_edge(g, x, y, directed, w):
+    # p: temporary pointer
     p = graph.edgenode()
     p.y = y
     p.weight = w
@@ -77,20 +71,24 @@ def insert_edge(g, x, y, directed, w):
 
 
 def read_graph(g, directed):
-    m = [0]
-    x = [0]
-    y = [0]
-    w = [0]
+    # i: counter
+    # m: number of edges
+    m = 0
+    # x, y, w: placeholder for edge and weight
+    x = 0
+    y = 0
+    w = 0
     initialize_graph(g, directed)
-    scanf("%d %d\n", address(g, 'nvertices'), m)
+    _, g.nvertices, m = scanf("%d %d\n", g.nvertices, m)
     i = 1
-    while (i <= m[0]):
-        scanf("%d %d %d\n", x, y, w)
-        insert_edge(g, x[0], y[0], directed, w[0])
+    while (i <= m):
+        _, x, y, w = scanf("%d %d %d\n", x, y, w)
+        insert_edge(g, x, y, directed, w)
         i += 1
 
 
 def delete_edge(g, x, y, directed):
+    # p, p_back: temporary pointers
     p = g.edges[x]
     p_back = None
     while (p != None):
@@ -113,6 +111,8 @@ def delete_edge(g, x, y, directed):
 
 
 def print_graph(g):
+    # i: counter
+    # p: temporary pointer
     i = 1
     while (i <= g.nvertices):
         printf("%d: ", i)
@@ -171,17 +171,16 @@ def dfs(g, v):
             parent[y] = v
             process_edge(v, y)
             dfs(g, y)
-        else:
-            if ((not processed[y]) or g.directed):
-                if ((y == v) and (not g.directed)):
-                    self_edge_seen = (not self_edge_seen)
-                    if self_edge_seen:
-                        process_edge(v, y)
-                else:
-                    if ((g.directed or (y != parent[v])) or parent_edge_seen):
-                        process_edge(v, y)
-                    if (y == parent[v]):
-                        parent_edge_seen = True
+        elif ((not processed[y]) or g.directed):
+            if ((y == v) and (not g.directed)):
+                self_edge_seen = (not self_edge_seen)
+                if self_edge_seen:
+                    process_edge(v, y)
+            else:
+                if ((g.directed or (y != parent[v])) or parent_edge_seen):
+                    process_edge(v, y)
+                if (y == parent[v]):
+                    parent_edge_seen = True
         if finished:
             return
         p = p.next

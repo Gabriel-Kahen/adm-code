@@ -62,7 +62,7 @@ public class Graph {
         p.next = g.edges[x];
         g.edges[x] = p; /* insert at head of list */
         g.degree[x]++;
-        if (!(directed)) {
+        if (!directed) {
             insert_edge(g, y, x, true);
         } else {
             g.nedges++;
@@ -100,7 +100,7 @@ public class Graph {
                     g.edges[x] = p.next;
                 }
                 // Java garbage collection releases p;
-                if (!(directed)) {
+                if (!directed) {
                     delete_edge(g, y, x, true);
                 } else {
                     g.nedges--;

@@ -133,7 +133,7 @@ public class Sudoku {
     public static void next_square(Sudoku.point p, Sudoku.boardtype board) {
         int i = 0; /* counters */
         int j = 0;
-        int bestcnt = 0;
+        int bestcnt = 0; /* the best and latest square counts */
         int newcnt = 0;
         boolean doomed = false;
         bestcnt = (DIMENSION + 1);
@@ -147,7 +147,7 @@ public class Sudoku {
                 }
                 if (fast) {
                     if ((((board.m[i][j] == 0) && (newcnt < bestcnt)) && (newcnt >= 1))) {
-                        bestcnt = newcnt; /* the best and latest square counts */
+                        bestcnt = newcnt;
                         p.x = i;
                         p.y = j;
                     }
@@ -252,33 +252,33 @@ public class Sudoku {
         free_square(board.move[k], board);
     }
 
-    public static void construct_candidates(int[] a, int k, Sudoku.boardtype board, int[] c, int[] nc) {
+    public static int construct_candidates(int[] a, int k, Sudoku.boardtype board, int[] c) {
         int i = 0; /* counter */
         boolean[] possible = new boolean[(DIMENSION + 1)]; /* which digits fit in this square */
         next_square(board.move[k], board); /* pick square to fill next */
-        nc[0] = 0;
+        int nc = 0;
         if (((board.move[k].x < 0) && (board.move[k].y < 0))) {
-            return; /* error condition, no moves possible */
+            return nc; /* error condition, no moves possible */
         }
         possible_values(board.move[k], board, possible);
         for (i = 1; (i <= DIMENSION); i++) {
             if (possible[i]) {
-                c[nc[0]] = i;
-                nc[0] = (nc[0] + 1);
+                c[nc] = i;
+                nc = (nc + 1);
             }
         }
+        return nc;
     }
 
     public static void backtrack(int[] a, int k, Sudoku.boardtype input) {
         int[] c = new int[MAXCANDIDATES]; /* candidates for next position */
-        int[] ncandidates = new int[]{0}; /* next position candidate count */
         int i = 0; /* counter */
         if (is_a_solution(a, k, input)) {
             process_solution(a, k, input);
         } else {
             k = (k + 1);
-            construct_candidates(a, k, input, c, ncandidates);
-            for (i = 0; (i < ncandidates[0]); i++) {
+            int ncandidates = construct_candidates(a, k, input, c); /* next position candidate count */
+            for (i = 0; (i < ncandidates); i++) {
                 a[k] = c[i];
                 make_move(a, k, input);
                 backtrack(a, k, input);

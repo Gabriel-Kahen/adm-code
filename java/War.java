@@ -94,7 +94,7 @@ public class War {
     }
 
     public static void clear_queue(Queue.queue a, Queue.queue b) {
-        while (!((Queue.empty_queue(a) != 0))) {
+        while (Queue.empty_queue(a) == 0) {
             Queue.enqueue(b, Queue.dequeue(a));
         }
     }
@@ -104,16 +104,16 @@ public class War {
         int x = 0; /* top cards */
         int y = 0;
         Queue.queue c = new Queue.queue(); /* cards involved in the war */
-        boolean inwar = false;
+        boolean inwar = false; /* are we involved in a war? */
         inwar = false;
         Queue.init_queue(c);
-        while ((!((Queue.empty_queue(a) != 0)) && (!((Queue.empty_queue(b) != 0)) && (steps < MAXSTEPS)))) {
+        while (((Queue.empty_queue(a) == 0) && ((Queue.empty_queue(b) == 0) && (steps < MAXSTEPS)))) {
             steps = (steps + 1);
             x = Queue.dequeue(a);
             y = Queue.dequeue(b);
             Queue.enqueue(c, x);
             Queue.enqueue(c, y);
-            if (inwar) { /* are we involved in a war? */
+            if (inwar) {
                 inwar = false;
             } else {
                 if (((x / NSUITS) > (y / NSUITS))) {
@@ -129,13 +129,13 @@ public class War {
                 }
             }
         }
-        if ((!((Queue.empty_queue(a) != 0)) && (Queue.empty_queue(b) != 0))) {
+        if (((Queue.empty_queue(a) == 0) && (Queue.empty_queue(b) != 0))) {
             System.out.printf(Locale.US, "a wins in %d steps \n", steps);
         } else {
-            if (((Queue.empty_queue(a) != 0) && !((Queue.empty_queue(b) != 0)))) {
+            if (((Queue.empty_queue(a) != 0) && (Queue.empty_queue(b) == 0))) {
                 System.out.printf(Locale.US, "b wins in %d steps \n", steps);
             } else {
-                if ((!((Queue.empty_queue(a) != 0)) && !((Queue.empty_queue(b) != 0)))) {
+                if (((Queue.empty_queue(a) == 0) && (Queue.empty_queue(b) == 0))) {
                     System.out.printf(Locale.US, "game tied after %d steps, |a|=%d |b|=%d \n", steps, a.count, b.count);
                 } else {
                     System.out.printf(Locale.US, "a and b tie in %d steps \n", steps);

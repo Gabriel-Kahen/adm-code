@@ -91,7 +91,7 @@ def random_sampling(t, nsamples, s):
 def hill_climbing(t, s):
     # cost: best cost so far
     # candidate_cost: cost after the proposed swap
-    # j: counters
+    # i, j: counters
     # stuck: did I get a better solution?
     tsp.initialize_solution(t.n, s)
     tsp.random_solution(s)
@@ -114,7 +114,7 @@ def hill_climbing(t, s):
                 solution_count_update(s, t)
                 j += 1
             i += 1
-        if not ((not stuck)):
+        if stuck:
             break
 
 
@@ -145,9 +145,9 @@ def repeated_hill_climbing(t, nsamples, bestsol):
 #
 # We are seeking to *minimize* the current_value.
 def anneal(t, s):
-    # y: pair of items to swap
-    # j: counters
-    # accept_loss: conditions to accept transition
+    # x, y: pair of items to swap
+    # i, j: counters
+    # accept_win, accept_loss: conditions to accept transition
     # temperature: the current system temp
     # current_value: value of current state
     # start_value: value at start of loop

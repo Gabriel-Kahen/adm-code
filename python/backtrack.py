@@ -34,16 +34,15 @@ finished = 0
 def backtrack(a, k, input):
     # c: candidates for next position
     c = [0 for _ in range(MAXCANDIDATES)]
-    # nc: next position candidate count
-    nc = [0]
     # i: counter
     if is_a_solution(a, k, input):
         process_solution(a, k, input)
     else:
         k = (k + 1)
-        construct_candidates(a, k, input, c, nc)
+        # nc: next position candidate count
+        nc = construct_candidates(a, k, input, c)
         i = 0
-        while (i < nc[0]):
+        while (i < nc):
             a[k] = c[i]
             make_move(a, k, input)
             backtrack(a, k, input)

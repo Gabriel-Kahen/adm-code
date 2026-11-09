@@ -12,7 +12,7 @@ public class P10055 {
             int _read0 = C.scan("%ld %ld");
             if (_read0 > 0) p = C.scanLong(0);
             if (_read0 > 1) q = C.scanLong(1);
-            if (!((_read0 != -1))) break;
+            if (_read0 == -1) break;
             if ((q > p)) {
                 r = (q - p);
             } else {

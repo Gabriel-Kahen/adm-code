@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import address, printf, scanf
+from ._c import printf, scanf
 from . import queue
 
 # maximum number of vertices
@@ -55,20 +55,6 @@ class flow_graph:
 
 MAXV = 100
 MAXDEGREE = 50
-# graph to initialize
-# i: counter
-# edge: temporary pointer
-# Parallel arcs share a single residual-capacity entry.
-# allocate storage for edgenode
-# insert at head of list
-# i: counter
-# m: number of edges
-# w: placeholder for edge and weight
-# p: temporary pointer
-# i: counter
-# p: temporary pointer
-# i: counter
-# p: temporary pointer
 # processed: which vertices have been processed
 processed = [0 for _ in range((MAXV + 1))]
 # discovered: which vertices have been found
@@ -79,7 +65,9 @@ parent = [0 for _ in range((MAXV + 1))]
 finished = False
 
 
+# graph to initialize
 def initialize_graph(g):
+    # i: counter
     g.nvertices = 0
     g.nedges = 0
     i = 0
@@ -93,19 +81,23 @@ def initialize_graph(g):
 
 
 def insert_flow_edge(g, x, y, directed, w):
+    # edge: temporary pointer
     parallel_edge = find_edge(g, x, y)
+    # Parallel arcs share a single residual-capacity entry.
     if (parallel_edge != None):
         parallel_edge.capacity += w
         parallel_edge.residual += w
         if (not directed):
             insert_flow_edge(g, y, x, True, w)
         return
+    # allocate storage for edgenode
     edge = edgenode()
     edge.v = y
     edge.capacity = w
     edge.flow = 0
     edge.residual = w
     edge.next = g.edges[x]
+    # insert at head of list
     g.edges[x] = edge
     g.degree[x] += 1
     if (not directed):
@@ -115,20 +107,24 @@ def insert_flow_edge(g, x, y, directed, w):
 
 
 def read_flow_graph(g, directed):
-    m = [0]
-    x = [0]
-    y = [0]
-    w = [0]
+    # i: counter
+    # m: number of edges
+    m = 0
+    # x, y, w: placeholder for edge and weight
+    x = 0
+    y = 0
+    w = 0
     initialize_graph(g)
-    scanf("%d %d\n", address(g, 'nvertices'), m)
+    _, g.nvertices, m = scanf("%d %d\n", g.nvertices, m)
     i = 1
-    while (i <= m[0]):
-        scanf("%d %d %d\n", x, y, w)
-        insert_flow_edge(g, x[0], y[0], directed, w[0])
+    while (i <= m):
+        _, x, y, w = scanf("%d %d %d\n", x, y, w)
+        insert_flow_edge(g, x, y, directed, w)
         i += 1
 
 
 def find_edge(g, x, y):
+    # p: temporary pointer
     p = g.edges[x]
     while (p != None):
         if (p.v == y):
@@ -138,6 +134,8 @@ def find_edge(g, x, y):
 
 
 def add_residual_edges(g):
+    # i: counter
+    # p: temporary pointer
     i = 1
     while (i <= g.nvertices):
         p = g.edges[i]
@@ -149,6 +147,8 @@ def add_residual_edges(g):
 
 
 def print_flow_graph(g):
+    # i: counter
+    # p: temporary pointer
     i = 1
     while (i <= g.nvertices):
         printf("%d: ", i)
@@ -272,17 +272,17 @@ def netflow(g, source, sink):
 def main():
     # g: graph to analyze
     g = flow_graph()
-    # sink: source and sink vertices
-    source = [0]
-    sink = [0]
+    # source, sink: source and sink vertices
+    source = 0
+    sink = 0
     # flow: total flow
     # p: temporary pointer
-    scanf("%d %d", source, sink)
+    _, source, sink = scanf("%d %d", source, sink)
     read_flow_graph(g, True)
-    netflow(g, source[0], sink[0])
+    netflow(g, source, sink)
     print_flow_graph(g)
     flow = 0
-    p = g.edges[source[0]]
+    p = g.edges[source]
     while (p != None):
         flow += p.flow
         p = p.next

@@ -65,7 +65,7 @@ public class Bipartite {
         bipartite = true;
         BfsDfs.initialize_search(g);
         for (i = 1; (i <= g.nvertices); i++) {
-            if (!(BfsDfs.discovered[i])) {
+            if (!BfsDfs.discovered[i]) {
                 color[i] = WHITE;
                 BfsDfs.bfs(g, i);
             }

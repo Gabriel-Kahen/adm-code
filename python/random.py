@@ -40,7 +40,7 @@ def swap(a, i, j):
 
 # lower/upper bounds on numb
 def random_int(low, high):
-    # r: random number
+    # i, j, r: random number
     i = RAND_MAX // (high - low + 1)
     i *= ((high - low) + 1)
     while ((j := rng.getrandbits(31)) >= i):
@@ -62,7 +62,7 @@ def random_permutation(a, n):
 
 # lower/upper bounds on numb
 def random_float(low, high):
-    # j: avoid arithmetic trouble
+    # i, j: avoid arithmetic trouble
     # r: random number
     i = RAND_MAX // (high - low)
     i *= (high - low)

@@ -46,10 +46,13 @@ def prime_factorization(x):
 
 
 def main():
-    p = [0]
-    while (scanf("%ld", p) != EOF):
-        printf("prime factorization of p=%ld \n", p[0])
-        prime_factorization(p[0])
+    p = 0
+    while True:
+        nread, p = scanf("%ld", p)
+        if nread == EOF:
+            break
+        printf("prime factorization of p=%ld \n", p)
+        prime_factorization(p)
     return 0
 
 

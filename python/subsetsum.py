@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import address, printf, scanf
+from ._c import printf, scanf
 
 # largest n
 MAXN = 100
@@ -37,7 +37,7 @@ parent = [[0 for _ in range((MAXSUM + 1))] for _ in range((MAXN + 1))]
 
 
 def subset_sum(s, n, k):
-    # j: counters
+    # i, j: counters
     sum[0][0] = True
     parent[0][0] = NIL
     i = 1
@@ -71,23 +71,23 @@ def report_subset(n, k):
 
 
 def main():
-    n = [0]
-    k = [0]
+    n = 0
+    k = 0
     s = [0 for _ in range((MAXN + 1))]
-    m = [0]
-    scanf("%d", m)
+    m = 0
+    _, m = scanf("%d", m)
     j = 0
-    while (j < m[0]):
-        scanf("%d %d", n, k)
-        printf("n=%d  k=%d \n", n[0], k[0])
+    while (j < m):
+        _, n, k = scanf("%d %d", n, k)
+        printf("n=%d  k=%d \n", n, k)
         i = 0
-        while (i < n[0]):
-            scanf("%d", address(s, i))
+        while (i < n):
+            _, s[i] = scanf("%d", s[i])
             printf(" %d ", s[i])
             i += 1
-        printf("\n Is %d realizable: %d\n", k[0], (r := subset_sum(s, n[0], k[0])))
+        printf("\n Is %d realizable: %d\n", k, (r := subset_sum(s, n, k)))
         if r:
-            report_subset(n[0], k[0])
+            report_subset(n, k)
         printf("\n\n")
         j += 1
     return 0

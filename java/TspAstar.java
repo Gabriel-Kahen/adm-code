@@ -83,18 +83,16 @@ public class TspAstar {
     }
 
     /*    What are possible elements of the next slot in the permutation?  */
-    public static void construct_candidates(TspAstar.tsp_solution s, int k, TspAstar.tsp_instance t, int[] c, int[] ncandidates) {
+    public static int construct_candidates(TspAstar.tsp_solution s, int k, TspAstar.tsp_instance t, int[] c) {
         int i = 0; /* counter */
         boolean[] in_perm = new boolean[(NMAX + 1)]; /* what is now in the permutation? */
         constructions++;
         if ((partial_solution_lb(s, t) > best_cost)) {
-            ncandidates[0] = 0;
-            return;
+            return 0;
         }
         if ((k == 1)) {
             c[0] = 1;
-            ncandidates[0] = 1;
-            return;
+            return 1;
         }
         for (i = 1; (i <= NMAX); i++) {
             in_perm[i] = false;
@@ -102,26 +100,26 @@ public class TspAstar {
         for (i = 1; (i < k); i++) {
             in_perm[s.p[i]] = true;
         }
-        ncandidates[0] = 0;
+        int ncandidates = 0;
         for (i = 1; (i <= t.n); i++) {
-            if (!(in_perm[i])) {
-                c[ncandidates[0]] = i;
-                ncandidates[0] = (ncandidates[0] + 1);
+            if (!in_perm[i]) {
+                c[ncandidates] = i;
+                ncandidates = (ncandidates + 1);
             }
         }
+        return ncandidates;
     }
 
     /* customize backtrack to TSP solutions */
     public static void backtrack(TspAstar.tsp_solution s, int k, TspAstar.tsp_instance input) {
         int[] c = new int[MAXCANDIDATES]; /* candidates for next position */
-        int[] ncandidates = new int[]{0}; /* next position candidate count */
         int i = 0; /* counter */
         if ((is_a_solution(s, k, input) != 0)) {
             process_solution(s, k, input);
         } else {
             k = (k + 1);
-            construct_candidates(s, k, input, c, ncandidates);
-            for (i = 0; (i < ncandidates[0]); i++) {
+            int ncandidates = construct_candidates(s, k, input, c); /* next position candidate count */
+            for (i = 0; (i < ncandidates); i++) {
                 s.p[k] = c[i];
                 s.n = k;
                 make_move(s, k, input);
@@ -146,7 +144,6 @@ public class TspAstar {
     /* customize branch and bound  to TSP solutions */
     public static void branch_and_bound(TspAstar.tsp_solution s, TspAstar.tsp_instance t) {
         int[] c = new int[MAXCANDIDATES]; /* candidates for next position */
-        int[] nc = new int[]{0}; /* next position candidate count */
         int i = 0; /* counter */
         first_solution(best_solution, t);
         best_cost = solution_cost(best_solution, t);
@@ -155,13 +152,13 @@ public class TspAstar {
         TspPq.pq_init(q);
         TspPq.pq_insert(q, s);
         /* Queue keys are conservative lower bounds, not complete-tour costs. */
-        while ((!((TspPq.empty_pq(q) != 0)) && (TspPq.top_pq(q).cost < best_cost))) {
+        while (((TspPq.empty_pq(q) == 0) && (TspPq.top_pq(q).cost < best_cost))) {
             s.set(TspPq.extract_min(q));
             if ((is_a_solution(s, s.n, t) != 0)) {
                 process_solution(s, s.n, t);
             } else {
-                construct_candidates(s, (s.n + 1), t, c, nc);
-                for (i = 0; (i < nc[0]); i++) {
+                int nc = construct_candidates(s, (s.n + 1), t, c); /* next position candidate count */
+                for (i = 0; (i < nc); i++) {
                     extend_solution(s, t, c[i]);
                     TspPq.pq_insert(q, s);
                     contract_solution(s, t);

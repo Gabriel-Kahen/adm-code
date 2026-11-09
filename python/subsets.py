@@ -55,25 +55,24 @@ def is_a_solution(a, k, n):
     return (k == n)
 
 
-def construct_candidates(a, k, n, c, nc):
+def construct_candidates(a, k, n, c):
     c[0] = True
     c[1] = False
-    nc[0] = 2
+    return 2
 
 
 def backtrack(a, k, input):
     # c: candidates for next position
     c = [0 for _ in range(MAXCANDIDATES)]
-    # ncandidates: next position candidate count
-    ncandidates = [0]
     # i: counter
     if is_a_solution(a, k, input):
         process_solution(a, k, input)
     else:
         k = (k + 1)
-        construct_candidates(a, k, input, c, ncandidates)
+        # ncandidates: next position candidate count
+        ncandidates = construct_candidates(a, k, input, c)
         i = 0
-        while (i < ncandidates[0]):
+        while (i < ncandidates):
             a[k] = c[i]
             make_move(a, k, input)
             backtrack(a, k, input)

@@ -53,7 +53,7 @@ def unmake_move(a, k, n):
 
 
 # What are possible elements of the next slot in the permutation?
-def construct_candidates(a, k, n, c, nc):
+def construct_candidates(a, k, n, c):
     # i: counter
     # in_perm: what is now in the permutation?
     in_perm = [0 for _ in range((NMAX + 1))]
@@ -65,28 +65,28 @@ def construct_candidates(a, k, n, c, nc):
     while (i < k):
         in_perm[a[i]] = True
         i += 1
-    nc[0] = 0
+    nc = 0
     i = 1
     while (i <= n):
         if (not in_perm[i]):
-            c[nc[0]] = i
-            nc[0] = (nc[0] + 1)
+            c[nc] = i
+            nc = (nc + 1)
         i += 1
+    return nc
 
 
 def backtrack(a, k, input):
     # c: candidates for next position
     c = [0 for _ in range(MAXCANDIDATES)]
-    # ncandidates: next position candidate count
-    ncandidates = [0]
     # i: counter
     if is_a_solution(a, k, input):
         process_solution(a, k, input)
     else:
         k = (k + 1)
-        construct_candidates(a, k, input, c, ncandidates)
+        # ncandidates: next position candidate count
+        ncandidates = construct_candidates(a, k, input, c)
         i = 0
-        while (i < ncandidates[0]):
+        while (i < ncandidates):
             a[k] = c[i]
             make_move(a, k, input)
             backtrack(a, k, input)

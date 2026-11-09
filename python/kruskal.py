@@ -31,7 +31,7 @@ from . import wgraph
 
 class edge_pair:
     def __init__(self):
-        # y: adjacency info
+        # x, y: adjacency info
         self.x = 0
         self.y = 0
         # weight: edge weight, if any
@@ -42,7 +42,7 @@ MAXINT = 100007
 
 
 def to_edge_array(g, edges):
-    # edge_count: counters
+    # i, edge_count: counters
     # edge: temporary pointer
     edge_count = 0
     i = 1

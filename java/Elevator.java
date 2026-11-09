@@ -53,7 +53,7 @@ public class Elevator {
 	the last of which is at floor i.  Zero is the originating floor.
     */
     public static int optimize_floors() {
-        int i = 0;
+        int i = 0; /* counters */
         int j = 0;
         int k = 0;
         int cost = 0; /* costs placeholder */
@@ -72,7 +72,7 @@ public class Elevator {
                     cost = (((m[k][(j - 1)] - floors_walked(k, MAXINT)) + floors_walked(k, i)) + floors_walked(i, MAXINT));
                     if ((cost < m[i][j])) {
                         m[i][j] = cost;
-                        p[i][j] = k; /* counters */
+                        p[i][j] = k;
                     }
                 }
             }

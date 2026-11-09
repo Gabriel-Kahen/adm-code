@@ -46,7 +46,7 @@ public class Dijkstra {
         }
         distance[start] = 0;
         vertex = start;
-        while (!(settled[vertex])) {
+        while (!settled[vertex]) {
             settled[vertex] = true;
             if ((vertex != start)) {
                 System.out.printf(Locale.US, "edge (%d,%d) in tree \n", Wgraph.parent[vertex], vertex);
@@ -65,7 +65,7 @@ public class Dijkstra {
             /* If none is reachable, vertex stays settled and the outer loop stops. */
             next_distance = MAXINT;
             for (i = 1; (i <= g.nvertices); i++) {
-                if ((!(settled[i]) && (next_distance > distance[i]))) {
+                if ((!settled[i] && (next_distance > distance[i]))) {
                     next_distance = distance[i];
                     vertex = i;
                 }

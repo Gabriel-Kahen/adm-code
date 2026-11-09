@@ -43,11 +43,11 @@ public class EightQueens {
     /*  What are possible elements of the next slot in the 8-queens
         problem?
     */
-    public static void construct_candidates(int[] a, int k, int n, int[] c, int[] ncandidates) {
+    public static int construct_candidates(int[] a, int k, int n, int[] c) {
         int i = 0; /* counters */
         int j = 0;
-        boolean legal_move = false;
-        ncandidates[0] = 0;
+        boolean legal_move = false; /* might the move be legal? */
+        int ncandidates = 0;
         for (i = 1; (i <= n); i++) {
             legal_move = true;
             for (j = 1; (j < k); j++) {
@@ -58,23 +58,23 @@ public class EightQueens {
                     legal_move = false;
                 }
             }
-            if (legal_move) { /* might the move be legal? */
-                c[ncandidates[0]] = i;
-                ncandidates[0] = (ncandidates[0] + 1);
+            if (legal_move) {
+                c[ncandidates] = i;
+                ncandidates = (ncandidates + 1);
             }
         }
+        return ncandidates;
     }
 
     public static void backtrack(int[] a, int k, int input) {
         int[] c = new int[MAXCANDIDATES]; /* candidates for next position */
-        int[] ncandidates = new int[]{0}; /* next position candidate count */
         int i = 0; /* counter */
         if ((is_a_solution(a, k, input) != 0)) {
             process_solution(a, k, input);
         } else {
             k = (k + 1);
-            construct_candidates(a, k, input, c, ncandidates);
-            for (i = 0; (i < ncandidates[0]); i++) {
+            int ncandidates = construct_candidates(a, k, input, c); /* next position candidate count */
+            for (i = 0; (i < ncandidates); i++) {
                 a[k] = c[i];
                 make_move(a, k, input);
                 backtrack(a, k, input);

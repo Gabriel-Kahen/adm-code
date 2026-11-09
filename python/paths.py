@@ -69,7 +69,7 @@ def unmake_move(a, k, input):
 
 
 # What are possible elements of the next slot in the path
-def construct_candidates(a, k, g, c, nc):
+def construct_candidates(a, k, g, c):
     # i: counters
     # in_sol: what's already in the solution?
     in_sol = [0 for _ in range((NMAX + 1))]
@@ -86,31 +86,31 @@ def construct_candidates(a, k, g, c, nc):
     if (k == 1):
         # always start from vertex s
         c[0] = g.s
-        nc[0] = 1
+        nc = 1
     else:
-        nc[0] = 0
+        nc = 0
         last = a[(k - 1)]
         p = g.g.edges[last]
         while (p != None):
             if (not in_sol[p.y]):
-                c[nc[0]] = p.y
-                nc[0] = (nc[0] + 1)
+                c[nc] = p.y
+                nc = (nc + 1)
             p = p.next
+    return nc
 
 
 def backtrack(a, k, input):
     # c: candidates for next position
     c = [0 for _ in range(MAXCANDIDATES)]
-    # ncandidates: next position candidate count
-    ncandidates = [0]
     # i: counter
     if is_a_solution(a, k, input):
         process_solution(a, k, input)
     else:
         k = (k + 1)
-        construct_candidates(a, k, input, c, ncandidates)
+        # ncandidates: next position candidate count
+        ncandidates = construct_candidates(a, k, input, c)
         i = 0
-        while (i < ncandidates[0]):
+        while (i < ncandidates):
             a[k] = c[i]
             make_move(a, k, input)
             backtrack(a, k, input)

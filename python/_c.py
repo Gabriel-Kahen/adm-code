@@ -18,24 +18,6 @@ errno = 0
 stdin, stdout, stderr = sys.stdin, sys.stdout, sys.stderr
 
 
-class address:
-    """An address of an array slot or object field, for C output parameters."""
-
-    def __init__(self, obj, key):
-        self.obj, self.key = obj, key
-
-    def __getitem__(self, index):
-        assert index == 0
-        return getattr(self.obj, self.key) if isinstance(self.key, str) and not isinstance(self.obj, dict) else self.obj[self.key]
-
-    def __setitem__(self, index, value):
-        assert index == 0
-        if isinstance(self.key, str) and not isinstance(self.obj, dict):
-            setattr(self.obj, self.key, value)
-        else:
-            self.obj[self.key] = value
-
-
 class offset:
     """A C array pointer advanced by a fixed number of elements."""
 
@@ -100,7 +82,12 @@ def getchar():
     return ord(value) if value else EOF
 
 
-def scanf(fmt, *destinations):
+def scanf(fmt, *defaults):
+    """Return (conversion_count, *values), retaining defaults on EOF/partial input.
+
+    Scalars are returned normally; %s still fills its original fixed char buffer.
+    """
+    values = list(defaults)
     assigned = 0
     fi = 0
     while fi < len(fmt):
@@ -111,9 +98,9 @@ def scanf(fmt, *destinations):
             continue
         if fmt[fi] != '%':
             if not _peek():
-                return assigned if assigned else EOF
+                return (assigned if assigned else EOF, *values)
             if _peek() != fmt[fi]:
-                return assigned
+                return (assigned, *values)
             getchar()
             fi += 1
             continue
@@ -127,7 +114,7 @@ def scanf(fmt, *destinations):
             while _peek() and _peek().isspace():
                 getchar()
         if not _peek():
-            return assigned if assigned else EOF
+            return (assigned if assigned else EOF, *values)
         if conversion == 'c':
             text = chr(getchar())
         elif conversion == 's':
@@ -149,7 +136,7 @@ def scanf(fmt, *destinations):
                     chars.append(chr(getchar()))
                     digits = True
             if not digits:
-                return assigned
+                return (assigned, *values)
             if conversion == 'f' and (not width or len(chars) < width) and _peek() in ('e', 'E'):
                 chars.append(chr(getchar()))
                 if (not width or len(chars) < width) and _peek() in ('+', '-'):
@@ -157,13 +144,13 @@ def scanf(fmt, *destinations):
                 while (not width or len(chars) < width) and _peek() and _peek().isdigit():
                     chars.append(chr(getchar()))
             text = ''.join(chars)
-        destination = destinations[assigned]
+        destination = values[assigned]
         if conversion == 's':
             strcpy(destination, text)
         else:
-            destination[0] = ord(text) if conversion == 'c' else float(text) if conversion == 'f' else int(text)
+            values[assigned] = ord(text) if conversion == 'c' else float(text) if conversion == 'f' else int(text)
         assigned += 1
-    return assigned
+    return (assigned, *values)
 
 
 def _format(fmt, values):

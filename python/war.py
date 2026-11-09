@@ -56,7 +56,7 @@ def print_card_queue(q):
 
 # Rank the card with given value and suit.
 def rank_card(value, suit):
-    # j: counters
+    # i, j: counters
     i = 0
     while (i < NCARDS // NSUITS):
         if (values[i] == value):
@@ -105,7 +105,7 @@ def clear_queue(a, b):
 def war(a, b):
     # step counter
     steps = 0
-    # y: top cards
+    # x, y: top cards
     # c: cards involved in the war
     c = queue.queue()
     # inwar: are we involved in a war?
@@ -119,25 +119,20 @@ def war(a, b):
         queue.enqueue(c, y)
         if inwar:
             inwar = False
-        else:
-            if (x // NSUITS > y // NSUITS):
-                clear_queue(c, a)
-            else:
-                if (x // NSUITS < y // NSUITS):
-                    clear_queue(c, b)
-                else:
-                    if (y // NSUITS == x // NSUITS):
-                        inwar = True
+        elif (x // NSUITS > y // NSUITS):
+            clear_queue(c, a)
+        elif (x // NSUITS < y // NSUITS):
+            clear_queue(c, b)
+        elif (y // NSUITS == x // NSUITS):
+            inwar = True
     if ((not queue.empty_queue(a)) and queue.empty_queue(b)):
         printf("a wins in %d steps \n", steps)
+    elif (queue.empty_queue(a) and (not queue.empty_queue(b))):
+        printf("b wins in %d steps \n", steps)
+    elif ((not queue.empty_queue(a)) and (not queue.empty_queue(b))):
+        printf("game tied after %d steps, |a|=%d |b|=%d \n", steps, a.count, b.count)
     else:
-        if (queue.empty_queue(a) and (not queue.empty_queue(b))):
-            printf("b wins in %d steps \n", steps)
-        else:
-            if ((not queue.empty_queue(a)) and (not queue.empty_queue(b))):
-                printf("game tied after %d steps, |a|=%d |b|=%d \n", steps, a.count, b.count)
-            else:
-                printf("a and b tie in %d steps \n", steps)
+        printf("a and b tie in %d steps \n", steps)
 
 
 def old_main():

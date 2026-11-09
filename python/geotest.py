@@ -22,7 +22,7 @@ if __name__ == "__main__" and not __package__:
     __package__ = "python"
     sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from ._c import EOF, address, printf, scanf
+from ._c import EOF, printf, scanf
 from . import geometry
 
 
@@ -35,10 +35,13 @@ def main():
     l1 = geometry.line()
     l2 = geometry.line()
     l3 = geometry.line()
-    while (scanf("%lf %lf", address(p1, geometry.X), address(p1, geometry.Y)) != EOF):
-        scanf("%lf %lf", address(p2, geometry.X), address(p2, geometry.Y))
-        scanf("%lf %lf", address(q1, geometry.X), address(q1, geometry.Y))
-        scanf("%lf %lf", address(q2, geometry.X), address(q2, geometry.Y))
+    while True:
+        nread, p1[geometry.X], p1[geometry.Y] = scanf("%lf %lf", p1[geometry.X], p1[geometry.Y])
+        if nread == EOF:
+            break
+        _, p2[geometry.X], p2[geometry.Y] = scanf("%lf %lf", p2[geometry.X], p2[geometry.Y])
+        _, q1[geometry.X], q1[geometry.Y] = scanf("%lf %lf", q1[geometry.X], q1[geometry.Y])
+        _, q2[geometry.X], q2[geometry.Y] = scanf("%lf %lf", q2[geometry.X], q2[geometry.Y])
         geometry.print_point(p1)
         geometry.print_point(p2)
         geometry.print_point(q1)

@@ -148,7 +148,6 @@ public class Geometry {
     }
 
     public static boolean segments_intersect(Geometry.segment s1, Geometry.segment s2) {
-        double signed_triangle_area = 0;
         /* Test the input endpoints directly; a rounded line intersection can
                fall just outside a segment that contains its shared endpoint. */
         double a = signed_triangle_area(s1.p1, s1.p2, s2.p1);
@@ -156,7 +155,7 @@ public class Geometry {
         double c = signed_triangle_area(s2.p1, s2.p2, s1.p1);
         double d = signed_triangle_area(s2.p1, s2.p2, s1.p2);
         if ((((((Math.abs(a) <= EPSILON) && point_in_box(s2.p1, s1.p1, s1.p2)) || ((Math.abs(b) <= EPSILON) && point_in_box(s2.p2, s1.p1, s1.p2))) || ((Math.abs(c) <= EPSILON) && point_in_box(s1.p1, s2.p1, s2.p2))) || ((Math.abs(d) <= EPSILON) && point_in_box(s1.p2, s2.p1, s2.p2)))) {
-            return (1 != 0);
+            return true;
         }
         return ((((a > EPSILON) && (b < (-EPSILON))) || ((a < (-EPSILON)) && (b > EPSILON))) && (((c > EPSILON) && (d < (-EPSILON))) || ((c < (-EPSILON)) && (d > EPSILON))));
     }

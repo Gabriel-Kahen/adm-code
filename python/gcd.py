@@ -36,36 +36,36 @@ def gcd1(p, q):
 
 
 # Find the gcd(p,q) and x,y such that p*x + q*y = gcd(p,q)
-def gcd(p, q, x, y):
-    # y1: previous coefficients
-    x1 = [0]
-    y1 = [0]
+def gcd(p, q):
+    # x1, y1: previous coefficients
     # g: value of gcd(p,q)
     if (q > p):
-        return gcd(q, p, y, x)
+        g, x, y = gcd(q, p)
+        return g, y, x
     if (q == 0):
-        x[0] = 1
-        y[0] = 0
-        return p
-    g = gcd(q, p % q, x1, y1)
-    x[0] = y1[0]
-    y[0] = (x1[0] - p // q * y1[0])
-    return g
+        x = 1
+        y = 0
+        return p, x, y
+    g, x1, y1 = gcd(q, p % q)
+    x = y1
+    y = (x1 - p // q * y1)
+    return g, x, y
 
 
 def main():
-    p = [0]
-    q = [0]
-    x = [0]
-    y = [0]
-    while (scanf("%ld %ld", p, q) != EOF):
-        g1 = gcd1(p[0], q[0])
-        g2 = gcd(p[0], q[0], x, y)
-        printf("gcd of p=%ld and q=%ld = %ld\n", p[0], q[0], g1)
-        printf(" %ld*%ld + %ld*%ld = %ld\n", p[0], x[0], q[0], y[0], g2)
+    p = 0
+    q = 0
+    while True:
+        nread, p, q = scanf("%ld %ld", p, q)
+        if nread == EOF:
+            break
+        g1 = gcd1(p, q)
+        g2, x, y = gcd(p, q)
+        printf("gcd of p=%ld and q=%ld = %ld\n", p, q, g1)
+        printf(" %ld*%ld + %ld*%ld = %ld\n", p, x, q, y, g2)
         if (g1 != g2):
             printf("ERROR: GCD\n")
-        if (((p[0] * x[0]) + (q[0] * y[0])) != g1):
+        if (((p * x) + (q * y)) != g1):
             printf("ERROR: DIOPHONINE SOLUTION WRONG!\n")
     return 0
 

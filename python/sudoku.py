@@ -30,7 +30,7 @@ from ._c import printf, scanf
 # max digit choices per cell
 class point:
     def __init__(self):
-        # y: row and column coordinates of square
+        # x, y: row and column coordinates of square
         self.x = 0
         self.y = 0
 
@@ -60,9 +60,9 @@ smart = 0
 
 
 def possible_values(p, board, possible):
-    # y: square to fill
-    # j: counters
-    # ylow: origin of box with (x,y)
+    # x, y: square to fill
+    # i, j: counters
+    # xlow, ylow: origin of box with (x,y)
     # init: is anything/everthing possible?
     x = p.x
     y = p.y
@@ -142,8 +142,8 @@ def free_square(p, board):
 
 
 def next_square(p, board):
-    # j: counters
-    # newcnt: the best and latest square counts
+    # i, j: counters
+    # bestcnt, newcnt: the best and latest square counts
     # doomed: some empty square without moves?
     bestcnt = (DIMENSION + 1)
     doomed = False
@@ -161,10 +161,9 @@ def next_square(p, board):
                     bestcnt = newcnt
                     p.x = i
                     p.y = j
-            else:
-                if ((newcnt >= 1) and (board.m[i][j] == 0)):
-                    p.x = i
-                    p.y = j
+            elif ((newcnt >= 1) and (board.m[i][j] == 0)):
+                p.x = i
+                p.y = j
             j += 1
         i += 1
     if (doomed and smart):
@@ -174,7 +173,7 @@ def next_square(p, board):
 
 
 def print_board(board):
-    # j: counters
+    # i, j: counters
     printf("\nThere are %d free board positions.\n", board.freecount)
     i = 0
     while (i < DIMENSION):
@@ -198,7 +197,7 @@ def print_board(board):
 
 
 def init_board(board):
-    # j: counters
+    # i, j: counters
     i = 0
     while (i < DIMENSION):
         j = 0
@@ -210,16 +209,16 @@ def init_board(board):
 
 
 def read_board(board):
-    # j: counters
-    c = [0]
+    # i, j: counters
+    c = 0
     p = point()
     init_board(board)
     i = 0
     while (i < DIMENSION):
         j = 0
         while (j < DIMENSION):
-            scanf("%c", c)
-            value = int((c[0] - ord('0')))
+            _, c = scanf("%c", c)
+            value = int((c - ord('0')))
             if (value != 0):
                 p.x = i
                 p.y = j
@@ -263,38 +262,38 @@ def unmake_move(a, k, board):
     free_square(board.move[k], board)
 
 
-def construct_candidates(a, k, board, c, nc):
+def construct_candidates(a, k, board, c):
     # i: counter
     # possible: which digits fit in this square
     possible = [0 for _ in range((DIMENSION + 1))]
     # pick square to fill next
     next_square(board.move[k], board)
-    nc[0] = 0
+    nc = 0
     if ((board.move[k].x < 0) and (board.move[k].y < 0)):
         # return: error condition, no moves possible
-        return
+        return nc
     possible_values(board.move[k], board, possible)
     i = 1
     while (i <= DIMENSION):
         if possible[i]:
-            c[nc[0]] = i
-            nc[0] = (nc[0] + 1)
+            c[nc] = i
+            nc = (nc + 1)
         i += 1
+    return nc
 
 
 def backtrack(a, k, input):
     # c: candidates for next position
     c = [0 for _ in range(MAXCANDIDATES)]
-    # ncandidates: next position candidate count
-    ncandidates = [0]
     # i: counter
     if is_a_solution(a, k, input):
         process_solution(a, k, input)
     else:
         k = (k + 1)
-        construct_candidates(a, k, input, c, ncandidates)
+        # ncandidates: next position candidate count
+        ncandidates = construct_candidates(a, k, input, c)
         i = 0
-        while (i < ncandidates[0]):
+        while (i < ncandidates):
             a[k] = c[i]
             make_move(a, k, input)
             backtrack(a, k, input)

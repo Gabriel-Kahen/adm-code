@@ -65,8 +65,8 @@ def insert_list(l, x):
     # p: temporary pointer
     p = list()
     p.item = x
-    p.next = l[0]
-    l[0] = p
+    p.next = l
+    return p
 
 
 def print_list(l):
@@ -79,49 +79,53 @@ def print_list(l):
 def delete_list(l, x):
     # p: item pointer
     # pred: predecessor pointer
-    p = l[0]
-    pred = item_ahead(l[0], x[0])
+    p = l
+    pred = item_ahead(l, x)
     # splice out of list
     if (pred == None):
-        l[0] = p.next
+        l = p.next
     else:
-        pred.next = x[0].next
+        pred.next = x.next
     # free memory used by node
     # Python releases this node when its references disappear.
+    return l
 
 
 def main():
     # c: input character
-    c = [0]
+    c = 0
     # d: input item
-    d = [0]
+    d = 0
     # l: list under construction
-    l = [None]
+    l = None
     # tmp: returned list from search
-    tmp = [None]
-    l[0] = init_list()
-    while (scanf("%c", c) != EOF):
-        if (chr(c[0]).lower() == 'p'):
-            print_list(l[0])
-        if (chr(c[0]).lower() == 'i'):
-            scanf("%d", d)
-            printf("new item: %d\n", d[0])
-            insert_list(l, d[0])
-        if (chr(c[0]).lower() == 's'):
-            scanf("%d", d)
-            tmp[0] = search_list(l[0], d[0])
-            if (tmp[0] == None):
-                printf("item %d not found\n", d[0])
+    tmp = None
+    l = init_list()
+    while True:
+        nread, c = scanf("%c", c)
+        if nread == EOF:
+            break
+        if (chr(c).lower() == 'p'):
+            print_list(l)
+        if (chr(c).lower() == 'i'):
+            _, d = scanf("%d", d)
+            printf("new item: %d\n", d)
+            l = insert_list(l, d)
+        if (chr(c).lower() == 's'):
+            _, d = scanf("%d", d)
+            tmp = search_list(l, d)
+            if (tmp == None):
+                printf("item %d not found\n", d)
             else:
-                printf("item %d found\n", d[0])
-        if (chr(c[0]).lower() == 'd'):
-            scanf("%d", d)
-            tmp[0] = search_list(l[0], d[0])
-            if (tmp[0] == None):
-                printf("item to delete %d not found\n", d[0])
+                printf("item %d found\n", d)
+        if (chr(c).lower() == 'd'):
+            _, d = scanf("%d", d)
+            tmp = search_list(l, d)
+            if (tmp == None):
+                printf("item to delete %d not found\n", d)
             else:
-                delete_list(l, tmp)
-                printf("item %d deleted\n", d[0])
+                l = delete_list(l, tmp)
+                printf("item %d deleted\n", d)
     return 0
 
 

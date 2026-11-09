@@ -48,7 +48,7 @@ public class Polly {
             if (_read0 > 1) C.strcpy(suitors[nsuitors].last, C.scanString(1));
             if (_read0 > 2) height = C.scanInt(2);
             if (_read0 > 3) weight = C.scanInt(3);
-            if (!((_read0 != -1))) break;
+            if (_read0 == -1) break;
             suitors[nsuitors].height = Math.abs((height - BESTHEIGHT));
             if ((weight > BESTWEIGHT)) {
                 suitors[nsuitors].weight = (weight - BESTWEIGHT);
@@ -62,7 +62,7 @@ public class Polly {
     public static int main() {
         int i = 0; /* counter */
         read_suitors();
-        java.util.Arrays.sort(suitors, 0, (0 + nsuitors), Polly::suitor_compare);
+        java.util.Arrays.sort(suitors, 0, nsuitors, Polly::suitor_compare);
         for (i = 0; (i < nsuitors); i++) {
             C.printf("%s, %s\n", suitors[i].last, suitors[i].first);
         }

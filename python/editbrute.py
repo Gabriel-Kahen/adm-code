@@ -32,9 +32,10 @@ m = [[editdistance.cell() for _ in range((editdistance.MAXLEN + 1))] for _ in ra
 
 
 # ]]
-def goal_cell(s, t, i, j):
-    i[0] = (strlen(s) - 1)
-    j[0] = (strlen(t) - 1)
+def goal_cell(s, t):
+    i = (strlen(s) - 1)
+    j = (strlen(t) - 1)
+    return i, j
 
 
 def match(c, d):
@@ -155,8 +156,8 @@ def reconstruct_path(s, t, i, j, m):
 
 
 def print_matrix(s, t, costQ, m):
-    # j: counters
-    # y: string lengths
+    # i, j: counters
+    # x, y: string lengths
     x = strlen(s)
     y = strlen(t)
     printf("   ")
@@ -180,8 +181,6 @@ def print_matrix(s, t, costQ, m):
 
 
 def main():
-    i = [0]
-    j = [0]
     # s: input strings
     s = [0 for _ in range((editdistance.MAXLEN + 2))]
     t = [0 for _ in range((editdistance.MAXLEN + 2))]
@@ -197,9 +196,9 @@ def main():
     print_matrix(s, t, True, m)
     printf("\n")
     print_matrix(s, t, False, m)
-    goal_cell(s, t, i, j)
-    printf("%d %d\n", i[0], j[0])
-    reconstruct_path(s, t, i[0], j[0], m)
+    i, j = goal_cell(s, t)
+    printf("%d %d\n", i, j)
+    reconstruct_path(s, t, i, j, m)
     printf("\n")
     return 0
 

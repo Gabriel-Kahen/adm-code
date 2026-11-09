@@ -63,9 +63,8 @@ def dfs2(g, v):
             bfs_dfs.parent[y] = v
             process_edge2(v, y)
             dfs2(g, y)
-        else:
-            if (((not bfs_dfs.processed[y]) and (bfs_dfs.parent[v] != y)) or g.directed):
-                process_edge2(v, y)
+        elif (((not bfs_dfs.processed[y]) and (bfs_dfs.parent[v] != y)) or g.directed):
+            process_edge2(v, y)
         if bfs_dfs.finished:
             return
         p = p.next

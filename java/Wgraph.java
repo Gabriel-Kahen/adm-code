@@ -56,7 +56,7 @@ public class Wgraph {
         p.next = g.edges[x];
         g.edges[x] = p;
         g.degree[x]++;
-        if (!(directed)) {
+        if (!directed) {
             insert_edge(g, y, x, true, w);
         } else {
             g.nedges++;
@@ -66,7 +66,7 @@ public class Wgraph {
     public static void read_graph(Graph.graph g, boolean directed) {
         int i = 0; /* counter */
         int m = 0; /* number of edges */
-        int x = 0;
+        int x = 0; /* placeholder for edge and weight */
         int y = 0;
         int w = 0;
         initialize_graph(g, directed);
@@ -78,7 +78,7 @@ public class Wgraph {
             if (_read1 > 0) x = C.scanInt(0);
             if (_read1 > 1) y = C.scanInt(1);
             if (_read1 > 2) w = C.scanInt(2);
-            insert_edge(g, x, y, directed, w); /* placeholder for edge and weight */
+            insert_edge(g, x, y, directed, w);
         }
     }
 
@@ -96,7 +96,7 @@ public class Wgraph {
                     g.edges[x] = p.next;
                 }
                 // Java garbage collection releases p;
-                if (!(directed)) {
+                if (!directed) {
                     delete_edge(g, y, x, true);
                 } else {
                     g.nedges--;
@@ -158,14 +158,14 @@ public class Wgraph {
         p = g.edges[v];
         while ((p != null)) {
             y = p.y;
-            if (!(discovered[y])) {
+            if (!discovered[y]) {
                 parent[y] = v;
                 process_edge(v, y);
                 dfs(g, y);
             } else {
-                if ((!(processed[y]) || (g.directed != 0))) {
-                    if (((y == v) && !((g.directed != 0)))) {
-                        self_edge_seen = !(self_edge_seen);
+                if ((!processed[y] || (g.directed != 0))) {
+                    if (((y == v) && (g.directed == 0))) {
+                        self_edge_seen = !self_edge_seen;
                         if (self_edge_seen) {
                             process_edge(v, y);
                         }
@@ -198,7 +198,7 @@ public class Wgraph {
         if ((start == end)) {
             System.out.printf(Locale.US, "\n%d", start);
         } else {
-            if (!((find_path(start, parents[end], parents) != 0))) {
+            if (find_path(start, parents[end], parents) == 0) {
                 return 0;
             }
             System.out.printf(Locale.US, " %d", end);
@@ -212,7 +212,7 @@ public class Wgraph {
         initialize_search(g);
         c = 0;
         for (i = 1; (i <= g.nvertices); i++) {
-            if (!(discovered[i])) {
+            if (!discovered[i]) {
                 c = (c + 1);
                 System.out.printf(Locale.US, "Component %d:", c);
                 dfs(g, i);

@@ -48,7 +48,7 @@ public class Topsort1 {
         int i = 0; /* counter */
         Stack.init_stack(sorted);
         for (i = 1; (i <= g.nvertices); i++) {
-            if (!(BfsDfs.discovered[i])) {
+            if (!BfsDfs.discovered[i]) {
                 BfsDfs.dfs(g, i);
             }
         }

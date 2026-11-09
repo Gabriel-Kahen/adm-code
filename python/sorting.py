@@ -51,7 +51,7 @@ def newswap(s, i, j):
 
 
 def insertion_sort(s, n):
-    # j: counters
+    # i, j: counters
     i = 1
     while (i < n):
         j = i
@@ -62,7 +62,7 @@ def insertion_sort(s, n):
 
 
 def selection_sort(s, n):
-    # j: counters
+    # i, j: counters
     # min: index of minimum
     i = 0
     while (i < n):
@@ -129,7 +129,7 @@ def binary_search(s, key, low, high):
 
 def merge(s, low, middle, high):
     # i: counter
-    # buffer2: buffers to hold elements for merging
+    # buffer1, buffer2: buffers to hold elements for merging
     buffer1 = queue.queue()
     buffer2 = queue.queue()
     queue.init_queue(buffer1)

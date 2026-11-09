@@ -157,6 +157,43 @@ def regression_cases():
 
 
 class TranslationParity(unittest.TestCase):
+    @unittest.skipUnless("python" in LANGUAGES, "Python translation not selected")
+    def test_python_scanf_preserves_c_assignment_semantics(self):
+        import io
+        from unittest.mock import patch
+        from python import _c
+
+        def scan(data, fmt, *previous):
+            with patch("sys.stdin", io.StringIO(data)), patch.object(_c, "_lookahead", None):
+                result = _c.scanf(fmt, *previous)
+                return result, _c.getchar()
+
+        cases = [
+            ("", "%d %d", (7, 9), (-1, 7, 9), -1),
+            ("12", "%d %d", (7, 9), (1, 12, 9), -1),
+            ("12 x", "%d %d", (7, 9), (1, 12, 9), ord("x")),
+            ("x", "%d %d", (7, 9), (0, 7, 9), ord("x")),
+            ("12;x", "%d,%d", (7, 9), (1, 12, 9), ord(";")),
+            (" \n", "%c", (0,), (1, ord(" ")), ord("\n")),
+            (" -3.25e2 tail", "%lf", (7.0,), (1, -325.0), ord(" ")),
+            (" \nQ", "\n", (), (0,), ord("Q")),
+        ]
+        for data, fmt, previous, expected, next_char in cases:
+            with self.subTest(data=data, fmt=fmt):
+                self.assertEqual(scan(data, fmt, *previous), (expected, next_char))
+
+        buffer = [ord("z")] * 6 + [0]
+        result, next_char = scan("hi", "%s %d", buffer, 9)
+        self.assertEqual(result[0], 1)
+        self.assertIs(result[1], buffer)
+        self.assertEqual(result[2], 9)
+        self.assertEqual(buffer, [ord("h"), ord("i"), 0] + [ord("z")] * 3 + [0])
+        self.assertEqual(next_char, -1)
+        result, _ = scan("", "%s", buffer)
+        self.assertEqual(result[0], -1)
+        self.assertIs(result[1], buffer)
+        self.assertEqual(buffer, [ord("h"), ord("i"), 0] + [ord("z")] * 3 + [0])
+
     @unittest.skipUnless(os.name == "posix", "PTY console check requires POSIX")
     def test_console_processes_a_line_before_eof(self):
         import pty

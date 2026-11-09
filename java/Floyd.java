@@ -62,7 +62,7 @@ public class Floyd {
     public static void read_adjacency_matrix(Floyd.adjacency_matrix g, boolean directed) {
         int i = 0; /* counter */
         int m = 0; /* number of edges */
-        int x = 0;
+        int x = 0; /* placeholder for edge and weight */
         int y = 0;
         int w = 0;
         initialize_adjacency_matrix(g);
@@ -75,9 +75,9 @@ public class Floyd {
             if (_read1 > 1) y = C.scanInt(1);
             if (_read1 > 2) w = C.scanInt(2);
             if ((w < g.weight[x][y])) {
-                g.weight[x][y] = w; /* placeholder for edge and weight */
+                g.weight[x][y] = w;
             }
-            if (!(directed)) {
+            if (!directed) {
                 if ((w < g.weight[y][x])) {
                     g.weight[y][x] = w;
                 }

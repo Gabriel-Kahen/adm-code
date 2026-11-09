@@ -31,9 +31,10 @@ m = [[editdistance.cell() for _ in range((editdistance.MAXLEN + 1))] for _ in ra
 
 
 # For normal edit distance computation
-def goal_cell(s, t, i, j):
-    i[0] = (strlen(s) - 1)
-    j[0] = (strlen(t) - 1)
+def goal_cell(s, t):
+    i = (strlen(s) - 1)
+    j = (strlen(t) - 1)
+    return i, j
 
 
 def match(c, d):
@@ -85,8 +86,6 @@ def main():
     editdistance.match_out = match_out
     editdistance.insert_out = insert_out
     editdistance.delete_out = delete_out
-    i = [0]
-    j = [0]
     # s: input strings
     s = [0 for _ in range((editdistance.MAXLEN + 2))]
     t = [0 for _ in range((editdistance.MAXLEN + 2))]
@@ -98,8 +97,8 @@ def main():
     complen = editdistance.string_compare(s, t, m)
     lcslen = (strlen(s) + strlen(t) - 2 - complen) // 2
     printf("length of longest common subsequence = %d\n", lcslen)
-    goal_cell(s, t, i, j)
-    editdistance.reconstruct_path(s, t, i[0], j[0], m)
+    i, j = goal_cell(s, t)
+    editdistance.reconstruct_path(s, t, i, j, m)
     printf("\n")
     return 0
 

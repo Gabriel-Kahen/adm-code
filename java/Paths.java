@@ -60,7 +60,8 @@ public class Paths {
     /*
         What are possible elements of the next slot in the path
     */
-    public static void construct_candidates(int[] a, int k, Paths.paths_data g, int[] c, int[] nc) {
+    public static int construct_candidates(int[] a, int k, Paths.paths_data g, int[] c) {
+        int nc;
         int i = 0; /* counters */
         boolean[] in_sol = new boolean[(NMAX + 1)]; /* what's already in the solution? */
         Graph.edgenode p = null; /* temporary pointer */
@@ -73,31 +74,31 @@ public class Paths {
         }
         if ((k == 1)) {
             c[0] = g.s; /* always start from vertex s */
-            nc[0] = 1;
+            nc = 1;
         } else {
-            nc[0] = 0;
+            nc = 0;
             last = a[(k - 1)];
             p = g.g.edges[last];
             while ((p != null)) {
-                if (!(in_sol[p.y])) {
-                    c[nc[0]] = p.y;
-                    nc[0] = (nc[0] + 1);
+                if (!in_sol[p.y]) {
+                    c[nc] = p.y;
+                    nc = (nc + 1);
                 }
                 p = p.next;
             }
         }
+        return nc;
     }
 
     public static void backtrack(int[] a, int k, Paths.paths_data input) {
         int[] c = new int[MAXCANDIDATES]; /* candidates for next position */
-        int[] ncandidates = new int[]{0}; /* next position candidate count */
         int i = 0; /* counter */
         if ((is_a_solution(a, k, input) != 0)) {
             process_solution(a, k, input);
         } else {
             k = (k + 1);
-            construct_candidates(a, k, input, c, ncandidates);
-            for (i = 0; (i < ncandidates[0]); i++) {
+            int ncandidates = construct_candidates(a, k, input, c); /* next position candidate count */
+            for (i = 0; (i < ncandidates); i++) {
                 a[k] = c[i];
                 make_move(a, k, input);
                 backtrack(a, k, input);

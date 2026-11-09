@@ -60,17 +60,17 @@ public class BfsDfs {
         Queue.init_queue(q);
         Queue.enqueue(q, start);
         discovered[start] = true;
-        while (!((Queue.empty_queue(q) != 0))) {
+        while (Queue.empty_queue(q) == 0) {
             v = Queue.dequeue(q);
             callbacks.process_vertex_early(v);
             processed[v] = true;
             p = g.edges[v];
             while ((p != null)) {
                 y = p.y;
-                if (((!(processed[y]) || (g.directed != 0)) || (y == v))) {
+                if (((!processed[y] || (g.directed != 0)) || (y == v))) {
                     callbacks.process_edge(v, y);
                 }
-                if (!(discovered[y])) {
+                if (!discovered[y]) {
                     Queue.enqueue(q, y);
                     discovered[y] = true;
                     parent[y] = v;
@@ -85,7 +85,7 @@ public class BfsDfs {
         if ((parent[y] == x)) {
             return TREE;
         }
-        if ((discovered[y] && !(processed[y]))) {
+        if ((discovered[y] && !processed[y])) {
             return BACK;
         }
         if ((processed[y] && (entry_time[y] > entry_time[x]))) {
@@ -113,14 +113,14 @@ public class BfsDfs {
         p = g.edges[v];
         while ((p != null)) {
             y = p.y;
-            if (!(discovered[y])) {
+            if (!discovered[y]) {
                 parent[y] = v;
                 callbacks.process_edge(v, y);
                 dfs(g, y);
             } else {
-                if ((!(processed[y]) || (g.directed != 0))) {
-                    if (((y == v) && !((g.directed != 0)))) {
-                        self_edge_seen = !(self_edge_seen);
+                if ((!processed[y] || (g.directed != 0))) {
+                    if (((y == v) && (g.directed == 0))) {
+                        self_edge_seen = !self_edge_seen;
                         if (self_edge_seen) {
                             callbacks.process_edge(v, y);
                         }
@@ -153,7 +153,7 @@ public class BfsDfs {
         if ((start == end)) {
             System.out.printf(Locale.US, "\n%d", start);
         } else {
-            if (!((find_path(start, parents[end], parents) != 0))) {
+            if (find_path(start, parents[end], parents) == 0) {
                 return 0;
             }
             System.out.printf(Locale.US, " %d", end);

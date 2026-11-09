@@ -44,31 +44,33 @@ public class Editdistance {
     }
 
     public static int string_compare(char[] s, char[] t, Editdistance.cell[][] m) {
-        int[] i = new int[]{0};
-        int[] j = new int[]{0};
+        int i = 0; /* counters */
+        int j = 0;
         int k = 0;
         int[] opt = new int[3]; /* cost of the three options */
-        for (i[0] = 0; (i[0] <= MAXLEN); i[0]++) {
-            callbacks.row_init(i[0], m);
-            callbacks.column_init(i[0], m);
+        for (i = 0; (i <= MAXLEN); i++) {
+            callbacks.row_init(i, m);
+            callbacks.column_init(i, m);
         }
-        for (i[0] = 1; (i[0] < C.strlen(s)); i[0]++) {
-            for (j[0] = 1; (j[0] < C.strlen(t)); j[0]++) {
-                opt[MATCH] = (m[(i[0] - 1)][(j[0] - 1)].cost + callbacks.match(s[i[0]], t[j[0]]));
-                opt[INSERT] = (m[i[0]][(j[0] - 1)].cost + callbacks.indel(t[j[0]]));
-                opt[DELETE] = (m[(i[0] - 1)][j[0]].cost + callbacks.indel(s[i[0]]));
-                m[i[0]][j[0]].cost = opt[MATCH];
-                m[i[0]][j[0]].parent = MATCH;
+        for (i = 1; (i < C.strlen(s)); i++) {
+            for (j = 1; (j < C.strlen(t)); j++) {
+                opt[MATCH] = (m[(i - 1)][(j - 1)].cost + callbacks.match(s[i], t[j]));
+                opt[INSERT] = (m[i][(j - 1)].cost + callbacks.indel(t[j]));
+                opt[DELETE] = (m[(i - 1)][j].cost + callbacks.indel(s[i]));
+                m[i][j].cost = opt[MATCH];
+                m[i][j].parent = MATCH;
                 for (k = INSERT; (k <= DELETE); k++) {
-                    if ((opt[k] < m[i[0]][j[0]].cost)) {
-                        m[i[0]][j[0]].cost = opt[k];
-                        m[i[0]][j[0]].parent = k; /* counters */
+                    if ((opt[k] < m[i][j].cost)) {
+                        m[i][j].cost = opt[k];
+                        m[i][j].parent = k;
                     }
                 }
             }
         }
-        callbacks.goal_cell(s, t, i, j);
-        return m[i[0]][j[0]].cost;
+        int[] goal_i = {i};
+        int[] goal_j = {j};
+        callbacks.goal_cell(s, t, goal_i, goal_j);
+        return m[goal_i[0]][goal_j[0]].cost;
     }
 
     public static void reconstruct_path(char[] s, char[] t, int i, int j, Editdistance.cell[][] m) {

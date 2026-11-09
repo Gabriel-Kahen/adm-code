@@ -24,7 +24,7 @@ if __name__ == "__main__" and not __package__:
 
 import math
 
-from ._c import address, fprintf, printf, scanf, stderr
+from ._c import fprintf, printf, scanf, stderr
 from . import geometry
 
 # maximum number of circles
@@ -68,16 +68,17 @@ def superman():
 
 
 def main():
+    global ncircles
     # i: counter
-    scanf("%lf %lf", address(s, geometry.X), address(s, geometry.Y))
-    scanf("%lf %lf", address(t, geometry.X), address(t, geometry.Y))
-    scanf("%d", address(globals(), 'ncircles'))
+    _, s[geometry.X], s[geometry.Y] = scanf("%lf %lf", s[geometry.X], s[geometry.Y])
+    _, t[geometry.X], t[geometry.Y] = scanf("%lf %lf", t[geometry.X], t[geometry.Y])
+    _, ncircles = scanf("%d", ncircles)
     if ((ncircles < 0) or (ncircles > MAXN)):
         fprintf(stderr, "circle count exceeds capacity\n")
         return 1
     i = 1
     while (i <= ncircles):
-        scanf("%lf %lf %lf", address(c[i].c, geometry.X), address(c[i].c, geometry.Y), address(c[i], 'r'))
+        _, c[i].c[geometry.X], c[i].c[geometry.Y], c[i].r = scanf("%lf %lf %lf", c[i].c[geometry.X], c[i].c[geometry.Y], c[i].r)
         i += 1
     printf("%7.3lf %7.3lf\n", s[geometry.X], s[geometry.Y])
     printf("%7.3lf %7.3lf\n", t[geometry.X], t[geometry.Y])

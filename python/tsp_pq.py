@@ -108,7 +108,7 @@ def extract_min(q):
     copy_struct(q.q[1], q.q[q.n])
     q.n = (q.n - 1)
     bubble_down(q, 1)
-    return copy.deepcopy(min)
+    return min
 
 
 def top_pq(q):

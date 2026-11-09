@@ -34,21 +34,21 @@ public class Order {
     }
 
     public static void row_major(int n, int m) {
-        int i = 0;
+        int i = 0; /* counters */
         int j = 0;
         for (i = 1; (i <= n); i++) {
             for (j = 1; (j <= m); j++) {
-                process(i, j); /* counters */
+                process(i, j);
             }
         }
     }
 
     public static void column_major(int n, int m) {
-        int i = 0;
+        int i = 0; /* counters */
         int j = 0;
         for (j = 1; (j <= m); j++) {
             for (i = 1; (i <= n); i++) {
-                process(i, j); /* counters */
+                process(i, j);
             }
         }
     }

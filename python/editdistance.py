@@ -43,35 +43,34 @@ DELETE = 2
 
 
 def string_compare(s, t, m):
-    # k: counters
-    i = [0]
-    j = [0]
+    # i, j, k: counters
+    i = 0
+    j = 0
     # opt: cost of the three options
     opt = [0 for _ in range(3)]
-    i[0] = 0
-    while (i[0] <= MAXLEN):
-        row_init(i[0], m)
-        column_init(i[0], m)
-        i[0] += 1
-    i[0] = 1
-    while (i[0] < strlen(s)):
-        j[0] = 1
-        while (j[0] < strlen(t)):
-            opt[MATCH] = (m[(i[0] - 1)][(j[0] - 1)].cost + match(s[i[0]], t[j[0]]))
-            opt[INSERT] = (m[i[0]][(j[0] - 1)].cost + indel(t[j[0]]))
-            opt[DELETE] = (m[(i[0] - 1)][j[0]].cost + indel(s[i[0]]))
-            m[i[0]][j[0]].cost = opt[MATCH]
-            m[i[0]][j[0]].parent = MATCH
+    while (i <= MAXLEN):
+        row_init(i, m)
+        column_init(i, m)
+        i += 1
+    i = 1
+    while (i < strlen(s)):
+        j = 1
+        while (j < strlen(t)):
+            opt[MATCH] = (m[(i - 1)][(j - 1)].cost + match(s[i], t[j]))
+            opt[INSERT] = (m[i][(j - 1)].cost + indel(t[j]))
+            opt[DELETE] = (m[(i - 1)][j].cost + indel(s[i]))
+            m[i][j].cost = opt[MATCH]
+            m[i][j].parent = MATCH
             k = INSERT
             while (k <= DELETE):
-                if (opt[k] < m[i[0]][j[0]].cost):
-                    m[i[0]][j[0]].cost = opt[k]
-                    m[i[0]][j[0]].parent = k
+                if (opt[k] < m[i][j].cost):
+                    m[i][j].cost = opt[k]
+                    m[i][j].parent = k
                 k += 1
-            j[0] += 1
-        i[0] += 1
-    goal_cell(s, t, i, j)
-    return m[i[0]][j[0]].cost
+            j += 1
+        i += 1
+    i, j = goal_cell(s, t)
+    return m[i][j].cost
 
 
 def reconstruct_path(s, t, i, j, m):
@@ -92,8 +91,8 @@ def reconstruct_path(s, t, i, j, m):
 
 
 def print_matrix(s, t, costQ, m):
-    # j: counters
-    # y: string lengths
+    # i, j: counters
+    # x, y: string lengths
     x = strlen(s)
     y = strlen(t)
     printf("   ")

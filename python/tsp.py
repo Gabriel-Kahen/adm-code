@@ -24,14 +24,14 @@ if __name__ == "__main__" and not __package__:
 
 import math
 
-from ._c import address, offset, printf, scanf
+from ._c import offset, printf, scanf
 from . import annealing
 from . import random
 
 # maximum number of points
 class point:
     def __init__(self):
-        # y: x and y coordinates of point
+        # x, y: x and y coordinates of point
         self.x = 0
         self.y = 0
 
@@ -58,12 +58,12 @@ NMAX = 1001
 
 
 def read_tsp(t):
-    # j: counters
-    j = [0]
-    scanf("%d\n", address(t, 'n'))
+    # i, j: counters
+    j = 0
+    _, t.n = scanf("%d\n", t.n)
     i = 1
     while (i <= t.n):
-        scanf("%d %d %d\n", j, address(t.p[i], 'x'), address(t.p[i], 'y'))
+        _, j, t.p[i].x, t.p[i].y = scanf("%d %d %d\n", j, t.p[i].x, t.p[i].y)
         i += 1
 
 
@@ -133,10 +133,10 @@ def print_solution(s):
 
 def read_solution(s):
     # i: counter
-    scanf("%d\n", address(s, 'n'))
+    _, s.n = scanf("%d\n", s.n)
     i = 1
     while (i <= s.n):
-        scanf("%d", address(s.p, i))
+        _, s.p[i] = scanf("%d", s.p[i])
         i += 1
 
 
@@ -145,7 +145,7 @@ def random_solution(s):
 
 
 def transition(s, t, i, j):
-    # willbe: before and after costs
+    # was, willbe: before and after costs
     # neighbors: i,j neighboring tour positions?
     neighbors = False
     if (i == j):
