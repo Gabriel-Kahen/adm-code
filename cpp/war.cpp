@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    war.c
+
+    Simulation of the children's card game War
+
+    cards with format value, suit, e.g. 4h ranked by orders 23456789TJQKA and cdhs
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,77 +21,174 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-namespace adm {
-struct WarResult {
-    std::string winner;
-    int steps;
-};
+#include <stdbool.h>
+#include "queue.hpp"
+#include "random.hpp"
 
-int encode_card(const std::string &card) {
-    require(card.size() == 2, "card requires rank and suit");
-    const std::string ranks = "23456789TJQKA", suits = "cdhs";
-    auto rank = ranks.find(card[0]), suit = suits.find(card[1]);
-    require(rank != std::string::npos && suit != std::string::npos, "unknown card");
-    return static_cast<int>(rank * 4 + suit);
+#define NGAMES 50
+#define MAXSTEPS 100000
+#define NCARDS 52 /* number of cards */
+#define NSUITS 4  /* number of suits */
+
+char values[] = "23456789TJQKA";
+char suits[] = "cdhs";
+
+/*    Return the suit and value of the given card.     */
+
+char suit(int card) {
+    return (suits[card % NSUITS]);
 }
 
-std::string decode_card(int card) {
-    require(card >= 0 && card < 52, "card rank outside deck");
-    const std::string ranks = "23456789TJQKA", suits = "cdhs";
-    return std::string{ranks[card / 4], suits[card % 4]};
+char value(int card) {
+    return (values[card / NSUITS]);
 }
 
-WarResult war(const std::vector<int> &first, const std::vector<int> &second, int limit) {
-    require(limit >= 0, "negative War step limit");
-    std::set<int> unique;
-    for (const auto &deck : {first, second}) {
-        for (int card : deck) {
-            require(card >= 0 && card < 52 && unique.insert(card).second,
-                    "invalid or duplicate card");
+void print_card_queue(queue *q) {
+    int i;
+
+    i = q->first;
+
+    while (i != q->last) {
+        printf("%c%c ", value(q->q[i]), suit(q->q[i]));
+        i = (i + 1) % QUEUESIZE;
+    }
+
+    printf("%2d ", q->q[i]);
+    printf("\n");
+}
+
+/*     Rank the card with given value and suit.    */
+
+int rank_card(char value, char suit) {
+    int i, j; /* counters */
+
+    for (i = 0; i < (NCARDS / NSUITS); i++) {
+        if (values[i] == value) {
+            for (j = 0; j < NSUITS; j++) {
+                if (suits[j] == suit) {
+                    return (i * NSUITS + j);
+                }
+            }
         }
     }
-    std::deque<int> a(first.begin(), first.end()), b(second.begin(), second.end()), pot;
-    bool facedown = false;
-    int steps = 0;
-    while (!a.empty() && !b.empty() && steps < limit) {
-        ++steps;
-        int x = a.front(), y = b.front();
-        a.pop_front();
-        b.pop_front();
-        pot.push_back(x);
-        pot.push_back(y);
-        if (facedown) {
-            facedown = false;
-            continue;
-        }
-        if (x / 4 == y / 4) {
-            facedown = true;
-            continue;
-        }
-        auto &winner = x / 4 > y / 4 ? a : b;
-        winner.insert(winner.end(), pot.begin(), pot.end());
-        pot.clear();
-    }
-    if (!a.empty() && b.empty()) {
-        return {"a", steps};
-    }
-    if (a.empty() && !b.empty()) {
-        return {"b", steps};
-    }
-    return {"draw", steps};
-}
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        std::cout << war({48}, {0}, 100).winner << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+    printf("Warning: bad input value=%d, suit=%d\n", value, suit);
+    return -1;
+}
+
+void testcards(void) {
+    int i; /* counter */
+
+    for (i = 0; i < NCARDS; i++) {
+        printf(" i=%d card[i]=%c%c rank=%d\n", i, value(i), suit(i), rank_card(value(i), suit(i)));
     }
 }
-#endif
+
+/************************************************************/
+
+void random_init_decks(queue *a, queue *b) {
+    int i; /* counter */
+    int perm[NCARDS + 1];
+
+    for (i = 0; i < NCARDS; i = i + 1) {
+        perm[i] = i;
+    }
+
+    random_permutation(perm, NCARDS);
+
+    init_queue(a);
+    init_queue(b);
+
+    for (i = 0; i < NCARDS / 2; i = i + 1) {
+        enqueue(a, perm[2 * i]);
+        enqueue(b, perm[2 * i + 1]);
+    }
+
+    print_card_queue(a);
+    print_card_queue(b);
+}
+
+void clear_queue(queue *a, queue *b) {
+    while (!empty_queue(a)) {
+        enqueue(b, dequeue(a));
+    }
+}
+
+void war(queue *a, queue *b) {
+    int steps = 0; /* step counter */
+    int x, y;      /* top cards */
+    queue c;       /* cards involved in the war */
+    bool inwar;    /* are we involved in a war? */
+
+    inwar = false;
+    init_queue(&c);
+
+    while ((!empty_queue(a)) && (!empty_queue(b) && (steps < MAXSTEPS))) {
+        steps = steps + 1;
+        x = dequeue(a);
+        y = dequeue(b);
+        enqueue(&c, x);
+        enqueue(&c, y);
+        if (inwar) {
+            inwar = false;
+        } else {
+            if ((x / NSUITS) > (y / NSUITS)) {
+                clear_queue(&c, a);
+            } else if ((x / NSUITS) < (y / NSUITS)) {
+                clear_queue(&c, b);
+            } else if ((y / NSUITS) == (x / NSUITS)) {
+                inwar = true;
+            }
+        }
+    }
+
+    if (!empty_queue(a) && empty_queue(b)) {
+        printf("a wins in %d steps \n", steps);
+    } else if (empty_queue(a) && !empty_queue(b)) {
+        printf("b wins in %d steps \n", steps);
+    } else if (!empty_queue(a) && !empty_queue(b)) {
+        printf("game tied after %d steps, |a|=%d |b|=%d \n", steps, a->count, b->count);
+    } else {
+        printf("a and b tie in %d steps \n", steps);
+    }
+}
+
+int old_main(void) {
+    queue a, b;
+    int i;
+
+    for (i = 1; i <= NGAMES; i++) {
+        random_init_decks(&a, &b);
+        war(&a, &b);
+    }
+    return 0;
+}
+
+int main(void) {
+    queue decks[2];      /* player's decks */
+    char value, suit, c; /* input characters */
+    int i;               /* deck counter */
+
+    while (true) {
+        for (i = 0; i <= 1; i++) {
+            init_queue(&decks[i]);
+
+            while ((c = getchar()) != '\n') {
+                if (c == EOF) {
+                    return -1;
+                }
+                if (c != ' ') {
+                    value = c;
+                    suit = getchar();
+                    enqueue(&decks[i], rank_card(value, suit));
+                }
+            }
+        }
+        war(&decks[0], &decks[1]);
+    }
+    return 0;
+}

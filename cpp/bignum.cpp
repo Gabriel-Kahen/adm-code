@@ -1,4 +1,8 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	bignum.c
+	Large integer arithmetic: addition, subtraction, multiplication, and division.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,166 +15,326 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "bignum.hpp"
+#include <stdio.h>
+#include <stdlib.h>
 
-namespace adm {
-void BigInteger::normalize() {
-    auto first = digits_.find_first_not_of('0');
-    digits_ = first == std::string::npos ? "0" : digits_.substr(first);
-    if (digits_ == "0") {
-        negative_ = false;
+#define MAXDIGITS 100 /* maximum length bignum */
+#define PLUS 1        /* positive sign bit */
+#define MINUS -1      /* negative sign bit */
+
+typedef struct {
+    char digits[MAXDIGITS]; /* represent the number */
+    int signbit;            /* 1 if positive, -1 if negative */
+    int lastdigit;          /* index of high-order digit */
+} bignum;
+
+static void bignum_capacity_error(void) {
+    fprintf(stderr, "bignum capacity exceeded\n");
+    exit(EXIT_FAILURE);
+}
+
+void add_bignum(bignum *a, bignum *b, bignum *c);
+
+void print_bignum(bignum *n) {
+    int i;
+
+    if (n->signbit == MINUS) {
+        printf("- ");
+    }
+
+    for (i = n->lastdigit; i >= 0; i--) {
+        printf("%c", '0' + n->digits[i]);
+    }
+
+    printf("\n");
+}
+
+void zero_justify(bignum *n) {
+    while ((n->lastdigit > 0) && (n->digits[n->lastdigit] == 0)) {
+        n->lastdigit--;
+    }
+
+    if ((n->lastdigit == 0) && (n->digits[0] == 0)) {
+        n->signbit = PLUS; /* zero has one canonical, nonnegative representation */
     }
 }
 
-BigInteger::BigInteger(const std::string &value) {
-    require(!value.empty(), "empty integer");
-    std::size_t start = value[0] == '-' || value[0] == '+' ? 1 : 0;
-    require(start < value.size(), "integer requires digits");
-    negative_ = value[0] == '-';
-    digits_ = value.substr(start);
-    require(
-        std::all_of(digits_.begin(), digits_.end(), [](char c) { return c >= '0' && c <= '9'; }),
-        "invalid decimal integer");
-    normalize();
-}
+void int_to_bignum(int s, bignum *n) {
+    int i;                  /* counter */
+    unsigned int magnitude; /* int to work with */
 
-BigInteger::BigInteger(Integer value) : BigInteger(std::to_string(value)) {}
-
-std::string BigInteger::str() const {
-    return (negative_ ? "-" : "") + digits_;
-}
-
-int BigInteger::compare_magnitude(const std::string &a, const std::string &b) {
-    if (a.size() != b.size()) {
-        return a.size() < b.size() ? -1 : 1;
-    }
-    return a == b ? 0 : (a < b ? -1 : 1);
-}
-
-std::string BigInteger::add_magnitude(const std::string &a, const std::string &b) {
-    std::string result;
-    std::size_t i = a.size(), j = b.size();
-    int carry = 0;
-    while (i || j || carry) {
-        int digit = carry;
-        if (i) {
-            digit += a[--i] - '0';
-        }
-        if (j) {
-            digit += b[--j] - '0';
-        }
-        result.push_back(static_cast<char>('0' + digit % 10));
-        carry = digit / 10;
-    }
-    std::reverse(result.begin(), result.end());
-    return result;
-}
-
-std::string BigInteger::subtract_magnitude(const std::string &a, const std::string &b) {
-    std::string result;
-    std::size_t i = a.size(), j = b.size();
-    int borrow = 0;
-    while (i) {
-        int digit = a[--i] - '0' - borrow;
-        if (j) {
-            digit -= b[--j] - '0';
-        }
-        borrow = digit < 0;
-        if (borrow) {
-            digit += 10;
-        }
-        result.push_back(static_cast<char>('0' + digit));
-    }
-    while (result.size() > 1 && result.back() == '0') {
-        result.pop_back();
-    }
-    std::reverse(result.begin(), result.end());
-    return result;
-}
-
-BigInteger BigInteger::operator-() const {
-    BigInteger result = *this;
-    if (digits_ != "0") {
-        result.negative_ = !negative_;
-    }
-    return result;
-}
-
-BigInteger operator+(const BigInteger &a, const BigInteger &b) {
-    BigInteger result;
-    if (a.negative_ == b.negative_) {
-        result.digits_ = BigInteger::add_magnitude(a.digits_, b.digits_);
-        result.negative_ = a.negative_;
-    } else if (BigInteger::compare_magnitude(a.digits_, b.digits_) >= 0) {
-        result.digits_ = BigInteger::subtract_magnitude(a.digits_, b.digits_);
-        result.negative_ = a.negative_;
+    if (s >= 0) {
+        n->signbit = PLUS;
     } else {
-        result.digits_ = BigInteger::subtract_magnitude(b.digits_, a.digits_);
-        result.negative_ = b.negative_;
+        n->signbit = MINUS;
     }
-    result.normalize();
-    return result;
+
+    for (i = 0; i < MAXDIGITS; i++) {
+        n->digits[i] = (char)0;
+    }
+
+    n->lastdigit = -1;
+
+    /* Unsigned subtraction also handles INT_MIN, whose signed negation does not fit. */
+    magnitude = s < 0 ? 0u - (unsigned int)s : (unsigned int)s;
+
+    while (magnitude > 0) {
+        n->lastdigit++;
+        n->digits[n->lastdigit] = (magnitude % 10);
+        magnitude = magnitude / 10;
+    }
+
+    if (s == 0) {
+        n->lastdigit = 0;
+    }
 }
 
-BigInteger operator-(const BigInteger &a, const BigInteger &b) {
-    return a + (-b);
+void initialize_bignum(bignum *n) {
+    int_to_bignum(0, n);
 }
 
-BigInteger operator*(const BigInteger &a, const BigInteger &b) {
-    std::vector<int> digits(a.digits_.size() + b.digits_.size());
-    for (std::size_t i = a.digits_.size(); i-- > 0;) {
-        for (std::size_t j = b.digits_.size(); j-- > 0;) {
-            int product = (a.digits_[i] - '0') * (b.digits_[j] - '0') + digits[i + j + 1];
-            digits[i + j + 1] = product % 10;
-            digits[i + j] += product / 10;
+int max(int a, int b) {
+    if (a > b) {
+        return (a);
+    }
+    return (b);
+}
+
+/* Historical convention: PLUS means a < b, MINUS means a > b, and 0 means equality. */
+int compare_bignum(bignum *a, bignum *b) {
+    int i; /* counter */
+
+    if ((a->signbit == MINUS) && (b->signbit == PLUS)) {
+        return (PLUS);
+    }
+
+    if ((a->signbit == PLUS) && (b->signbit == MINUS)) {
+        return (MINUS);
+    }
+
+    if (b->lastdigit > a->lastdigit) {
+        return (PLUS * a->signbit);
+    }
+
+    if (a->lastdigit > b->lastdigit) {
+        return (MINUS * a->signbit);
+    }
+
+    for (i = a->lastdigit; i >= 0; i--) {
+        if (a->digits[i] > b->digits[i]) {
+            return (MINUS * a->signbit);
+        }
+        if (b->digits[i] > a->digits[i]) {
+            return (PLUS * a->signbit);
         }
     }
-    BigInteger result;
-    result.digits_.clear();
-    for (int digit : digits) {
-        result.digits_.push_back(static_cast<char>('0' + digit));
-    }
-    result.negative_ = a.negative_ != b.negative_;
-    result.normalize();
-    return result;
+
+    return (0);
 }
 
-BigInteger operator/(const BigInteger &a, const BigInteger &b) {
-    require(b.digits_ != "0", "division by zero");
-    BigInteger result;
-    result.digits_.clear();
-    std::string remainder = "0";
-    for (char digit : a.digits_) {
-        remainder = remainder == "0" ? std::string(1, digit) : remainder + digit;
-        int quotient = 0;
-        while (BigInteger::compare_magnitude(remainder, b.digits_) >= 0) {
-            remainder = BigInteger::subtract_magnitude(remainder, b.digits_);
-            ++quotient;
+void subtract_bignum(bignum *a, bignum *b, bignum *c) {
+    int borrow; /* has anything been borrowed? */
+    int v;      /* placeholder digit */
+    int i;      /* counter */
+
+    initialize_bignum(c);
+
+    if ((a->signbit == MINUS) || (b->signbit == MINUS)) {
+        b->signbit = -1 * b->signbit;
+        add_bignum(a, b, c);
+        b->signbit = -1 * b->signbit;
+        return;
+    }
+
+    if (compare_bignum(a, b) == PLUS) {
+        subtract_bignum(b, a, c);
+        c->signbit = MINUS;
+        return;
+    }
+
+    c->lastdigit = max(a->lastdigit, b->lastdigit);
+    borrow = 0;
+
+    for (i = 0; i <= (c->lastdigit); i++) {
+        v = (a->digits[i] - borrow - b->digits[i]);
+        if (a->digits[i] > 0) {
+            borrow = 0;
         }
-        result.digits_.push_back(static_cast<char>('0' + quotient));
+        if (v < 0) {
+            v = v + 10;
+            borrow = 1;
+        }
+        c->digits[i] = (char)v % 10;
     }
-    result.negative_ = a.negative_ != b.negative_;
-    result.normalize();
-    return result;
-}
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        BigInteger a("123"), b("17");
-        std::cout << (a + b).str() << "\n"
-                  << (a - b).str() << "\n"
-                  << (a * b).str() << "\n"
-                  << (a / b).str() << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+    zero_justify(c);
+}
+
+/*	c = a +- b;	*/
+
+void add_bignum(bignum *a, bignum *b, bignum *c) {
+    int carry; /* carry digit */
+    int sum;
+    int i; /* counter */
+
+    initialize_bignum(c);
+
+    if (a->signbit == b->signbit) {
+        c->signbit = a->signbit;
+    } else {
+        if (a->signbit == MINUS) {
+            a->signbit = PLUS;
+            subtract_bignum(b, a, c);
+            a->signbit = MINUS;
+        } else {
+            b->signbit = PLUS;
+            subtract_bignum(a, b, c);
+            b->signbit = MINUS;
+        }
+        return;
+    }
+
+    c->lastdigit = max(a->lastdigit, b->lastdigit);
+    carry = 0;
+    for (i = 0; i <= c->lastdigit; i++) {
+        int left_digit = i <= a->lastdigit ? a->digits[i] : 0;
+        int right_digit = i <= b->lastdigit ? b->digits[i] : 0;
+        sum = carry + left_digit + right_digit;
+        c->digits[i] = sum % 10;
+        carry = sum / 10;
+    }
+    /* Reserve a new digit only when a carry actually needs it. */
+    if (carry != 0) {
+        if (c->lastdigit == MAXDIGITS - 1) {
+            bignum_capacity_error();
+        }
+        c->lastdigit++;
+        c->digits[c->lastdigit] = carry;
+    }
+
+    zero_justify(c);
+}
+
+/* multiply n by 10^d */
+
+void digit_shift(bignum *n, int d) {
+    int i; /* counter */
+
+    if ((n->lastdigit == 0) && (n->digits[0] == 0)) {
+        return;
+    }
+
+    if (d < 0 || d > MAXDIGITS - 1 - n->lastdigit) {
+        bignum_capacity_error();
+    }
+
+    for (i = n->lastdigit; i >= 0; i--) {
+        n->digits[i + d] = n->digits[i];
+    }
+
+    for (i = 0; i < d; i++) {
+        n->digits[i] = 0;
+    }
+
+    n->lastdigit = n->lastdigit + d;
+}
+
+void multiply_bignum(bignum *a, bignum *b, bignum *c) {
+    bignum row; /* represent shifted row */
+    bignum tmp; /* placeholder bignum */
+    int i, j;   /* counters */
+
+    initialize_bignum(c);
+
+    row = *a;
+
+    for (i = 0; i <= b->lastdigit; i++) {
+        for (j = 1; j <= b->digits[i]; j++) {
+            add_bignum(c, &row, &tmp);
+            *c = tmp;
+        }
+        if (i < b->lastdigit) {
+            digit_shift(&row, 1);
+        }
+    }
+
+    c->signbit = a->signbit * b->signbit;
+
+    zero_justify(c);
+}
+
+void divide_bignum(bignum *a, bignum *b, bignum *c) {
+    bignum row;       /* represent shifted row */
+    bignum tmp;       /* placeholder bignum */
+    int asign, bsign; /* temporary signs */
+    int i;            /* counters */
+
+    initialize_bignum(c);
+
+    c->signbit = a->signbit * b->signbit;
+
+    asign = a->signbit;
+    bsign = b->signbit;
+
+    a->signbit = PLUS;
+    b->signbit = PLUS;
+
+    initialize_bignum(&row);
+    initialize_bignum(&tmp);
+
+    c->lastdigit = a->lastdigit;
+
+    for (i = a->lastdigit; i >= 0; i--) {
+        digit_shift(&row, 1);
+        row.digits[0] = a->digits[i];
+        c->digits[i] = 0;
+        while (compare_bignum(&row, b) != PLUS) {
+            c->digits[i]++;
+            subtract_bignum(&row, b, &tmp);
+            row = tmp;
+        }
+    }
+
+    zero_justify(c);
+
+    a->signbit = asign;
+    b->signbit = bsign;
+}
+
+int main(void) {
+    int a, b;
+    bignum n1, n2, n3, zero;
+
+    while (scanf("%d %d\n", &a, &b) != EOF) {
+        printf("a = %d    b = %d\n", a, b);
+        int_to_bignum(a, &n1);
+        int_to_bignum(b, &n2);
+
+        add_bignum(&n1, &n2, &n3);
+        printf("addition -- ");
+        print_bignum(&n3);
+
+        printf("compare_bignum a ? b = %d\n", compare_bignum(&n1, &n2));
+
+        subtract_bignum(&n1, &n2, &n3);
+        printf("subtraction -- ");
+        print_bignum(&n3);
+
+        multiply_bignum(&n1, &n2, &n3);
+        printf("multiplication -- ");
+        print_bignum(&n3);
+
+        int_to_bignum(0, &zero);
+        if (compare_bignum(&zero, &n2) == 0) {
+            printf("division -- NaN \n");
+        } else {
+            divide_bignum(&n1, &n2, &n3);
+            printf("division -- ");
+            print_bignum(&n3);
+        }
+        printf("--------------------------\n");
     }
 }
-#endif

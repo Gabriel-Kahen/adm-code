@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	list-demo.c
+
+	Driver for a linked list-based container implementation.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,62 +19,128 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 #include "list.hpp"
 
-namespace adm {
-void LinkedList::insert(Integer value) {
-    auto node = std::make_unique<Node>(value);
-    node->next = std::move(head_);
-    head_ = std::move(node);
+list *init_list(void) {
+    return (NULL);
 }
 
-bool LinkedList::contains(Integer value) const {
-    for (Node *node = head_.get(); node; node = node->next.get()) {
-        if (node->value == value) {
-            return true;
+bool empty_list(list *l) {
+    if (l == NULL) {
+        return (true);
+    } else {
+        return (false);
+    }
+}
+
+/* [[[ search_list_cut */
+list *search_list(list *l, item_type x) {
+    if (l == NULL) {
+        return (NULL);
+    }
+
+    if (l->item == x) {
+        return (l);
+    } else {
+        return (search_list(l->next, x));
+    }
+}
+/* ]]] */
+
+/* [[[ predecessor_cut */
+list *item_ahead(list *l, list *x) {
+    if ((l == NULL) || (l->next == NULL)) {
+        return (NULL);
+    }
+
+    if ((l->next) == x) {
+        return (l);
+    } else {
+        return (item_ahead(l->next, x));
+    }
+}
+/* ]]] */
+
+/* [[[ insert_list_cut */
+void insert_list(list **l, item_type x) {
+    list *p; /* temporary pointer */
+
+    p = (list *)malloc(sizeof(list));
+    p->item = x;
+    p->next = *l;
+    *l = p;
+}
+/* ]]] */
+
+void print_list(list *l) {
+    while (l != NULL) {
+        printf("%d ", l->item);
+        l = l->next;
+    }
+    printf("\n");
+}
+
+/* [[[ delete_list_cut */
+void delete_list(list **l, list **x) {
+    list *p;    /* item pointer */
+    list *pred; /* predecessor pointer */
+
+    p = *l;
+    pred = item_ahead(*l, *x);
+
+    if (pred == NULL) { /* splice out of list */
+        *l = p->next;
+    } else {
+        pred->next = (*x)->next;
+    }
+    free(*x); /* free memory used by node */
+}
+/* ]]] */
+
+int main(void) {
+    char c;      /* input character */
+    item_type d; /* input item */
+    list *l;     /* list under construction */
+    list *tmp;   /* returned list from search */
+
+    l = init_list();
+
+    while (scanf("%c", &c) != EOF) {
+        if (tolower(c) == 'p') {
+            print_list(l);
+        }
+
+        if (tolower(c) == 'i') {
+            scanf("%d", &d);
+            printf("new item: %d\n", d);
+            insert_list(&l, d);
+        }
+
+        if (tolower(c) == 's') {
+            scanf("%d", &d);
+            tmp = search_list(l, d);
+            if (tmp == NULL) {
+                printf("item %d not found\n", d);
+            } else {
+                printf("item %d found\n", d);
+            }
+        }
+
+        if (tolower(c) == 'd') {
+            scanf("%d", &d);
+            tmp = search_list(l, d);
+            if (tmp == NULL) {
+                printf("item to delete %d not found\n", d);
+            } else {
+                delete_list(&l, &tmp);
+                printf("item %d deleted\n", d);
+            }
         }
     }
-    return false;
+    return 0;
 }
-
-bool LinkedList::erase(Integer value) {
-    auto *link = &head_;
-    while (*link && (*link)->value != value) {
-        link = &(*link)->next;
-    }
-    if (!*link) {
-        return false;
-    }
-    auto removed = std::move(*link);
-    *link = std::move(removed->next);
-    return true;
-}
-
-Integers LinkedList::values() const {
-    Integers result;
-    for (Node *node = head_.get(); node; node = node->next.get()) {
-        result.push_back(node->value);
-    }
-    return result;
-}
-} // namespace adm
-
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        LinkedList list;
-        list.insert(2);
-        list.insert(1);
-        list.erase(2);
-        for (auto value : list.values()) {
-            std::cout << value << " ";
-        }
-        std::cout << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
-    }
-}
-#endif

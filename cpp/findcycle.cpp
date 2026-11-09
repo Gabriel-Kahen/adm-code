@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	findcycle.c
+
+	Identify a cycle in a graph, if one exists.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,32 +19,40 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "set_union.hpp"
-#include "graph.hpp"
+#include <stdio.h>
+#include <stdbool.h>
 
-namespace adm {
-bool has_cycle(const Graph &graph) {
-    undirected(graph);
-    DisjointSet sets(graph.size());
-    for (const auto &edge : graph.edges()) {
-        if (!sets.unite(edge.from, edge.to)) {
-            return true;
-        }
-    }
-    return false;
-}
-} // namespace adm
+#include "bfs-dfs.hpp"
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto graph = read_graph(std::cin, false);
-        std::cout << bool(has_cycle(graph)) << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
+
+extern bool finished; /* flag for early search cutoff */
+
+void process_vertex_early(int v) {}
+
+void process_vertex_late(int v) {}
+
+/* [[[ cyclepedge_cut */
+void process_edge(int x, int y) {
+    if (parent[y] != x) { /* found back edge! */
+        printf("Cycle from %d to %d:", y, x);
+        find_path(y, x, parent);
+        finished = true;
     }
 }
-#endif
+/* ]]] */
+
+int main(void) {
+    graph g;
+
+    read_graph(&g, false);
+    print_graph(&g);
+
+    initialize_search(&g);
+    dfs(&g, 1);
+    printf("\n");
+
+    return 0;
+}

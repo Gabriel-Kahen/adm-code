@@ -11,46 +11,99 @@
 # "Programming Challenges: The Programming Contest Training Manual"
 # by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 # See our website www.programming-challenges.com for additional information,
-# or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+# or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""bipartite.c translated to Python; indices start at zero."""
+"""Direct translation of bipartite.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from collections import deque
+from ._c import *
+from . import _c
+from . import bfs_dfs
+from . import graph
 
-from .graph import Graph
+# processed: which vertices have been processed
+# discovered: which vertices have been found
+# parent: discovery relation
+# entry_time: time of vertex entry
+# exit_time: time of vertex exit
+# vertex not yet colored
+UNCOLORED = 0
+# white vertex
+WHITE = 1
+# black vertex
+BLACK = 2
+# color: assigned color of v
+color = [0 for _ in range((graph.MAXV + 1))]
+# bipartite: is the graph bipartite?
+bipartite = 0
 
 
-def bipartite_coloring(graph: Graph) -> list[int] | None:
-    """O(V+E) two-coloring of every component; None denotes an odd cycle."""
-    graph.require_directed(False)
-    colors = [-1] * graph.n
-    for start in range(graph.n):
-        if colors[start] != -1:
-            continue
-        colors[start] = 0
-        pending = deque([start])
-        while pending:
-            vertex = pending.popleft()
-            for neighbor, _, _ in graph.adjacency[vertex]:
-                if colors[neighbor] == -1:
-                    colors[neighbor] = 1 - colors[vertex]
-                    pending.append(neighbor)
-                elif colors[neighbor] == colors[vertex]:
-                    return None
-    return colors
+def process_vertex_early(v):
+    pass
+
+
+def process_vertex_late(v):
+    pass
+
+
+def complement(color):
+    if (color == WHITE):
+        return BLACK
+    if (color == BLACK):
+        return WHITE
+    return UNCOLORED
+
+
+def process_edge(x, y):
+    global bipartite
+    if (color[x] == color[y]):
+        bipartite = False
+        printf("Warning: not bipartite, due to (%d,%d)\n", x, y)
+    color[y] = complement(color[x])
+
+
+def twocolor(g):
+    global bipartite
+    # i: counter
+    i = 1
+    while (i <= g.nvertices):
+        color[i] = UNCOLORED
+        i += 1
+    bipartite = True
+    bfs_dfs.initialize_search(g)
+    i = 1
+    while (i <= g.nvertices):
+        if (not bfs_dfs.discovered[i]):
+            color[i] = WHITE
+            bfs_dfs.bfs(g, i)
+        i += 1
+
+
+def main():
+    # Bind this application's callbacks to the shared C-style backend.
+    graph.process_vertex_early = process_vertex_early
+    graph.process_vertex_late = process_vertex_late
+    graph.process_edge = process_edge
+    bfs_dfs.process_vertex_early = process_vertex_early
+    bfs_dfs.process_vertex_late = process_vertex_late
+    bfs_dfs.process_edge = process_edge
+    g = graph.graph()
+    graph.read_graph(g, False)
+    graph.print_graph(g)
+    twocolor(g)
+    i = 1
+    while (i <= g.nvertices):
+        printf(" %d", color[i])
+        i += 1
+    printf("\n")
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    from .graph import read_graph
-
-    graph = read_graph(sys.stdin, directed=False)
-    print(bipartite_coloring(graph))
+    exit(main())

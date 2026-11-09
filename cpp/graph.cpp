@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	graph.c
+
+	A generic adjacency list graph data type.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,88 +19,133 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "queue.hpp"
 #include "graph.hpp"
 
-namespace adm {
-Graph::Graph(int vertices, bool directed) : vertices_(vertices), directed_(directed) {
-    require(vertices >= 0, "negative vertex count");
-    adjacency_.resize(vertices);
-}
+/* [[[ init_graph_c */
+void initialize_graph(graph *g, bool directed) {
+    int i; /* counter */
 
-void Graph::validate_vertex(int vertex) const {
-    require(vertex >= 0 && vertex < vertices_, "vertex outside graph");
-}
+    g->nvertices = 0;
+    g->nedges = 0;
+    g->directed = directed;
 
-const std::vector<Arc> &Graph::neighbors(int vertex) const {
-    validate_vertex(vertex);
-    return adjacency_[vertex];
-}
+    for (i = 1; i <= MAXV; i++) {
+        g->degree[i] = 0;
+    }
 
-void Graph::insert(int from, int to, Integer weight) {
-    validate_vertex(from);
-    validate_vertex(to);
-    std::size_t id = edges_.size();
-    edges_.push_back({from, to, weight});
-    adjacency_[from].push_back({to, weight, id});
-    if (!directed_) {
-        adjacency_[to].push_back({from, weight, id});
+    for (i = 1; i <= MAXV; i++) {
+        g->edges[i] = NULL;
     }
 }
+/* ]]] */
 
-void Graph::rebuild() {
-    adjacency_.assign(vertices_, {});
-    auto old = std::move(edges_);
-    edges_.clear();
-    for (const auto &edge : old) {
-        insert(edge.from, edge.to, edge.weight);
+/* [[[ insert_edge_cut */
+void insert_edge(graph *g, int x, int y, bool directed) {
+    edgenode *p; /* temporary pointer */
+
+    p = (edgenode *)malloc(sizeof(edgenode)); /* allocate edgenode storage */
+
+    p->weight = 0;
+    p->y = y;
+    p->next = g->edges[x];
+
+    g->edges[x] = p; /* insert at head of list */
+
+    g->degree[x]++;
+
+    if (!directed) {
+        insert_edge(g, y, x, true);
+    } else {
+        g->nedges++;
     }
 }
+/* ]]] */
 
-bool Graph::erase(int from, int to) {
-    validate_vertex(from);
-    validate_vertex(to);
-    auto match = std::find_if(edges_.begin(), edges_.end(), [&](const Edge &edge) {
-        return (edge.from == from && edge.to == to) ||
-               (!directed_ && edge.from == to && edge.to == from);
-    });
-    if (match == edges_.end()) {
-        return false;
+/* [[[ read_graph_cut */
+void read_graph(graph *g, bool directed) {
+    int i;    /* counter */
+    int m;    /* number of edges */
+    int x, y; /* vertices in edge (x,y) */
+
+    initialize_graph(g, directed);
+
+    scanf("%d %d", &(g->nvertices), &m);
+
+    for (i = 1; i <= m; i++) {
+        scanf("%d %d", &x, &y);
+        insert_edge(g, x, y, directed);
     }
-    edges_.erase(match);
-    rebuild();
-    return true;
 }
+/* ]]] */
 
-Groups canonical(Groups groups) {
-    for (auto &group : groups) {
-        std::sort(group.begin(), group.end());
-    }
-    std::sort(groups.begin(), groups.end());
-    return groups;
-}
+void delete_edge(graph *g, int x, int y, bool directed) {
+    edgenode *p, *p_back; /* temporary pointers */
 
-void undirected(const Graph &graph) {
-    require(!graph.directed(), "operation requires undirected graph");
-}
+    p = g->edges[x];
+    p_back = NULL;
 
-void directed(const Graph &graph) {
-    require(graph.directed(), "operation requires directed graph");
-}
-
-Graph read_graph(std::istream &input, bool is_directed, bool weighted) {
-    int size, count;
-    require(bool(input >> size >> count) && count >= 0, "expected vertex and edge counts");
-    Graph graph(size, is_directed);
-    for (int i = 0; i < count; ++i) {
-        int source, target;
-        Integer weight = 1;
-        require(bool(input >> source >> target), "missing graph edge");
-        if (weighted) {
-            require(bool(input >> weight), "missing edge weight");
+    while (p != NULL) {
+        if (p->y == y) {
+            g->degree[x]--;
+            if (p_back != NULL) {
+                p_back->next = p->next;
+            } else {
+                g->edges[x] = p->next;
+            }
+            free(p);
+            if (!directed) {
+                delete_edge(g, y, x, true);
+            } else {
+                g->nedges--;
+            }
+            return;
+        } else {
+            p_back = p;
+            p = p->next;
         }
-        graph.insert(source - 1, target - 1, weight);
     }
-    return graph;
+    printf("Warning: deletion(%d,%d) not found in g.\n", x, y);
 }
-} // namespace adm
+
+/* [[[ print_graph_cut */
+void print_graph(graph *g) {
+    int i;       /* counter */
+    edgenode *p; /* temporary pointer */
+
+    for (i = 1; i <= g->nvertices; i++) {
+        printf("%d: ", i);
+        p = g->edges[i];
+        while (p != NULL) {
+            printf(" %d", p->y);
+            p = p->next;
+        }
+        printf("\n");
+    }
+}
+/* ]]] */
+
+/* [[[ graph_transpose_cut */
+graph *transpose(graph *g) {
+    graph *gt;   /* transpose of graph g */
+    int x;       /* counter */
+    edgenode *p; /* temporary pointer */
+
+    gt = (graph *)malloc(sizeof(graph));
+    initialize_graph(gt, true); /* initialize directed graph */
+    gt->nvertices = g->nvertices;
+
+    for (x = 1; x <= g->nvertices; x++) {
+        p = g->edges[x];
+        while (p != NULL) {
+            insert_edge(gt, p->y, x, true);
+            p = p->next;
+        }
+    }
+
+    return (gt);
+}
+/* ]]] */

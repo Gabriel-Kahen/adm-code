@@ -13,124 +13,235 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""sorting.c translated to Python; indices start at zero."""
+"""Direct translation of sorting.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from typing import TypeVar
+from ._c import *
+from . import _c
+from . import priority_queue
+from . import queue
+from . import random
 
-from .priority_queue import MinHeap
-
-T = TypeVar("T")
-
-
-def insertion_sort(values: list[T]) -> list[T]:
-    """Stable O(n²) insertion sort, O(n) on already sorted input."""
-    result = list(values)
-    for index in range(1, len(result)):
-        value = result[index]
-        hole = index
-        while hole and value < result[hole - 1]:
-            result[hole] = result[hole - 1]
-            hole -= 1
-        result[hole] = value
-    return result
+# size of test arrays
+NELEM = 100
+LESS_THAN = (-1)
+EQUAL_TO = 0
+GREATER_THAN = 1
 
 
-def selection_sort(values: list[T]) -> list[T]:
-    """O(n²) selection sort; not stable."""
-    result = list(values)
-    for index in range(len(result)):
-        smallest = index
-        for candidate in range(index + 1, len(result)):
-            if result[candidate] < result[smallest]:
-                smallest = candidate
-        result[index], result[smallest] = result[smallest], result[index]
-    return result
+def compare(a, b):
+    if (a < b):
+        return LESS_THAN
+    if (a > b):
+        return GREATER_THAN
+    return EQUAL_TO
 
 
-def quick_sort(values: list[T]) -> list[T]:
-    """Iterative three-way quicksort; average O(n log n), worst O(n²)."""
-    result = list(values)
-    pending = [(0, len(result))]
-    while pending:
-        low, high = pending.pop()
-        if high - low < 2:
-            continue
-        pivot = result[(low + high) // 2]
-        smaller, current, greater = low, low, high
-        while current < greater:
-            if result[current] < pivot:
-                result[smaller], result[current] = result[current], result[smaller]
-                smaller += 1
-                current += 1
-            elif pivot < result[current]:
-                greater -= 1
-                result[current], result[greater] = result[greater], result[current]
-            else:
-                current += 1
-        pending.extend(((low, smaller), (greater, high)))
-    return result
+# Swap the ith and jth elements of array s.
+def newswap(s, i, j):
+    # tmp: placeholder
+    tmp = s[i]
+    s[i] = s[j]
+    s[j] = tmp
 
 
-def heap_sort(values: list[T]) -> list[T]:
-    """O(n log n) sorting through the hand-written binary minimum heap."""
-    heap = MinHeap(values)
-    return [heap.pop() for _ in range(len(heap))]
+def insertion_sort(s, n):
+    # j: counters
+    i = 1
+    while (i < n):
+        j = i
+        while ((j > 0) and (s[j] < s[(j - 1)])):
+            random.swap(address(s, j), address(s, (j - 1)))
+            j = (j - 1)
+        i += 1
 
 
-def merge_sort(values: list[T]) -> list[T]:
-    """Stable O(n log n) bottom-up merge sort with O(n) scratch storage."""
-    result = list(values)
-    width = 1
-    while width < len(result):
-        merged = []
-        for start in range(0, len(result), width * 2):
-            middle, end = min(start + width, len(result)), min(start + 2 * width, len(result))
-            left, right = start, middle
-            while left < middle and right < end:
-                if result[right] < result[left]:
-                    merged.append(result[right])
-                    right += 1
-                else:
-                    merged.append(result[left])
-                    left += 1
-            merged.extend(result[left:middle])
-            merged.extend(result[right:end])
-        result = merged
-        width *= 2
-    return result
+def selection_sort(s, n):
+    # j: counters
+    # min: index of minimum
+    i = 0
+    while (i < n):
+        min = i
+        j = (i + 1)
+        while (j < n):
+            if (s[j] < s[min]):
+                min = j
+            j += 1
+        random.swap(address(s, i), address(s, min))
+        i += 1
 
 
-SORTS = {
-    "insertion": insertion_sort,
-    "selection": selection_sort,
-    "quick": quick_sort,
-    "heap": heap_sort,
-    "merge": merge_sort,
-}
+def partition(s, l, h):
+    # i: counter
+    # p: pivot element index
+    # firsthigh: divider position for pivot element
+    # select last element as pivot
+    p = h
+    firsthigh = l
+    i = l
+    while (i < h):
+        if (s[i] < s[p]):
+            random.swap(address(s, i), address(s, firsthigh))
+            firsthigh += 1
+        i += 1
+    random.swap(address(s, p), address(s, firsthigh))
+    return firsthigh
 
 
-def binary_search(values: list[T], target: T) -> int:
-    """Find first equal item in a nondecreasing array, or -1; O(log n)."""
-    low, high = 0, len(values)
-    while low < high:
-        middle = (low + high) // 2
-        if values[middle] < target:
-            low = middle + 1
+# quicksort array s from the index l to index h.
+def quicksort(s, l, h):
+    # p: index of partition
+    if (l < h):
+        p = partition(s, l, h)
+        quicksort(s, l, (p - 1))
+        quicksort(s, (p + 1), h)
+
+
+def heapsort_(s, n):
+    # i: counters
+    # q: heap for heapsort
+    q = priority_queue.priority_queue()
+    priority_queue.make_heap(q, s, n)
+    i = 0
+    while (i < n):
+        s[i] = priority_queue.extract_min(q)
+        i += 1
+
+
+def binary_search(s, key, low, high):
+    # middle: index of middle element
+    if (low > high):
+        # key not found
+        return (-1)
+    middle = c_div((low + high), 2)
+    if (s[middle] == key):
+        return middle
+    if (s[middle] > key):
+        return binary_search(s, key, low, (middle - 1))
+    else:
+        return binary_search(s, key, (middle + 1), high)
+
+
+def merge(s, low, middle, high):
+    # i: counter
+    # buffer2: buffers to hold elements for merging
+    buffer1 = queue.queue()
+    buffer2 = queue.queue()
+    queue.init_queue(buffer1)
+    queue.init_queue(buffer2)
+    i = low
+    while (i <= middle):
+        queue.enqueue(buffer1, s[i])
+        i += 1
+    i = (middle + 1)
+    while (i <= high):
+        queue.enqueue(buffer2, s[i])
+        i += 1
+    i = low
+    while (not (queue.empty_queue(buffer1) or queue.empty_queue(buffer2))):
+        if (queue.headq(buffer1) <= queue.headq(buffer2)):
+            s[i] = queue.dequeue(buffer1)
+            i += 1
         else:
-            high = middle
-    return low if low < len(values) and values[low] == target else -1
+            s[i] = queue.dequeue(buffer2)
+            i += 1
+    while (not queue.empty_queue(buffer1)):
+        s[i] = queue.dequeue(buffer1)
+        i += 1
+    while (not queue.empty_queue(buffer2)):
+        s[i] = queue.dequeue(buffer2)
+        i += 1
+
+
+def merge_sort(s, low, high):
+    # middle: index of middle element
+    if (low < high):
+        middle = c_div((low + high), 2)
+        merge_sort(s, low, middle)
+        merge_sort(s, (middle + 1), high)
+        merge(s, low, middle, high)
+
+
+def main():
+    s = [0 for _ in range((NELEM + 2))]
+    # i: counter
+    i = 0
+    while (i < NELEM):
+        s[i] = (NELEM - i)
+        i += 1
+    random.random_permutation(s, NELEM)
+    insertion_sort(s, NELEM)
+    printf("\n\nInsertion sort: \n")
+    i = 0
+    while (i < NELEM):
+        printf("%d ", s[i])
+        i += 1
+    i = 0
+    while (i < NELEM):
+        s[i] = (NELEM - i)
+        i += 1
+    random.random_permutation(s, NELEM)
+    selection_sort(s, NELEM)
+    printf("\n\nSelection sort: \n")
+    i = 0
+    while (i < NELEM):
+        printf("%d ", s[i])
+        i += 1
+    i = 0
+    while (i < NELEM):
+        s[i] = (NELEM - i)
+        i += 1
+    random.random_permutation(s, NELEM)
+    quicksort(s, 0, (NELEM - 1))
+    printf("\n\nQuicksort: \n")
+    i = 0
+    while (i < NELEM):
+        printf("%d ", s[i])
+        i += 1
+    i = 0
+    while (i < NELEM):
+        s[i] = (NELEM - i)
+        i += 1
+    random.random_permutation(s, NELEM)
+    heapsort_(s, NELEM)
+    printf("\n\nHeapsort sort: \n")
+    i = 0
+    while (i < NELEM):
+        printf("%d ", s[i])
+        i += 1
+    i = 0
+    while (i < NELEM):
+        s[i] = (NELEM - i)
+        i += 1
+    random.random_permutation(s, NELEM)
+    merge_sort(s, 0, (NELEM - 1))
+    printf("\n\nMergesort: \n")
+    i = 0
+    while (i < NELEM):
+        printf("%d ", s[i])
+        i += 1
+    printf("\n")
+    printf("\n")
+    # test binary search
+    printf("Binary Search: \n")
+    i = 0
+    while (i < NELEM):
+        s[i] = (2 * (NELEM - i))
+        i += 1
+    random.random_permutation(s, NELEM)
+    heapsort_(s, NELEM)
+    i = 2
+    while (i < ((2 * NELEM) + 1)):
+        printf("%d found in %d\n", i, binary_search(s, i, 0, (NELEM - 1)))
+        i += 2
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    values = list(map(int, sys.stdin.read().split())) or [3, 1, 2, 1]
-    for name, algorithm in SORTS.items():
-        print(name, algorithm(values))
+    exit(main())

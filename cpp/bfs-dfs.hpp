@@ -1,4 +1,10 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*	bfs-dfs.h
+	Header file for graph traversal functions
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,19 +17,27 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
+#ifndef BFS_DFS_H
+#define BFS_DFS_H
 
 #include "graph.hpp"
 
-namespace adm {
-struct BreadthFirst {
-    Distances distance;
-    std::vector<int> parent;
-};
-BreadthFirst bfs(const Graph &graph, int source);
-std::vector<int> reconstruct_path(const std::vector<int> &parent, int source, int target);
-std::vector<int> dfs(const Graph &graph, int source);
-} // namespace adm
+/* State is owned by the selected traversal backend, not its clients. */
+extern bool processed[MAXV + 1];
+extern bool discovered[MAXV + 1];
+extern int parent[MAXV + 1];
+extern int entry_time[MAXV + 1];
+extern int exit_time[MAXV + 1];
+extern int time;
+extern bool finished;
+
+void initialize_search(graph *g);
+void bfs(graph *g, int start);
+int edge_classification(int x, int y);
+void dfs(graph *g, int v);
+int find_path(int start, int end, int parents[]);
+
+#endif

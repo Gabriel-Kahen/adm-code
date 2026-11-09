@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*  sentinel.c
+
+    Example search program using sentinels
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,34 +19,46 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
 
-namespace adm {
-Integers sentinel_insert(Integers sorted, Integer value) {
-    require(std::is_sorted(sorted.begin(), sorted.end()), "insertion requires sorted input");
-    // A boundary guard is safer than reserving a magic finite sentinel value.
-    sorted.push_back(value);
-    std::size_t position = sorted.size() - 1;
-    while (position > 0 && sorted[position - 1] > value) {
-        sorted[position] = sorted[position - 1];
-        --position;
-    }
-    sorted[position] = value;
-    return sorted;
-}
-} // namespace adm
+#define MAXINT 1000000
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        for (auto value : sentinel_insert({1, 2, 3}, -1)) {
-            std::cout << value << " ";
-        }
-        std::cout << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+int a[100];
+
+int main(void) {
+    int i, n, x;
+
+    for (i = 1; i <= 20; i++) {
+        a[i] = i;
     }
+    n = 20;
+    x = -1;
+
+    i = n;
+    while ((a[i] >= x) && (i >= 1)) {
+        a[i + 1] = a[i];
+        i = i - 1;
+    }
+    a[i + 1] = x;
+
+    printf("without sentinel, i=%d a[1]=%d\n", i, a[1]);
+    for (i = 1; i <= 25; i++) {
+        printf("%d ", a[i]);
+    }
+    x = -2;
+
+    n = 21;
+    i = n;
+    a[0] = -MAXINT;
+    while (a[i] >= x) {
+        a[i + 1] = a[i];
+        i = i - 1;
+    }
+    a[i + 1] = x;
+
+    printf("\nwith sentinel, i=%d a[1]=%d\n", i, a[1]);
+    for (i = 1; i <= 25; i++) {
+        printf("%d ", a[i]);
+    }
+    return 0;
 }
-#endif

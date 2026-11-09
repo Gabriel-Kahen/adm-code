@@ -13,46 +13,58 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""random.c translated to Python; indices start at zero."""
+"""Direct translation of random.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-import math
-import random
-from typing import TypeVar
-
-T = TypeVar("T")
+from ._c import *
+from . import _c
 
 
-class RandomSource:
-    """Seedable local RNG; deterministic within Python, no cross-language sequence promise."""
 
-    def __init__(self, seed: int = 0) -> None:
-        self._random = random.Random(seed)
+# These functions generate random numbers in the designated ranges
+def swap(a, b):
+    x = a[0]
+    a[0] = b[0]
+    b[0] = x
 
-    def integer(self, low: int, high: int) -> int:
-        """Uniform inclusive integer interval."""
-        if low > high:
-            raise ValueError("inverted integer interval")
-        return self._random.randrange(low, high + 1)
 
-    def real(self, low: float, high: float) -> float:
-        """Uniform [low,high), except a degenerate interval returns its endpoint."""
-        if not math.isfinite(low) or not math.isfinite(high) or low > high:
-            raise ValueError("invalid real interval")
-        fraction = self._random.random()
-        value = low * (1 - fraction) + high * fraction
-        return min(value, math.nextafter(high, low)) if low < high else low
+# lower/upper bounds on numb
+def random_int(low, high):
+    # r: random number
+    i = c_div(RAND_MAX, ((high - low) + 1))
+    i *= ((high - low) + 1)
+    while ((j := rand()) >= i):
+        continue
+    r = (c_mod(j, ((high - low) + 1)) + low)
+    if ((r < low) or (r > high)):
+        printf("Error: random integer %d out of range [%d,%d]\n", r, low, high)
+    return r
 
-    def permutation(self, values: list[T]) -> list[T]:
-        """Fisher-Yates shuffle of a copy, O(n)."""
-        result = list(values)
-        for index in range(len(result) - 1, 0, -1):
-            other = self.integer(0, index)
-            result[index], result[other] = result[other], result[index]
-        return result
+
+# Construct a random permutation of the $n$ elements of the
+# given array.
+def random_permutation(a, n):
+    i = n
+    while (i > 1):
+        swap(address(a, (i - 1)), address(a, random_int(0, (i - 1))))
+        i -= 1
+
+
+# lower/upper bounds on numb
+def random_float(low, high):
+    # j: avoid arithmetic trouble
+    # r: random number
+    i = c_div(RAND_MAX, (high - low))
+    i *= (high - low)
+    while ((j := rand()) >= i):
+        continue
+    r = (((j / i) * (high - low)) + low)
+    if ((r < low) or (r > high)):
+        printf("ERROR: random real %f out of range [%d,%d]\n", r, low, high)
+    return r

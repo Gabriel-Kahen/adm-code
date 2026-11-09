@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    permutations.c
+
+    Construct all permutations via backtracking.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,39 +19,84 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayList;
-import java.util.List;
+public class Permutations {
+    public static final int MAXCANDIDATES = 100; /* max possible next extensions */
+    public static final int NMAX = 100; /* maximum solution size */
+    public static boolean finished = false;
 
-public final class Permutations {
-    public static List<List<Integer>> permutations(int n) {
-        if (n < 0 || n > 9) {
-            throw new IllegalArgumentException("permutation size outside 0..9");
+    public static void process_solution(int[] a, int k, int input) {
+        int i = 0; /* counter */
+        for (i = 1; (i <= k); i++) {
+            C.printf(" %d", a[i]);
         }
-        List<List<Integer>> result = new ArrayList<>();
-        permutationsVisit(n, new boolean[n], new ArrayList<>(), result);
-        return result;
+        C.printf("\n");
     }
 
-    static void permutationsVisit(int n, boolean[] used, List<Integer> prefix,
-                                  List<List<Integer>> result) {
-        if (prefix.size() == n) {
-            result.add(new ArrayList<>(prefix));
-            return;
+    public static int is_a_solution(int[] a, int k, int n) {
+        return ((k == n) ? 1 : 0);
+    }
+
+    public static void make_move(int[] a, int k, int n) {
+    }
+
+    public static void unmake_move(int[] a, int k, int n) {
+    }
+
+    /*    What are possible elements of the next slot in the permutation?  */
+    public static void construct_candidates(int[] a, int k, int n, int[] c, int[] nc) {
+        int i = 0; /* counter */
+        boolean[] in_perm = new boolean[(NMAX + 1)]; /* what is now in the permutation? */
+        for (i = 1; (i <= NMAX); i++) {
+            in_perm[i] = false;
         }
-        for (int value = 0; value < n; value++) {
-            if (used[value]) {
-                continue;
+        for (i = 1; (i < k); i++) {
+            in_perm[a[i]] = true;
+        }
+        nc[0] = 0;
+        for (i = 1; (i <= n); i++) {
+            if (!(in_perm[i])) {
+                c[nc[0]] = i;
+                nc[0] = (nc[0] + 1);
             }
-            used[value] = true;
-            prefix.add(value);
-            permutationsVisit(n, used, prefix, result);
-            prefix.remove(prefix.size() - 1);
-            used[value] = false;
         }
+    }
+
+    public static void backtrack(int[] a, int k, int input) {
+        int[] c = new int[MAXCANDIDATES]; /* candidates for next position */
+        int[] ncandidates = new int[]{0}; /* next position candidate count */
+        int i = 0; /* counter */
+        if ((is_a_solution(a, k, input) != 0)) {
+            process_solution(a, k, input);
+        } else {
+            k = (k + 1);
+            construct_candidates(a, k, input, c, ncandidates);
+            for (i = 0; (i < ncandidates[0]); i++) {
+                a[k] = c[i];
+                make_move(a, k, input);
+                backtrack(a, k, input);
+                unmake_move(a, k, input);
+                if (finished) {
+                    return; /* terminate early */
+                }
+            }
+        }
+    }
+
+    public static void generate_permutations(int n) {
+        int[] a = new int[(NMAX + 1)]; /* solution vector */
+        backtrack(a, 0, n);
+    }
+
+    public static int main() {
+        generate_permutations(0);
+        generate_permutations(1);
+        generate_permutations(2);
+        generate_permutations(3);
+        return 0;
     }
 
     public static void main(String[] args) {
-        java.util.Scanner in = new java.util.Scanner(System.in);
-        System.out.println(permutations(in.hasNextInt() ? in.nextInt() : 3));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

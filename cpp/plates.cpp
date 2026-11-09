@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    plates.c
+
+    Compute the number of circles in two different disk packings.
+    Assuming we have an $w \times l$ box, how many unit disks
+    can we pack in there assumming we have w disks on the bottom?
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,113 +21,153 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "geometry.hpp"
+#include <stdio.h>
+#include <math.h>
 
-namespace adm {
-Integer integer_floor(double value) {
-    require(std::isfinite(value) && value >= 0 &&
-                value < static_cast<double>(std::numeric_limits<Integer>::max()),
-            "packing count overflow");
-    return static_cast<Integer>(std::floor(value));
+/*
+    how many triangular-lattice layers of radius r balls fit in height h?
+*/
+
+int dense_layers(double w, double h, double r) {
+    double gap; /* distance between layers */
+
+    if ((2 * r) > h || (2 * r) > w) {
+        return (0);
+    }
+
+    gap = 2.0 * r * (sqrt(3) / 2.0);
+
+    return (1 + floor((h - 2.0 * r) / gap));
 }
 
-Integer dense_layers(double width, double height, double radius) {
-    packing_domain(width, height, radius);
-    if (width < 2 * radius || height < 2 * radius) {
+int plates_per_row(int row, double w, double r) {
+    int plates_per_full_row; /* number of plates in full/even row */
+
+    if (w < 2 * r) {
         return 0;
     }
-    return add(1, integer_floor((height - 2 * radius) / (std::sqrt(3.0) * radius)));
-}
 
-Integer plates_per_row(Integer row, double width, double radius) {
-    packing_domain(width, 0, radius);
-    require(row >= 0, "negative packing row");
-    if (width < 2 * radius) {
-        return 0;
+    plates_per_full_row = floor(w / (2 * r));
+
+    if ((row % 2) == 0) {
+        return (plates_per_full_row);
     }
-    double columns = width / (2 * radius);
-    Integer full = integer_floor(columns);
-    return row % 2 == 0 || columns - static_cast<double>(full) >= 0.5 ? full : full - 1;
+
+    if (((w / (2 * r)) - plates_per_full_row) >= 0.5) { /* odd row full, too */
+        return (plates_per_full_row);
+    } else {
+        return (plates_per_full_row - 1);
+    }
 }
 
-Integer dense_plates(double width, double height, double radius) {
-    Integer layers = dense_layers(width, height, radius);
-    return add(multiply(layers / 2 + layers % 2, plates_per_row(0, width, radius)),
-               multiply(layers / 2, plates_per_row(1, width, radius)));
+/*
+    How many radius r plates fit in a hexagonal-lattice packed w*h box?
+*/
+
+int dense_plates(double w, double l, double r) {
+    int layers; /* number of layers of balls */
+
+    layers = dense_layers(w, l, r);
+
+    return (ceil(layers / 2.0) * plates_per_row(0, w, r) +
+            floor(layers / 2.0) * plates_per_row(1, w, r));
 }
 
-Integer grid_plates(double width, double height, double radius) {
-    packing_domain(width, height, radius);
-    return multiply(integer_floor(height / (2 * radius)), plates_per_row(0, width, radius));
+int grid_plates(double w, double h, double r) {
+    int layers; /* number of layers of balls */
+
+    layers = floor(h / (2 * r));
+
+    return (layers * plates_per_row(0, w, r));
 }
 
-Point hex_to_cartesian(Point hex, double radius) {
-    packing_domain(0, 0, radius);
-    finite_point(hex);
-    Point result{radius * hex.x + 2 * radius * hex.y, std::sqrt(3.0) * radius * hex.x};
-    finite_point(result);
-    return result;
+/*  Hexagonal coordinates start with the center of disk (0,0) at
+    geometric point (0,0).  The hexagonal coordinate $(xh,yh)$
+    refers to the center of the disk on the horizontal row xh
+    and positive-slope diagonal yh.   The geometric coordinate of
+    such a point is a function of the radius of the disk $r$.
+*/
+
+void hex_to_geo(int xh, int yh, double r, double *xg, double *yg) {
+    *yg = (2.0 * r) * xh * (sqrt(3) / 2.0);
+    *xg = (2.0 * r) * xh * (1.0 / 2.0) + (2.0 * r) * yh;
 }
 
-Point cartesian_to_hex(Point point, double radius) {
-    packing_domain(0, 0, radius);
-    finite_point(point);
-    double row = point.y / (std::sqrt(3.0) * radius);
-    Point result{row, (point.x - radius * row) / (2 * radius)};
-    finite_point(result);
-    return result;
+void geo_to_hex(double xg, double yg, double r, double *xh, double *yh) {
+    *xh = (2.0 / sqrt(3)) * yg / (2.0 * r);
+    *yh = (xg - (2.0 * r) * (*xh) * (1.0 / 2.0)) / (2.0 * r);
 }
 
-std::pair<int, int> array_to_hex(int row, int column) {
-    // ceil(row/2) is row-floor(row/2), also for negative rows.
-    int half = static_cast<int>(std::floor(row / 2.0));
-    Integer diagonal = static_cast<Integer>(column) - half;
-    require(diagonal >= std::numeric_limits<int>::min() &&
-                diagonal <= std::numeric_limits<int>::max(),
-            "hex coordinate overflow");
-    return {row, static_cast<int>(diagonal)};
+/*  Under the hexagonal coordinate system, the set of hexagons defined
+    by coordinates (hx,hy), where $0 <= hx <= xmax$ and $0 <= hx <= ymax$
+    forms a diamond-shaped patch, not a conventional axis-oriented
+    rectangle.  To solve this problem, we define array coordinates
+    so that (ax,ay) refers to the position in an axis-oriented
+    rectangle with (0,0) as the lower righthand point in the matrix.
+*/
+
+void array_to_hex(int xa, int ya, int *xh, int *yh) {
+    *xh = xa;
+    *yh = ya - xa + ceil(xa / 2.0);
 }
 
-std::pair<int, int> hex_to_array(int row, int column) {
-    Integer column_index =
-        static_cast<Integer>(column) + static_cast<Integer>(std::floor(row / 2.0));
-    require(column_index >= std::numeric_limits<int>::min() &&
-                column_index <= std::numeric_limits<int>::max(),
-            "array coordinate overflow");
-    return {row, static_cast<int>(column_index)};
+void hex_to_array(int xh, int yh, int *xa, int *ya) {
+    *xa = xh;
+    *ya = yh + xh - ceil(xh / 2.0);
 }
 
-Integer plates_on_top(int row, int diagonal, double width, double height, double radius) {
-    Integer layers = dense_layers(width, height, radius);
-    require(row >= 0 && row < layers, "packing cell outside rows");
-    auto cell = hex_to_array(row, diagonal);
-    require(cell.second >= 0 && cell.second < plates_per_row(row, width, radius),
-            "packing cell outside columns");
-    Integer total = 0;
-    for (Integer next = static_cast<Integer>(row) + 1; next < layers; ++next) {
-        // The supported patch is clipped to the finite rectangle on each row.
-        Integer left = std::max<Integer>(0, diagonal - (next - row) + next / 2);
-        Integer right =
-            std::min<Integer>(plates_per_row(next, width, radius) - 1, diagonal + next / 2);
-        if (right >= left) {
-            total = add(total, right - left + 1);
+int plates_on_top(int xh, int yh, double w, double l, double r) {
+    int number_on_top = 0;  /* total plates on top */
+    int layers;             /* number of rows in grid */
+    int rowlength;          /* number of plates in row */
+    int row;                /* counter */
+    int xla, yla, xra, yra; /* array coordinates */
+
+    layers = dense_layers(w, l, r);
+
+    for (row = xh + 1; row < layers; row++) {
+        rowlength = plates_per_row(row, w, r) - 1;
+
+        hex_to_array(row, yh - (row - xh), &xla, &yla);
+
+        if (yla < 0) {
+            yla = 0; /* left boundary */
         }
-    }
-    return total;
-}
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        double w = 4, h = 4, r = 1;
-        std::cin >> w >> h >> r;
-        std::cout << grid_plates(w, h, r) << " " << dense_plates(w, h, r) << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+        hex_to_array(row, yh, &xra, &yra);
+
+        if (yra > rowlength) {
+            yra = rowlength; /* right boundary */
+        }
+
+        number_on_top += yra - yla + 1;
     }
+
+    return (number_on_top);
 }
-#endif
+
+int main(void) {
+    double w; /* box width */
+    double l; /* box length */
+    double r; /* plate radius */
+
+    int i; /* counters */
+    int xmax;
+
+    printf("input box width, box length, and plate radius:\n");
+    scanf("%lf %lf %lf", &w, &l, &r);
+    printf("box width=%lf, box length=%lf, and plate radius=%lf:\n", w, l, r);
+
+    printf("dense packing = %d\n", dense_plates(w, l, r));
+    printf("grid packing = %d\n", grid_plates(w, l, r));
+
+    /* print all the possible hexes in the box */
+
+    xmax = floor(w / (2 * r));
+
+    for (i = 0; i < xmax; i++) {
+        printf("(0,%d) has %d on top.\n", i, plates_on_top(0, i, w, l, r));
+    }
+
+    return 0;
+}

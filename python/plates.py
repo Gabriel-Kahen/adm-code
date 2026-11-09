@@ -13,105 +13,136 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""plates.c translated to Python; indices start at zero."""
+"""Direct translation of plates.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-import math
-
-from .geometry import Point, _finite
-
-
-def _packing_dimensions(width: float, height: float, radius: float) -> None:
-    _finite(width, height, radius)
-    if width <= 0 or height <= 0 or radius <= 0:
-        raise ValueError("packing dimensions and radius must be positive")
+from ._c import *
+from . import _c
 
 
-def dense_layers(width: float, height: float, radius: float) -> int:
-    _packing_dimensions(width, height, radius)
-    if width < 2 * radius or height < 2 * radius:
+
+# how many triangular-lattice layers of radius r balls fit in height h?
+def dense_layers(w, h, r):
+    # gap: distance between layers
+    if (((2 * r) > h) or ((2 * r) > w)):
         return 0
-    return 1 + math.floor((height - 2 * radius) / (math.sqrt(3) * radius))
+    gap = ((2.0 * r) * (sqrt(3) / 2.0))
+    return (1 + floor(((h - (2.0 * r)) / gap)))
 
 
-def plates_per_row(row: int, width: float, radius: float) -> int:
-    _finite(width, radius)
-    if row < 0 or width <= 0 or radius <= 0:
-        raise ValueError("invalid packing row")
-    full = math.floor(width / (2 * radius))
-    if full == 0:
+def plates_per_row(row, w, r):
+    # plates_per_full_row: number of plates in full/even row
+    if (w < (2 * r)):
         return 0
-    return full if row % 2 == 0 or width / (2 * radius) - full >= 0.5 else full - 1
+    plates_per_full_row = floor((w / (2 * r)))
+    if (c_mod(row, 2) == 0):
+        return plates_per_full_row
+    # odd row full, too
+    if (((w / (2 * r)) - plates_per_full_row) >= 0.5):
+        return plates_per_full_row
+    else:
+        return (plates_per_full_row - 1)
 
 
-def grid_plates(width: float, height: float, radius: float) -> int:
-    _packing_dimensions(width, height, radius)
-    return math.floor(height / (2 * radius)) * plates_per_row(0, width, radius)
+# How many radius r plates fit in a hexagonal-lattice packed w*h box?
+def dense_plates(w, l, r):
+    # layers: number of layers of balls
+    layers = dense_layers(w, l, r)
+    return ((ceil((layers / 2.0)) * plates_per_row(0, w, r)) + (floor((layers / 2.0)) * plates_per_row(1, w, r)))
 
 
-def dense_plates(width: float, height: float, radius: float) -> int:
-    layers = dense_layers(width, height, radius)
-    return (layers + 1) // 2 * plates_per_row(0, width, radius) + layers // 2 * plates_per_row(
-        1, width, radius
-    )
+def grid_plates(w, h, r):
+    # layers: number of layers of balls
+    layers = floor((h / (2 * r)))
+    return (layers * plates_per_row(0, w, r))
 
 
-def packing(width: float, height: float, radius: float) -> tuple[int, int]:
-    """Best row-based grid and triangular-lattice counts across both box orientations."""
-    return max(grid_plates(width, height, radius), grid_plates(height, width, radius)), max(
-        dense_plates(width, height, radius), dense_plates(height, width, radius)
-    )
+# Hexagonal coordinates start with the center of disk (0,0) at
+# geometric point (0,0).  The hexagonal coordinate $(xh,yh)$
+# refers to the center of the disk on the horizontal row xh
+# and positive-slope diagonal yh.   The geometric coordinate of
+# such a point is a function of the radius of the disk $r$.
+def hex_to_geo(xh, yh, r, xg, yg):
+    yg[0] = (((2.0 * r) * xh) * (sqrt(3) / 2.0))
+    xg[0] = ((((2.0 * r) * xh) * (1.0 / 2.0)) + ((2.0 * r) * yh))
 
 
-def hex_to_cartesian(row: float, diagonal: float, radius: float) -> Point:
-    _finite(row, diagonal, radius)
-    if radius <= 0:
-        raise ValueError("radius must be positive")
-    result = radius * row + 2 * radius * diagonal, math.sqrt(3) * radius * row
-    _finite(*result)
-    return result
+def geo_to_hex(xg, yg, r, xh, yh):
+    xh[0] = (((2.0 / sqrt(3)) * yg) / (2.0 * r))
+    yh[0] = ((xg - (((2.0 * r) * xh[0]) * (1.0 / 2.0))) / (2.0 * r))
 
 
-def cartesian_to_hex(x: float, y: float, radius: float) -> Point:
-    _finite(x, y, radius)
-    if radius <= 0:
-        raise ValueError("radius must be positive")
-    row = y / (math.sqrt(3) * radius)
-    result = row, (x - radius * row) / (2 * radius)
-    _finite(*result)
-    return result
+# Under the hexagonal coordinate system, the set of hexagons defined
+# by coordinates (hx,hy), where $0 <= hx <= xmax$ and $0 <= hx <= ymax$
+# forms a diamond-shaped patch, not a conventional axis-oriented
+# rectangle.  To solve this problem, we define array coordinates
+# so that (ax,ay) refers to the position in an axis-oriented
+# rectangle with (0,0) as the lower righthand point in the matrix.
+def array_to_hex(xa, ya, xh, yh):
+    xh[0] = xa
+    yh[0] = ((ya - xa) + ceil((xa / 2.0)))
 
 
-def array_to_hex(row: int, column: int) -> tuple[int, int]:
-    return row, column - row // 2
+def hex_to_array(xh, yh, xa, ya):
+    xa[0] = xh
+    ya[0] = ((yh + xh) - ceil((xh / 2.0)))
 
 
-def hex_to_array(row: int, diagonal: int) -> tuple[int, int]:
-    return row, diagonal + row // 2
+def plates_on_top(xh, yh, w, l, r):
+    # total plates on top
+    number_on_top = 0
+    # layers: number of rows in grid
+    # rowlength: number of plates in row
+    # row: counter
+    # yra: array coordinates
+    xla = [0]
+    yla = [0]
+    xra = [0]
+    yra = [0]
+    layers = dense_layers(w, l, r)
+    row = (xh + 1)
+    while (row < layers):
+        rowlength = (plates_per_row(row, w, r) - 1)
+        hex_to_array(row, (yh - (row - xh)), xla, yla)
+        if (yla[0] < 0):
+            # left boundary
+            yla[0] = 0
+        hex_to_array(row, yh, xra, yra)
+        if (yra[0] > rowlength):
+            # right boundary
+            yra[0] = rowlength
+        number_on_top += ((yra[0] - yla[0]) + 1)
+        row += 1
+    return number_on_top
 
 
-def plates_on_top(row: int, diagonal: int, width: float, height: float, radius: float) -> int:
-    """Count the triangular dependency cone above one plate in a fixed packing."""
-    layers = dense_layers(width, height, radius)
-    _, column = hex_to_array(row, diagonal)
-    if not 0 <= row < layers or not 0 <= column < plates_per_row(row, width, radius):
-        raise ValueError("plate lies outside packing")
-    result = 0
-    for higher in range(row + 1, layers):
-        left = max(0, hex_to_array(higher, diagonal - (higher - row))[1])
-        right = min(plates_per_row(higher, width, radius) - 1, hex_to_array(higher, diagonal)[1])
-        result += max(0, right - left + 1)
-    return result
+def main():
+    # w: box width
+    w = [0.0]
+    # l: box length
+    l = [0.0]
+    # r: plate radius
+    r = [0.0]
+    # i: counters
+    printf("input box width, box length, and plate radius:\n")
+    scanf("%lf %lf %lf", w, l, r)
+    printf("box width=%lf, box length=%lf, and plate radius=%lf:\n", w[0], l[0], r[0])
+    printf("dense packing = %d\n", dense_plates(w[0], l[0], r[0]))
+    printf("grid packing = %d\n", grid_plates(w[0], l[0], r[0]))
+    # print all the possible hexes in the box
+    xmax = floor((w[0] / (2 * r[0])))
+    i = 0
+    while (i < xmax):
+        printf("(0,%d) has %d on top.\n", i, plates_on_top(0, i, w[0], l[0], r[0]))
+        i += 1
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    width, height, radius = map(float, sys.stdin.read().split() or ["4", "4", "1"])
-    print(packing(width, height, radius))
+    exit(main())

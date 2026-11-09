@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    primes.c
+
+    Compute the prime factorization of an integer.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,34 +19,44 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayList;
-import java.util.List;
+public class Primes {
 
-public final class Primes {
-    /** Trial division, O(sqrt(n)) worst case; repeated prime factors in ascending order. */
-    public static List<Long> factors(long n) {
-        if (n < 1) {
-            throw new IllegalArgumentException("factorization requires a positive integer");
+    public static void prime_factorization(long x) {
+        long i = 0; /* counter */
+        long c = 0; /* remaining product to factor */
+        c = x;
+        while (((c % 2) == 0)) {
+            C.printf("%d\n", 2);
+            c = (c / 2);
         }
-        List<Long> result = new ArrayList<>();
-        while (n % 2 == 0) {
-            result.add(2L);
-            n /= 2;
-        }
-        for (long divisor = 3; divisor <= n / divisor; divisor += 2) {
-            while (n % divisor == 0) {
-                result.add(divisor);
-                n /= divisor;
+        i = 3;
+        while ((i <= (Math.sqrt(c) + 1))) {
+            if (((c % i) == 0)) {
+                C.printf("%ld\n", i);
+                c = (c / i);
+            } else {
+                i = (i + 2);
             }
         }
-        if (n > 1) {
-            result.add(n);
+        if ((c > 1)) {
+            C.printf("%ld\n", c);
         }
-        return result;
+    }
+
+    public static int main() {
+        long p = 0;
+        while (true) {
+            int _read0 = C.scan("%ld");
+            if (_read0 > 0) p = C.scanLong(0);
+            if (!((_read0 != -1))) break;
+            C.printf("prime factorization of p=%ld \n", p);
+            prime_factorization(p);
+        }
+        return 0;
     }
 
     public static void main(String[] args) {
-        java.util.Scanner in = new java.util.Scanner(System.in);
-        System.out.println(factors(in.hasNextLong() ? in.nextLong() : 360));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

@@ -13,30 +13,64 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""gcd.c translated to Python; indices start at zero."""
+"""Direct translation of gcd.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
+
+from ._c import *
+from . import _c
 
 
-def extended_gcd(first: int, second: int) -> tuple[int, int, int]:
-    """Return (g,x,y), g>=0 and first*x + second*y=g; Euclid O(log min(a,b))."""
-    old_r, remainder = abs(first), abs(second)
-    old_x, x, old_y, y = 1, 0, 0, 1
-    while remainder:
-        quotient = old_r // remainder
-        old_r, remainder = remainder, old_r - quotient * remainder
-        old_x, x = x, old_x - quotient * x
-        old_y, y = y, old_y - quotient * y
-    return old_r, -old_x if first < 0 else old_x, -old_y if second < 0 else old_y
+
+# integers to compute the GCD of
+def gcd1(p, q):
+    if (q > p):
+        return gcd1(q, p)
+    if (q == 0):
+        return p
+    printf(" gcd(%ld,%ld) &=& gcd(%ld \\mod %ld, %ld) = gcd(%ld,%ld) \n", p, q, p, q, q, q, c_mod(p, q))
+    return gcd1(q, c_mod(p, q))
+
+
+# Find the gcd(p,q) and x,y such that p*x + q*y = gcd(p,q)
+def gcd(p, q, x, y):
+    # y1: previous coefficients
+    x1 = [0]
+    y1 = [0]
+    # g: value of gcd(p,q)
+    if (q > p):
+        return gcd(q, p, y, x)
+    if (q == 0):
+        x[0] = 1
+        y[0] = 0
+        return p
+    g = gcd(q, c_mod(p, q), x1, y1)
+    x[0] = y1[0]
+    y[0] = (x1[0] - (c_div(p, q) * y1[0]))
+    return g
+
+
+def main():
+    p = [0]
+    q = [0]
+    x = [0]
+    y = [0]
+    while (scanf("%ld %ld", p, q) != EOF):
+        g1 = gcd1(p[0], q[0])
+        g2 = gcd(p[0], q[0], x, y)
+        printf("gcd of p=%ld and q=%ld = %ld\n", p[0], q[0], g1)
+        printf(" %ld*%ld + %ld*%ld = %ld\n", p[0], x[0], q[0], y[0], g2)
+        if (g1 != g2):
+            printf("ERROR: GCD\n")
+        if (((p[0] * x[0]) + (q[0] * y[0])) != g1):
+            printf("ERROR: DIOPHONINE SOLUTION WRONG!\n")
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    first, second = map(int, (sys.stdin.read().split() or ["252", "198"]))
-    print(extended_gcd(first, second))
+    exit(main())

@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	matrix.c
+
+	Multiply two matrices.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,40 +19,89 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
+#include <stdlib.h>
 
-namespace adm {
-Matrix matrix_multiply(const Matrix &a, const Matrix &b) {
-    require(!a.empty() && !b.empty() && !a.front().empty() && !b.front().empty(), "empty matrix");
-    const auto inner = a.front().size(), columns = b.front().size();
-    require(inner == b.size(), "matrix dimension mismatch");
-    for (const auto &row : a) {
-        require(row.size() == inner, "ragged matrix");
+/************************************************************/
+
+#define MAXV 100     /* maximum number of vertices */
+#define MAXDEGREE 50 /* maximum outdegree of a vertex */
+#define MAXINT 100007
+
+typedef struct {
+    int m[MAXV + 1][MAXV + 1]; /* adjacency/weight info */
+    int rows;                  /* number of rows */
+    int columns;               /* number of columns */
+} matrix;
+
+void initialize_matrix(matrix *m) {
+    int i, j; /* counters */
+
+    for (i = 1; i <= m->rows; i++) {
+        for (j = 1; j <= m->columns; j++) {
+            m->m[i][j] = 0;
+        }
     }
-    for (const auto &row : b) {
-        require(row.size() == columns, "ragged matrix");
+}
+
+void read_matrix(matrix *m) {
+    int i, j; /* counters */
+
+    scanf("%d %d\n", &(m->rows), &(m->columns));
+
+    for (i = 1; i <= m->rows; i++) {
+        for (j = 1; j <= m->columns; j++) {
+            scanf("%d", &m->m[i][j]);
+        }
     }
-    Matrix result(a.size(), Integers(columns));
-    for (std::size_t i = 0; i < a.size(); ++i) {
-        for (std::size_t k = 0; k < inner; ++k) {
-            for (std::size_t j = 0; j < columns; ++j) {
-                result[i][j] = add(result[i][j], multiply(a[i][k], b[k][j]));
+}
+
+void print_matrix(matrix *g) {
+    int i, j; /* counters */
+
+    for (i = 1; i <= g->rows; i++) {
+        for (j = 1; j <= g->columns; j++) {
+            printf(" %d", g->m[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+void multiply(matrix *a, matrix *b, matrix *c) {
+    int i, j, k; /* dimension counters */
+
+    if (a->columns != b->rows) {
+        printf("Error: bounds dont match!\n");
+        return;
+    }
+
+    c->rows = a->rows;
+    c->columns = b->columns;
+    /* [[[ matrix_cut */
+    for (i = 1; i <= a->rows; i++) {
+        for (j = 1; j <= b->columns; j++) {
+            c->m[i][j] = 0;
+            for (k = 1; k <= b->rows; k++) {
+                c->m[i][j] += a->m[i][k] * b->m[k][j];
             }
         }
     }
-    return result;
+    /* ]]] */
 }
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto product = matrix_multiply({{1, 2}}, {{3}, {4}});
-        std::cout << product[0][0] << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
-    }
+int main(void) {
+    matrix a, b, c;
+
+    read_matrix(&a);
+    print_matrix(&a);
+
+    read_matrix(&b);
+    print_matrix(&b);
+
+    multiply(&a, &b, &c);
+
+    print_matrix(&c);
+
+    return 0;
 }
-#endif

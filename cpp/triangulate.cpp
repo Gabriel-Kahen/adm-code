@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    triangulate.c
+
+    Triangulate a polygon via ear-clipping, and compute the area of a polygon.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,92 +19,127 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <math.h>
+#include <stdio.h>
+#include <stdbool.h>
+
 #include "geometry.hpp"
 
-namespace adm {
-std::vector<std::array<int, 3>> triangulate(const std::vector<Point> &polygon) {
-    simple_polygon(polygon);
-    std::vector<int> remaining(polygon.size());
-    std::iota(remaining.begin(), remaining.end(), 0);
-    if (signed_polygon_area(polygon) < 0) {
-        std::reverse(remaining.begin(), remaining.end());
-    }
-    std::vector<std::array<int, 3>> result;
-    while (remaining.size() > 3) {
-        bool found = false;
-        for (std::size_t i = 0; i < remaining.size(); ++i) {
-            int a = remaining[(i + remaining.size() - 1) % remaining.size()], b = remaining[i],
-                c = remaining[(i + 1) % remaining.size()];
-            if (orientation(polygon[a], polygon[b], polygon[c]) <= 0) {
-                continue;
-            }
-            bool blocked = false;
-            for (int vertex : remaining) {
-                if (vertex == a || vertex == b || vertex == c) {
-                    continue;
-                }
-                if (orientation(polygon[a], polygon[b], polygon[vertex]) >= 0 &&
-                    orientation(polygon[b], polygon[c], polygon[vertex]) >= 0 &&
-                    orientation(polygon[c], polygon[a], polygon[vertex]) >= 0) {
-                    blocked = true;
-                    break;
-                }
-            }
-            if (!blocked) {
-                result.push_back({a, b, c});
-                remaining.erase(remaining.begin() + static_cast<std::ptrdiff_t>(i));
-                found = true;
-                break;
-            }
-        }
-        require(found, "polygon has no nondegenerate ear at tolerance");
-    }
-    require(triangle_area(polygon[remaining[0]], polygon[remaining[1]], polygon[remaining[2]]) >
-                epsilon,
-            "degenerate final triangle");
-    result.push_back({remaining[0], remaining[1], remaining[2]});
-    return result;
+void add_triangle(triangulation *t, int i, int j, int k, polygon *p) {
+    int n; /* number of triangles in t */
+
+    n = t->n;
+
+    t->t[n][0] = i;
+    t->t[n][1] = j;
+    t->t[n][2] = k;
+
+    t->n = n + 1;
 }
 
-double minimum_weight_triangulation(const std::vector<Point> &polygon) {
-    simple_polygon(polygon);
-    const std::size_t n = polygon.size();
-    int direction = orientation(polygon[0], polygon[1], polygon[2]);
-    require(direction != 0, "minimum-weight triangulation requires strict convexity");
-    for (std::size_t i = 0; i < n; ++i) {
-        require(orientation(polygon[i], polygon[(i + 1) % n], polygon[(i + 2) % n]) == direction,
-                "minimum-weight triangulation requires strict convexity");
+bool point_in_triangle(point p, triangle t) {
+    int i; /* counter */
+
+    for (i = 0; i < 3; i++) {
+        if (cw(t[i], t[(i + 1) % 3], p)) {
+            return (false);
+        }
     }
-    std::vector<std::vector<double>> cost(n, std::vector<double>(n));
-    for (std::size_t gap = 2; gap < n; ++gap) {
-        for (std::size_t begin = 0; begin + gap < n; ++begin) {
-            std::size_t end = begin + gap;
-            cost[begin][end] = std::numeric_limits<double>::infinity();
-            for (std::size_t middle = begin + 1; middle < end; ++middle) {
-                double perimeter = point_distance(polygon[begin], polygon[middle]) +
-                                   point_distance(polygon[middle], polygon[end]) +
-                                   point_distance(polygon[end], polygon[begin]);
-                cost[begin][end] =
-                    std::min(cost[begin][end], cost[begin][middle] + cost[middle][end] + perimeter);
+
+    return (true);
+}
+
+bool ear_Q(int i, int j, int k, polygon *p) {
+    triangle t; /* coordinates for points i,j,k */
+    int m;      /* counter */
+
+    copy_point(p->p[i], t[0]);
+    copy_point(p->p[j], t[1]);
+    copy_point(p->p[k], t[2]);
+
+    if (cw(t[0], t[1], t[2])) {
+        return (false);
+    }
+
+    for (m = 0; m < p->n; m++) {
+        if ((m != i) && (m != j) && (m != k)) {
+            if (point_in_triangle(p->p[m], t)) {
+                return (false);
             }
         }
     }
-    require(std::isfinite(cost[0][n - 1]), "triangulation cost overflow");
-    return cost[0][n - 1];
-}
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        for (auto triangle : triangulate({{0, 0}, {1, 0}, {1, 1}, {0, 1}})) {
-            std::cout << triangle[0] << " " << triangle[1] << " " << triangle[2] << "\n";
+    return (true);
+}
+
+void triangulate(polygon *p, triangulation *t) {
+    int l[MAXPOLY], r[MAXPOLY]; /* left/right neighbor indices */
+    int i;                      /* counter */
+
+    for (i = 0; i < p->n; i++) { /* initialization */
+        l[i] = ((i - 1) + p->n) % p->n;
+        r[i] = ((i + 1) + p->n) % p->n;
+    }
+
+    t->n = 0;
+    i = p->n - 1;
+    while (t->n < (p->n - 2)) {
+        i = r[i];
+        if (ear_Q(l[i], i, r[i], p)) {
+            add_triangle(t, l[i], i, r[i], p);
+            l[r[i]] = l[i];
+            r[l[i]] = r[i];
         }
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
     }
 }
-#endif
+
+double area_triangulation(polygon *p) {
+    triangulation t;    /* output triangulation */
+    double total = 0.0; /* total area so far */
+    int i;              /* counter */
+
+    triangulate(p, &t);
+    for (i = 0; i < t.n; i++) {
+        total += triangle_area(p->p[t.t[i][0]], p->p[t.t[i][1]], p->p[t.t[i][2]]);
+    }
+
+    return (total);
+}
+
+double area(polygon *p) {
+    double total = 0.0; /* total area so far */
+    int i, j;           /* counters */
+
+    for (i = 0; i < p->n; i++) {
+        j = (i + 1) % p->n;
+        total += (p->p[i][X] * p->p[j][Y]) - (p->p[j][X] * p->p[i][Y]);
+    }
+
+    return (total / 2.0);
+}
+
+int main(void) {
+    polygon p; /* input polygon */
+    int i;     /* counter */
+
+    scanf("%d", &p.n);
+    for (i = 0; i < p.n; i++) {
+        scanf("%lf %lf", &p.p[i][X], &p.p[i][Y]);
+    }
+
+    printf(" area via triangulation = %f\n", area_triangulation(&p));
+    printf(" area slick = %f\n", area(&p));
+
+    return 0;
+}
+
+void print_triangulation(triangulation *t) {
+    int i, j; /* counters */
+
+    for (i = 0; i < t->n; i++) {
+        for (j = 0; j < 3; j++) {
+            printf(" %d ", t->t[i][j]);
+        }
+        printf("\n");
+    }
+}

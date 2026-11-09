@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    strong.c
+
+    Identify strongly connected components in a graph
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,67 +19,111 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "graph.hpp"
+#include <stdio.h>
 
-namespace adm {
-Groups tarjan(const Graph &graph) {
-    directed(graph);
-    Groups groups;
+#include <stdbool.h>
+#include "bfs-dfs.hpp"
+#include "stack.hpp"
 
-    std::vector<int> entered(graph.size(), -1), low(graph.size()), stack;
-    std::vector<bool> active(graph.size());
-    int clock = 0;
-    std::function<void(int)> visit = [&](int vertex) {
-        entered[vertex] = low[vertex] = clock++;
-        stack.push_back(vertex);
-        active[vertex] = true;
-        for (const auto &edge : graph.neighbors(vertex)) {
-            if (entered[edge.to] == -1) {
-                visit(edge.to);
-                low[vertex] = std::min(low[vertex], low[edge.to]);
-            } else if (active[edge.to]) {
-                low[vertex] = std::min(low[vertex], entered[edge.to]);
-            }
-        }
-        if (low[vertex] == entered[vertex]) {
-            std::vector<int> component;
-            while (true) {
-                int member = stack.back();
-                stack.pop_back();
-                active[member] = false;
-                component.push_back(member);
-                if (member == vertex) {
-                    break;
-                }
-            }
-            groups.push_back(std::move(component));
-        }
-    };
-    for (int vertex = 0; vertex < graph.size(); ++vertex) {
-        if (entered[vertex] == -1) {
-            visit(vertex);
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
+
+extern int entry_time[]; /* time of vertex entry */
+extern int exit_time[];  /* time of vertex exit */
+
+/* [[[ sc_arrays_cut */
+int low[MAXV + 1]; /* oldest vertex surely in component of v */
+int scc[MAXV + 1]; /* strong component number for each vertex */
+/* ]]] */
+
+stack active;         /* active vertices of unassigned component */
+int components_found; /* number of strong components identified */
+
+/* [[[ pvearly_strong_cut */
+void process_vertex_early(int v) {
+    push(&active, v);
+}
+/* ]]] */
+
+/* [[[ pop_comp_strong_cut */
+void pop_component(int v) {
+    int t; /* vertex placeholder */
+
+    components_found = components_found + 1;
+    printf("%d is in component %d \n", v, components_found);
+
+    scc[v] = components_found;
+    while ((t = pop(&active)) != v) {
+        scc[t] = components_found;
+        printf("%d is in component %d \n", t, components_found);
+    }
+}
+/* ]]] */
+
+/* [[[ pvlate_strong_cut */
+void process_vertex_late(int v) {
+    if (low[v] == v) {
+        pop_component(v);
+    }
+
+    if ((parent[v] != -1) && (entry_time[low[v]] < entry_time[low[parent[v]]])) {
+        low[parent[v]] = low[v];
+    }
+}
+/* ]]] */
+
+/* [[[ pedge_strong_cut */
+void process_edge(int x, int y) {
+    int edge_class; /* edge class */
+
+    edge_class = edge_classification(x, y);
+
+    if (edge_class == BACK) {
+        if (entry_time[y] < entry_time[low[x]]) {
+            low[x] = y;
         }
     }
 
-    return canonical(std::move(groups));
-}
-} // namespace adm
-
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto graph = read_graph(std::cin, true);
-        for (auto row : tarjan(graph)) {
-            for (auto vertex : row) {
-                std::cout << vertex << " ";
+    if (edge_class == CROSS) {
+        if (scc[y] == -1) { /* component not yet assigned */
+            if (entry_time[y] < entry_time[low[x]]) {
+                low[x] = y;
             }
-            std::cout << "\n";
         }
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
     }
 }
-#endif
+/* ]]] */
+
+/* [[[ strong_comp_cut */
+void strong_components(graph *g) {
+    int i; /* counter */
+
+    for (i = 1; i <= (g->nvertices); i++) {
+        low[i] = i;
+        scc[i] = -1;
+    }
+
+    components_found = 0;
+
+    init_stack(&active);
+    initialize_search(g);
+
+    for (i = 1; i <= (g->nvertices); i++) {
+        if (!discovered[i]) {
+            dfs(g, i);
+        }
+    }
+}
+/* ]]] */
+
+int main(void) {
+    graph g;
+
+    read_graph(&g, true);
+    print_graph(&g);
+
+    strong_components(&g);
+
+    return 0;
+}

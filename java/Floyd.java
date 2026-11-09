@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	floyd.c
+
+	Compute all-pairs shortest paths in weighted graphs.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,53 +19,129 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.Arrays;
+public class Floyd {
+    public static final int MAXV = 100; /* maximum number of vertices */
+    public static final int MAXDEGREE = 50; /* maximum outdegree of a vertex */
+    public static final long MAXINT = (Long.MAX_VALUE / 4);
+    public static class edge {
+        int v = 0; /* neighboring vertex */
+        int weight = 0; /* edge weight */
+        boolean in = false; /* is the edge "in" the solution? */
+    }
+    public static class graph {
+        Floyd.edge[][] edges = new Floyd.edge[(MAXV + 1)][MAXDEGREE]; /* adjacency info */
+        {
+            for (int _i0 = 0; _i0 < (MAXV + 1); _i0++) {
+                for (int _i1 = 0; _i1 < MAXDEGREE; _i1++) {
+                    edges[_i0][_i1] = new Floyd.edge();
+                }
+            }
+        }
+        int[] degree = new int[(MAXV + 1)]; /* outdegree of each vertex */
+        int nvertices = 0; /* number of vertices in graph */
+        int nedges = 0; /* number of edges in the graph */
+    }
+    public static class adjacency_matrix {
+        long[][] weight = new long[(MAXV + 1)][(MAXV + 1)]; /* adjacency/weight info */
+        int nvertices = 0; /* number of vertices in graph */
+    }
 
-public final class Floyd {
-    /** O(V^3), signed weights allowed; any negative cycle is an error. */
-    public static Long[][] floyd(Graph graph) {
-        Long[][] distances = new Long[graph.n][graph.n];
-        for (int i = 0; i < graph.n; i++) {
-            distances[i][i] = 0L;
-        }
-        for (Graph.Edge edge : graph.edges) {
-            Long old = distances[edge.from()][edge.to()];
-            if (old == null || edge.weight() < old) {
-                distances[edge.from()][edge.to()] = edge.weight();
+    public static void initialize_adjacency_matrix(Floyd.adjacency_matrix g) {
+        int i = 0; /* counters */
+        int j = 0;
+        g.nvertices = 0;
+        for (i = 1; (i <= MAXV); i++) {
+            for (j = 1; (j <= MAXV); j++) {
+                g.weight[i][j] = ((i == j) ? 0 : MAXINT);
             }
-            if (!graph.directed) {
-                old = distances[edge.to()][edge.from()];
-                if (old == null || edge.weight() < old) {
-                    distances[edge.to()][edge.from()] = edge.weight();
+        }
+    }
+
+    public static void read_adjacency_matrix(Floyd.adjacency_matrix g, boolean directed) {
+        int i = 0; /* counter */
+        int m = 0; /* number of edges */
+        int x = 0;
+        int y = 0;
+        int w = 0;
+        initialize_adjacency_matrix(g);
+        int _read0 = C.scan("%d %d\n");
+        if (_read0 > 0) g.nvertices = C.scanInt(0);
+        if (_read0 > 1) m = C.scanInt(1);
+        for (i = 1; (i <= m); i++) {
+            int _read1 = C.scan("%d %d %d\n");
+            if (_read1 > 0) x = C.scanInt(0);
+            if (_read1 > 1) y = C.scanInt(1);
+            if (_read1 > 2) w = C.scanInt(2);
+            if ((w < g.weight[x][y])) {
+                g.weight[x][y] = w; /* placeholder for edge and weight */
+            }
+            if (!(directed)) {
+                if ((w < g.weight[y][x])) {
+                    g.weight[y][x] = w;
                 }
             }
         }
-        for (int middle = 0; middle < graph.n; middle++) {
-            for (int from = 0; from < graph.n; from++) {
-                if (distances[from][middle] == null) {
-                    continue;
+    }
+
+    public static void print_graph(Floyd.adjacency_matrix g) {
+        int i = 0; /* counters */
+        int j = 0;
+        for (i = 1; (i <= g.nvertices); i++) {
+            C.printf("%d: ", i);
+            for (j = 1; (j <= g.nvertices); j++) {
+                if ((g.weight[i][j] < MAXINT)) {
+                    C.printf(" %d", j);
                 }
-                for (int to = 0; to < graph.n; to++) {
-                    if (distances[middle][to] == null) {
+            }
+            C.printf("\n");
+        }
+    }
+
+    public static void print_adjacency_matrix(Floyd.adjacency_matrix g) {
+        int i = 0; /* counters */
+        int j = 0;
+        for (i = 1; (i <= g.nvertices); i++) {
+            C.printf("%3d: ", i);
+            for (j = 1; (j <= g.nvertices); j++) {
+                C.printf(" %3lld", g.weight[i][j]);
+            }
+            C.printf("\n");
+        }
+    }
+
+    public static void floyd(Floyd.adjacency_matrix g) {
+        int i = 0; /* dimension counters */
+        int j = 0;
+        int k = 0; /* intermediate vertex counter */
+        long through_k = 0; /* distance through vertex k */
+        /* Phase k permits intermediate vertices 1..k on each shortest path. */
+        for (k = 1; (k <= g.nvertices); k++) {
+            for (i = 1; (i <= g.nvertices); i++) {
+                for (j = 1; (j <= g.nvertices); j++) {
+                    /* The sentinel represents no path and must never participate in addition. */
+                    if (((g.weight[i][k] == MAXINT) || (g.weight[k][j] == MAXINT))) {
                         continue;
                     }
-                    long candidate = Math.addExact(distances[from][middle], distances[middle][to]);
-                    if (distances[from][to] == null || candidate < distances[from][to]) {
-                        distances[from][to] = candidate;
+                    through_k = (g.weight[i][k] + g.weight[k][j]);
+                    if ((through_k < g.weight[i][j])) {
+                        g.weight[i][j] = through_k;
                     }
                 }
             }
         }
-        for (int i = 0; i < graph.n; i++) {
-            if (distances[i][i] < 0) {
-                throw new IllegalArgumentException("negative cycle");
-            }
-        }
-        return distances;
+    }
+
+    public static int main() {
+        Floyd.adjacency_matrix g = new Floyd.adjacency_matrix();
+        read_adjacency_matrix(g, false);
+        print_graph(g);
+        floyd(g);
+        print_adjacency_matrix(g);
+        return 0;
     }
 
     public static void main(String[] args) {
-        Graph graph = Graph.read(new java.util.Scanner(System.in), false, true);
-        System.out.println(Arrays.deepToString(floyd(graph)));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

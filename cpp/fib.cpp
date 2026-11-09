@@ -1,4 +1,10 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#include <limits.h>
+#include <errno.h>
+/*	binomial.c
+	Compute the binomial coefficients using dynamic programming
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,60 +20,137 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "bignum.hpp"
+#include <stdio.h>
 
-namespace adm {
-BigInteger fibonacci(const std::string &method, int n) {
-    require(n >= 0, "negative Fibonacci index");
-    if (method == "recursive") {
-        require(n <= 35, "recursive Fibonacci limited to index 35");
-        if (n < 2) {
-            return BigInteger(n);
-        }
-        return fibonacci(method, n - 1) + fibonacci(method, n - 2);
+/* [[[ fib_const_cut */
+#define MAXN 92    /* largest n for which F(n) fits in a long */
+#define UNKNOWN -1 /* contents denote an empty cell */
+long f[MAXN + 1];  /* array for caching fib values */
+/* ]]] */
+
+/* computer n choose m */
+
+/* Returns -1 with errno set for invalid arguments or an unrepresentable result. */
+long binomial_coefficient(int n, int k) {
+    long bc[MAXN + 1] = {0};
+    int i, j, last;
+
+    errno = 0;
+    if (n < 0 || n > MAXN || k < 0 || k > n) {
+        errno = EDOM;
+        return -1;
     }
-    if (method == "memo") {
-        std::vector<std::optional<BigInteger>> cache(static_cast<std::size_t>(n) + 2);
-        cache[0] = BigInteger(0);
-        cache[1] = BigInteger(1);
-        std::function<BigInteger(int)> solve = [&](int index) {
-            if (!cache[index]) {
-                cache[index] = solve(index - 1) + solve(index - 2);
+    if (k > n - k) {
+        k = n - k;
+    }
+    bc[0] = 1;
+    for (i = 1; i <= n; i++) {
+        last = i < k ? i : k;
+        for (j = last; j > 0; j--) {
+            if (bc[j] > LONG_MAX - bc[j - 1]) {
+                errno = ERANGE;
+                return -1;
             }
-            return *cache[index];
-        };
-        return solve(n);
-    }
-    if (method == "table") {
-        std::vector<BigInteger> values(static_cast<std::size_t>(n) + 2);
-        values[1] = BigInteger(1);
-        for (int i = 2; i <= n; ++i) {
-            values[i] = values[i - 1] + values[i - 2];
+            bc[j] += bc[j - 1];
         }
-        return values[n];
     }
-    require(method == "constant", "unknown Fibonacci method");
-    BigInteger previous(0), current(1);
-    for (int i = 0; i < n; ++i) {
-        BigInteger next = previous + current;
-        previous = current;
-        current = next;
-    }
-    return previous;
+    return bc[k];
 }
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        int n = 10;
-        std::cin >> n;
-        std::cout << fibonacci("table", n).str() << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+/* [[[ fib_r_cut */
+long fib_r(int n) {
+    if (n == 0) {
+        return (0);
     }
+
+    if (n == 1) {
+        return (1);
+    }
+
+    return (fib_r(n - 1) + fib_r(n - 2));
 }
-#endif
+/* ]]] */
+
+/* [[[ fib_c_cut */
+long fib_c(int n) {
+    if (f[n] == UNKNOWN) {
+        f[n] = fib_c(n - 1) + fib_c(n - 2);
+    }
+
+    return (f[n]);
+}
+/* ]]] */
+
+/* [[[ fib_c_driver_cut */
+long fib_c_driver(int n) {
+    int i; /* counter */
+
+    f[0] = 0;
+    f[1] = 1;
+
+    for (i = 2; i <= n; i++) {
+        f[i] = UNKNOWN;
+    }
+
+    return (fib_c(n));
+}
+/* ]]] */
+
+/* [[[ fib_dp_cut */
+long fib_dp(int n) {
+    int i;            /* counter */
+    long f[MAXN + 1]; /* array for caching values */
+
+    f[0] = 0;
+    f[1] = 1;
+
+    for (i = 2; i <= n; i++) {
+        f[i] = f[i - 1] + f[i - 2];
+    }
+
+    return (f[n]);
+}
+/* ]]] */
+
+/* [[[ fib_ult_cut */
+long fib_ultimate(int n) {
+    int i;                     /* counter */
+    long back2 = 0, back1 = 1; /* last two values of f[n] */
+    long next;                 /* placeholder for sum */
+
+    if (n == 0)
+        return (0);
+
+    for (i = 2; i < n; i++) {
+        next = back1 + back2;
+        back2 = back1;
+        back1 = next;
+    }
+    return (back1 + back2);
+}
+/* ]]] */
+
+int main(void) {
+    int i;
+    int ntest = 92;
+
+    for (i = 0; i <= ntest; i++) {
+        printf("fib_c(%d) = %ld\n", i, fib_c_driver(i));
+    }
+
+    for (i = 0; i <= ntest; i++) {
+        printf("fib_dp(%d) = %ld\n", i, fib_dp(i));
+    }
+
+    for (i = 0; i <= ntest; i++) {
+        printf("fib_dp2(%d) = %ld\n", i, fib_ultimate(i));
+    }
+
+    /*
+    for (i = 0; i <= ntest; i++) {
+        printf("fib(%d) = %ld\n",i, fib_r(i));
+    }
+*/
+
+    return 0;
+}

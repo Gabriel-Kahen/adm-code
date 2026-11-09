@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    order.c
+
+      Demonstrate traversal orders on a grid.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,49 +19,72 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
 
-namespace adm {
-std::vector<std::pair<int, int>> grid_order(const std::string &method, int rows, int columns) {
-    require(rows >= 0 && columns >= 0, "negative grid dimension");
-    std::vector<std::pair<int, int>> result;
-    if (method == "row" || method == "snake") {
-        for (int row = 0; row < rows; ++row) {
-            for (int column = 0; column < columns; ++column) {
-                result.emplace_back(row,
-                                    method == "snake" && row % 2 ? columns - 1 - column : column);
-            }
-        }
-    } else if (method == "column") {
-        for (int column = 0; column < columns; ++column) {
-            for (int row = 0; row < rows; ++row) {
-                result.emplace_back(row, column);
-            }
-        }
-    } else {
-        require(method == "diagonal", "unknown grid order");
-        for (Integer diagonal = 0; diagonal < static_cast<Integer>(rows) + columns - 1;
-             ++diagonal) {
-            for (Integer row = std::max<Integer>(0, diagonal - columns + 1);
-                 row <= std::min<Integer>(rows - 1, diagonal); ++row) {
-                result.emplace_back(static_cast<int>(row), static_cast<int>(diagonal - row));
-            }
+#include "geometry.hpp"
+
+void process(int i, int j) {
+    printf("(%d,%d)\n", i, j);
+}
+
+void row_major(int n, int m) {
+    int i, j; /* counters */
+
+    for (i = 1; i <= n; i++) {
+        for (j = 1; j <= m; j++) {
+            process(i, j);
         }
     }
-    return result;
 }
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        for (auto cell : grid_order("diagonal", 3, 4)) {
-            std::cout << cell.first << " " << cell.second << "\n";
+void column_major(int n, int m) {
+    int i, j; /* counters */
+
+    for (j = 1; j <= m; j++) {
+        for (i = 1; i <= n; i++) {
+            process(i, j);
         }
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
     }
 }
-#endif
+
+void snake_order(int n, int m) {
+    int i, j; /* counters */
+
+    for (i = 1; i <= n; i++) {
+        for (j = 1; j <= m; j++) {
+            process(i, j + (m + 1 - 2 * j) * ((i + 1) % 2));
+        }
+    }
+}
+
+void diagonal_order(int n, int m) {
+    int d, row;
+    int first, last;
+
+    for (d = 1; d <= n + m - 1; d++) {
+        first = max(1, d + 1 - m);
+        last = min(n, d);
+        for (row = first; row <= last; row++) {
+            process(row, d + 1 - row);
+        }
+    }
+}
+
+int main(void) {
+    printf("row_major\n");
+    row_major(5, 5);
+
+    printf("\ncolumn_major\n");
+    column_major(3, 3);
+
+    printf("\nsnake_order\n");
+    snake_order(5, 5);
+
+    printf("\ndiagonal_order\n");
+    diagonal_order(3, 4);
+
+    printf("\ndiagonal_order\n");
+    diagonal_order(4, 3);
+
+    return 0;
+}

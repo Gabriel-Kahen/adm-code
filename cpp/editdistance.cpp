@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	editdistance.c
+
+	A generic implementation of string comparison via dynamic programming
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,49 +19,93 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
 #include "editdistance.hpp"
 
-namespace adm {
-EditResult edit_distance(const std::string &a, const std::string &b) {
-    const std::size_t rows = a.size() + 1, columns = b.size() + 1;
-    Matrix cost(rows, Integers(columns));
-    std::vector<std::string> parent(rows, std::string(columns, 'M'));
-    for (std::size_t i = 1; i < rows; ++i) {
-        cost[i][0] = static_cast<Integer>(i);
-        parent[i][0] = 'D';
+/**********************************************************************/
+/* [[[ string_comp2_cut */
+int string_compare(char *s, char *t, cell m[MAXLEN + 1][MAXLEN + 1]) {
+    int i, j, k; /* counters */
+    int opt[3];  /* cost of the three options */
+
+    for (i = 0; i <= MAXLEN; i++) {
+        row_init(i, m);
+        column_init(i, m);
     }
-    for (std::size_t j = 1; j < columns; ++j) {
-        cost[0][j] = static_cast<Integer>(j);
-        parent[0][j] = 'I';
-    }
-    for (std::size_t i = 1; i < rows; ++i) {
-        for (std::size_t j = 1; j < columns; ++j) {
-            cost[i][j] = cost[i - 1][j - 1] + (a[i - 1] != b[j - 1]);
-            parent[i][j] = a[i - 1] == b[j - 1] ? 'M' : 'S';
-            if (cost[i][j - 1] + 1 < cost[i][j]) {
-                cost[i][j] = cost[i][j - 1] + 1;
-                parent[i][j] = 'I';
+
+    for (i = 1; i < strlen(s); i++) {
+        for (j = 1; j < strlen(t); j++) {
+            opt[MATCH] = m[i - 1][j - 1].cost + match(s[i], t[j]);
+            opt[INSERT] = m[i][j - 1].cost + indel(t[j]);
+            opt[DELETE] = m[i - 1][j].cost + indel(s[i]);
+
+            m[i][j].cost = opt[MATCH];
+            m[i][j].parent = MATCH;
+            for (k = INSERT; k <= DELETE; k++) {
+                if (opt[k] < m[i][j].cost) {
+                    m[i][j].cost = opt[k];
+                    m[i][j].parent = k;
+                }
             }
-            if (cost[i - 1][j] + 1 < cost[i][j]) {
-                cost[i][j] = cost[i - 1][j] + 1;
-                parent[i][j] = 'D';
-            }
         }
     }
-    std::string operations;
-    std::size_t i = a.size(), j = b.size();
-    while (i || j) {
-        char operation = parent[i][j];
-        operations.push_back(operation);
-        if (operation != 'I') {
-            --i;
-        }
-        if (operation != 'D') {
-            --j;
-        }
-    }
-    std::reverse(operations.begin(), operations.end());
-    return {cost.back().back(), operations};
+
+    goal_cell(s, t, &i, &j);
+    return (m[i][j].cost);
 }
-} // namespace adm
+/* ]]] */
+
+/* [[[ reconstruct_path_ed_cut */
+void reconstruct_path(char *s, char *t, int i, int j, cell m[MAXLEN + 1][MAXLEN + 1]) {
+    if (m[i][j].parent == -1) {
+        return;
+    }
+
+    if (m[i][j].parent == MATCH) {
+        reconstruct_path(s, t, i - 1, j - 1, m);
+        match_out(s, t, i, j);
+        return;
+    }
+
+    if (m[i][j].parent == INSERT) {
+        reconstruct_path(s, t, i, j - 1, m);
+        insert_out(t, j);
+        return;
+    }
+
+    if (m[i][j].parent == DELETE) {
+        reconstruct_path(s, t, i - 1, j, m);
+        delete_out(s, i);
+        return;
+    }
+}
+/* ]]] */
+
+void print_matrix(char *s, char *t, bool costQ, cell m[MAXLEN + 1][MAXLEN + 1]) {
+    int i, j; /* counters */
+    int x, y; /* string lengths */
+
+    x = strlen(s);
+    y = strlen(t);
+
+    printf("   ");
+    for (i = 0; i < y; i++) {
+        printf("  %c", t[i]);
+    }
+    printf("\n");
+
+    for (i = 0; i < x; i++) {
+        printf("%c: ", s[i]);
+        for (j = 0; j < y; j++) {
+            if (costQ) {
+                printf(" %2d", m[i][j].cost);
+            } else {
+                printf(" %2d", m[i][j].parent);
+            }
+        }
+        printf("\n");
+    }
+}

@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    topsort.c
+
+    Topologically sort a directed acyclic graph (DAG) by indegre-zero deletion.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,53 +19,83 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "graph.hpp"
+#include <stdio.h>
+#include <stdbool.h>
 
-namespace adm {
-std::vector<int> topological_kahn(const Graph &graph) {
-    directed(graph);
-    std::vector<int> result;
+#include "bfs-dfs.hpp"
+#include "queue.hpp"
 
-    std::vector<int> indegree(graph.size());
-    for (const auto &edge : graph.edges()) {
-        ++indegree[edge.to];
+/* [[[ compute_indegree_cut */
+void compute_indegrees(graph *g, int in[]) {
+    int i;       /* counter */
+    edgenode *p; /* temporary pointer */
+
+    for (i = 1; i <= g->nvertices; i++) {
+        in[i] = 0;
     }
-    std::deque<int> ready;
-    for (int vertex = 0; vertex < graph.size(); ++vertex) {
-        if (indegree[vertex] == 0) {
-            ready.push_back(vertex);
+
+    for (i = 1; i <= g->nvertices; i++) {
+        p = g->edges[i];
+        while (p != NULL) {
+            in[p->y]++;
+            p = p->next;
         }
     }
-    while (!ready.empty()) {
-        int vertex = ready.front();
-        ready.pop_front();
-        result.push_back(vertex);
-        for (const auto &edge : graph.neighbors(vertex)) {
-            if (--indegree[edge.to] == 0) {
-                ready.push_back(edge.to);
+}
+/* ]]] */
+
+/* [[[ topsort_swallow_cut */
+void topsort(graph *g, int sorted[]) {
+    int indegree[MAXV + 1]; /* indegree of each vertex */
+    queue zeroin;           /* vertices of indegree 0 */
+    int x, y;               /* current and next vertex */
+    int i, j;               /* counters */
+    edgenode *p;            /* temporary pointer */
+
+    compute_indegrees(g, indegree);
+    init_queue(&zeroin);
+    for (i = 1; i <= g->nvertices; i++) {
+        if (indegree[i] == 0) {
+            enqueue(&zeroin, i);
+        }
+    }
+
+    j = 0;
+    while (!empty_queue(&zeroin)) {
+        j = j + 1;
+        x = dequeue(&zeroin);
+        sorted[j] = x;
+        p = g->edges[x];
+        while (p != NULL) {
+            y = p->y;
+            indegree[y]--;
+            if (indegree[y] == 0) {
+                enqueue(&zeroin, y);
             }
+            p = p->next;
         }
     }
-    require(static_cast<int>(result.size()) == graph.size(),
-            "topological order requires acyclic graph");
 
-    return result;
-}
-} // namespace adm
-
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto graph = read_graph(std::cin, true);
-        for (auto vertex : topological_kahn(graph)) {
-            std::cout << vertex << " ";
-        }
-        std::cout << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+    if (j != g->nvertices) {
+        printf("Not a DAG -- only %d vertices found\n", j);
     }
 }
-#endif
+/* ]]] */
+
+int main(void) {
+    graph g;
+    int out[MAXV + 1];
+    int i;
+
+    read_graph(&g, true);
+    print_graph(&g);
+
+    topsort(&g, out);
+
+    for (i = 1; i <= g.nvertices; i++) {
+        printf(" %d", out[i]);
+    }
+    printf("\n");
+
+    return 0;
+}

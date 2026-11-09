@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	convex-hull.c
+
+	Compute convex hulls of points in the plane by the Gries/Graham scan.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,68 +16,144 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "bool-old.hpp"
+
 #include "geometry.hpp"
 
-namespace adm {
-std::vector<Point> convex_hull(std::vector<Point> points) {
-    for (Point point : points) {
-        finite_point(point);
-    }
-    std::sort(points.begin(), points.end(),
-              [](Point a, Point b) { return std::tie(a.x, a.y) < std::tie(b.x, b.y); });
-    points.erase(std::unique(points.begin(), points.end(),
-                             [](Point a, Point b) { return a.x == b.x && a.y == b.y; }),
-                 points.end());
-    if (points.size() <= 2) {
-        return points;
-    }
-    std::vector<Point> lower, upper;
-    for (Point point : points) {
-        while (lower.size() >= 2 &&
-               orientation(lower[lower.size() - 2], lower.back(), point) <= 0) {
-            lower.pop_back();
-        }
-        lower.push_back(point);
-    }
-    for (auto it = points.rbegin(); it != points.rend(); ++it) {
-        while (upper.size() >= 2 && orientation(upper[upper.size() - 2], upper.back(), *it) <= 0) {
-            upper.pop_back();
-        }
-        upper.push_back(*it);
-    }
-    lower.pop_back();
-    upper.pop_back();
-    lower.insert(lower.end(), upper.begin(), upper.end());
-    return lower;
-}
-} // namespace adm
+point first_point; /* first hull point */
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        std::vector<Point> points;
-        int n;
-        if (std::cin >> n) {
-            require(n >= 0, "negative point count");
-            for (int i = 0; i < n; ++i) {
-                Point p;
-                require(bool(std::cin >> p.x >> p.y), "missing point");
-                points.push_back(p);
-            }
+int leftlower(const void *left, const void *right);
+int smaller_angle(const void *left, const void *right);
+
+void sort_and_remove_duplicates(point in[], int *n) {
+    int i;            /* counter */
+    int input_count;  /* number of points before deletion */
+    int unique_count; /* index marked for potential deletion */
+
+    qsort(in, *n, sizeof(point), leftlower);
+
+    input_count = *n;
+    /* in[0..unique_count-1] is the compacted distinct prefix. */
+    unique_count = 1;
+    for (i = 1; i < input_count; i++) {
+        if ((in[unique_count - 1][X] == in[i][X]) && (in[unique_count - 1][Y] == in[i][Y])) {
+            (*n)--;
         } else {
-            points = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+            copy_point(in[i], in[unique_count]);
+            unique_count = unique_count + 1;
         }
-        for (auto p : convex_hull(points)) {
-            std::cout << p.x << " " << p.y << "\n";
-        }
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
     }
 }
-#endif
+
+void convex_hull(point in[], int n, polygon *hull) {
+    int i;   /* input counter */
+    int top; /* current hull size */
+
+    if (n <= 0) {
+        hull->n = 0;
+        return;
+    }
+    sort_and_remove_duplicates(in, &n);
+
+    /* A collinear hull is a segment, not a closed scan with a sentinel. */
+    for (i = 1; i + 1 < n; i++) {
+        if (!collinear(in[0], in[n - 1], in[i])) {
+            break;
+        }
+    }
+    if (n <= 2 || i + 1 == n) {
+        copy_point(in[0], hull->p[0]);
+        hull->n = 1;
+        if (n > 1) {
+            copy_point(in[n - 1], hull->p[1]);
+            hull->n = 2;
+        }
+        return;
+    }
+    copy_point(in[0], (double *)&first_point);
+
+    qsort(&in[1], n - 1, sizeof(point), smaller_angle);
+
+    copy_point(first_point, hull->p[0]);
+    copy_point(in[1], hull->p[1]);
+
+    top = 1;
+    i = 2;
+
+    while (i < n) {
+        if (cw(hull->p[top - 1], hull->p[top], in[i])) {
+            top = top - 1; /* top not on hull */
+        } else {
+            if (!collinear(hull->p[top - 1], hull->p[top], in[i])) {
+                top = top + 1;
+            }
+            copy_point(in[i], hull->p[top]);
+            i = i + 1;
+        }
+    }
+    hull->n = top + 1;
+}
+
+int leftlower(const void *left, const void *right) {
+    const point *p1 = (const point *)left;
+    const point *p2 = (const point *)right;
+
+    if ((*p1)[X] < (*p2)[X]) {
+        return (-1);
+    }
+
+    if ((*p1)[X] > (*p2)[X]) {
+        return (1);
+    }
+
+    if ((*p1)[Y] < (*p2)[Y]) {
+        return (-1);
+    }
+
+    if ((*p1)[Y] > (*p2)[Y]) {
+        return (1);
+    }
+
+    return (0);
+}
+
+int smaller_angle(const void *left, const void *right) {
+    /* The legacy geometry predicates accept mutable pointers but only read them. */
+    point *p1 = (point *)left;
+    point *p2 = (point *)right;
+    if (collinear(first_point, *p1, *p2)) {
+        if (distance(first_point, *p1) <= distance(first_point, *p2)) {
+            return (-1);
+        } else {
+            return (1);
+        }
+    }
+
+    if (ccw(first_point, *p1, *p2)) {
+        return (-1);
+    } else {
+        return (1);
+    }
+}
+
+int main(void) {
+    point in[MAXPOLY]; /* input points */
+    polygon hull;      /* convex hull */
+    int n;             /* number of points */
+    int i;             /* counter */
+
+    scanf("%d", &n);
+    for (i = 0; i < n; i++) {
+        scanf("%lf %lf", &in[i][X], &in[i][Y]);
+    }
+
+    convex_hull(in, n, &hull);
+
+    print_polygon(&hull);
+}

@@ -13,32 +13,103 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""matrix.c translated to Python; indices start at zero."""
+"""Direct translation of matrix.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
+
+from ._c import *
+from . import _c
+
+# maximum number of vertices
+# maximum outdegree of a vertex
+class matrix:
+    def __init__(self):
+        # m: adjacency/weight info
+        self.m = [[0 for _ in range((MAXV + 1))] for _ in range((MAXV + 1))]
+        # rows: number of rows
+        self.rows = 0
+        # columns: number of columns
+        self.columns = 0
 
 
-def matrix_multiply(first: list[list[int]], second: list[list[int]]) -> list[list[int]]:
-    """Dense rectangular multiplication in O(rows*inner*columns)."""
-    if not first or not second or not first[0] or not second[0]:
-        raise ValueError("matrices must have positive dimensions")
-    inner, columns = len(second), len(second[0])
-    if any(len(row) != inner for row in first) or any(len(row) != columns for row in second):
-        raise ValueError("incompatible or ragged matrix dimensions")
-    result = [[0] * columns for _ in first]
-    for row in range(len(first)):
-        for shared in range(inner):
-            for column in range(columns):
-                result[row][column] += first[row][shared] * second[shared][column]
-    return result
+MAXV = 100
+MAXDEGREE = 50
+MAXINT = 100007
+
+
+def initialize_matrix(m):
+    # j: counters
+    i = 1
+    while (i <= m.rows):
+        j = 1
+        while (j <= m.columns):
+            m.m[i][j] = 0
+            j += 1
+        i += 1
+
+
+def read_matrix(m):
+    # j: counters
+    scanf("%d %d\n", address(m, 'rows'), address(m, 'columns'))
+    i = 1
+    while (i <= m.rows):
+        j = 1
+        while (j <= m.columns):
+            scanf("%d", address(m.m[i], j))
+            j += 1
+        i += 1
+
+
+def print_matrix(g):
+    # j: counters
+    i = 1
+    while (i <= g.rows):
+        j = 1
+        while (j <= g.columns):
+            printf(" %d", g.m[i][j])
+            j += 1
+        printf("\n")
+        i += 1
+    printf("\n")
+
+
+def multiply(a, b, c):
+    # k: dimension counters
+    if (a.columns != b.rows):
+        printf("Error: bounds dont match!\n")
+        return
+    c.rows = a.rows
+    c.columns = b.columns
+    i = 1
+    while (i <= a.rows):
+        j = 1
+        while (j <= b.columns):
+            c.m[i][j] = 0
+            k = 1
+            while (k <= b.rows):
+                c.m[i][j] += (a.m[i][k] * b.m[k][j])
+                k += 1
+            j += 1
+        i += 1
+
+
+def main():
+    a = matrix()
+    b = matrix()
+    c = matrix()
+    read_matrix(a)
+    print_matrix(a)
+    read_matrix(b)
+    print_matrix(b)
+    multiply(a, b, c)
+    print_matrix(c)
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    print(matrix_multiply([[1, 2]], [[3], [4]]))
+    exit(main())

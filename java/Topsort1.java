@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    topsort1.c
+
+    Topologically sort a directed acyclic graph by DFS numbering (DAG)
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,43 +19,57 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+public class Topsort1 {
+    public static final int TREE = 0;
+    public static final int BACK = 1;
+    public static final int CROSS = 2;
+    public static final int FORWARD = 3;
+    public static final int MAXV = 100;
+    public static final int STACKSIZE = 1000;
+    public static Stack.stack sorted = new Stack.stack(); /* topological ordering of vertices */
 
-public final class Topsort1 {
-    static void topoVisit(List<List<Graph.Arc>> adjacency, int v, int[] state,
-                          List<Integer> order) {
-        state[v] = 1;
-        for (Graph.Arc arc : adjacency.get(v)) {
-            if (state[arc.to()] == 1) {
-                throw new IllegalArgumentException("cycle prevents topological order");
-            }
-            if (state[arc.to()] == 0) {
-                topoVisit(adjacency, arc.to(), state, order);
-            }
-        }
-        state[v] = 2;
-        order.add(v);
+    /* time of vertex exit */
+    public static void process_vertex_early(int v) {
     }
 
-    public static List<Integer> topological(Graph graph) {
-        Graph.requireDirected(graph);
-        List<List<Graph.Arc>> adjacency = graph.adjacency();
-        List<Integer> result = new ArrayList<>();
+    public static void process_vertex_late(int v) {
+        Stack.push(sorted, v);
+    }
 
-        int[] state = new int[graph.n];
-        for (int i = 0; i < graph.n; i++) {
-            if (state[i] == 0) {
-                topoVisit(adjacency, i, state, result);
+    public static void process_edge(int x, int y) {
+        int edge_class = 0;
+        edge_class = BfsDfs.edge_classification(x, y);
+        if ((edge_class == BACK)) {
+            C.printf("Warning: directed cycle found, not a DAG\n");
+        }
+    }
+
+    public static void topsort(Graph.graph g) {
+        int i = 0; /* counter */
+        Stack.init_stack(sorted);
+        for (i = 1; (i <= g.nvertices); i++) {
+            if (!(BfsDfs.discovered[i])) {
+                BfsDfs.dfs(g, i);
             }
         }
-        Collections.reverse(result);
-        return result;
+        Stack.print_stack(sorted); /* report topological order */
+    }
+
+    public static int main() {
+        BfsDfs.callbacks = new BfsDfs.Callbacks() {
+            public void process_vertex_early(int v) { Topsort1.process_vertex_early(v); }
+            public void process_vertex_late(int v) { Topsort1.process_vertex_late(v); }
+            public void process_edge(int x, int y) { Topsort1.process_edge(x, y); }
+        };
+        Graph.graph g = new Graph.graph();
+        Graph.read_graph(g, true);
+        Graph.print_graph(g);
+        topsort(g);
+        return 0;
     }
 
     public static void main(String[] args) {
-        Graph graph = Graph.read(new java.util.Scanner(System.in), true, false);
-        System.out.println(topological(graph));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

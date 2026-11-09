@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	distance.c
+
+	Compute Euclidian distances
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,24 +16,32 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-public final class Distance {
-    public static double distance(double[] a, double[] b) {
-        if (a.length != b.length) {
-            throw new IllegalArgumentException("dimension mismatch");
+public class Distance {
+    public static final int DIMENSION = 3;
+
+    public static double distance(int[] a, int[] b) {
+        int i = 0;
+        double d = 0.0;
+        double delta = 0;
+        for (i = 0; (i < DIMENSION); i++) {
+            delta = (((double)a[i]) - ((double)b[i]));
+            d += (delta * delta);
         }
-        double result = 0;
-        for (int i = 0; i < a.length; i++) {
-            Geometry.finite(a[i]);
-            Geometry.finite(b[i]);
-            result = Math.hypot(result, a[i] - b[i]);
-        }
-        return Geometry.finite(result);
+        return Math.sqrt(d);
+    }
+
+    public static int main() {
+        int[] a = new int[]{6, 2, 3};
+        int[] b = new int[]{6, 3, 4};
+        C.printf("distance = %f\n", distance(a, b));
+        return 0;
     }
 
     public static void main(String[] args) {
-        System.out.println(distance(new double[] {0, 0, 0}, new double[] {3, 4, 0}));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

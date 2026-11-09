@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    tsp-astar.c
+
+    Solve TSP to optimality via backtracking and later A* search.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,122 +19,412 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "geometry.hpp"
-#include "tsp.hpp"
-#include "tsp-astar.hpp"
+#include <math.h>
+#include <float.h>
+#include <stdio.h>
+#include <stdbool.h>
+
 #include "tsp-pq.hpp"
 
-namespace adm {
-Tour exact_tsp(const std::vector<Point> &points, const std::string &method) {
-    const int n = static_cast<int>(points.size());
+#define MAXCANDIDATES 100 /* max possible next extensions */
+#define MAXD 100000.0     /* largest possible distance */
 
-    require(method == "exact" || method == "best", "unknown exact TSP method");
-    if (method == "exact" || method == "best") {
-        require(n <= 12, "exact TSP limited to 12 cities");
+tsp_solution best_solution; /* store the current best solution */
+double best_cost;           /* cost of current best solution */
+
+double lb[NMAX + 1]; /* vertex lower bounds */
+double minlb;        /* global edge lower bound */
+
+long evaluations;   /* how many of (n-1!) evaluations were done? */
+long constructions; /* how many intermediate nodes were calculated */
+long maxqueuesize;  /* largest size of queue realized */
+
+priority_queue q; /* priority queue for branch & bound search */
+
+bool lb_flag = true; /* use  lower bound to speed branch & bound */
+bool finished = false;
+
+/* declarations to clean up branch_and_bound for the book */
+
+void initialize_solution(tsp_solution *, tsp_instance *);
+void first_solution(tsp_solution *, tsp_instance *);
+void print_solution(tsp_solution *);
+void extend_solution(tsp_solution *, tsp_instance *, int);
+void contract_solution(tsp_solution *, tsp_instance *);
+double solution_cost(tsp_solution *, tsp_instance *);
+
+double partial_solution_lb(tsp_solution *, tsp_instance *);
+
+/* [[[ astar_process_solution_tsp_cut */
+void process_solution(tsp_solution *s, int k, tsp_instance *input) {
+    s->cost = solution_cost(s, input);
+    if (s->cost < best_cost) {
+        best_cost = s->cost;
+        copy_solution(s, &best_solution);
     }
-    std::vector<int> initial(points.size());
-    std::iota(initial.begin(), initial.end(), 0);
-    Tour best{tour_cost(points, initial), initial};
-    // Euclidean distances are nonnegative: a validated zero-cost tour is optimal.
-    if (n < 2 || best.cost == 0) {
-        return best;
+
+    evaluations++;
+}
+/* ]]] */
+
+/* [[[ astar_is_a_solution_tsp_cut */
+int is_a_solution(tsp_solution *s, int k, tsp_instance *t) {
+    return (k == t->n);
+}
+/* ]]] */
+
+void make_move(tsp_solution *s, int k, tsp_instance *t) {}
+
+void unmake_move(tsp_solution *s, int k, tsp_instance *t) {}
+
+/*    What are possible elements of the next slot in the permutation?  */
+/* [[[ astar_construct_candidates_tsp_cut */
+void construct_candidates(tsp_solution *s, int k, tsp_instance *t, int c[], int *ncandidates) {
+    int i;                  /* counter */
+    bool in_perm[NMAX + 1]; /* what is now in the permutation? */
+
+    constructions++;
+
+    if (partial_solution_lb(s, t) > best_cost) {
+        *ncandidates = 0;
+        return;
     }
-    std::vector<std::vector<double>> distances(n, std::vector<double>(n));
-    std::vector<double> minimum(n, std::numeric_limits<double>::infinity());
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            distances[i][j] = point_distance(points[i], points[j]);
-            if (i != j) {
-                minimum[i] = std::min(minimum[i], distances[i][j]);
+
+    if (k == 1) {
+        c[0] = 1;
+        *ncandidates = 1;
+        return;
+    }
+
+    for (i = 1; i <= NMAX; i++) {
+        in_perm[i] = false;
+    }
+
+    for (i = 1; i < k; i++) {
+        in_perm[s->p[i]] = true;
+    }
+
+    *ncandidates = 0;
+    for (i = 1; i <= t->n; i++) {
+        if (!in_perm[i]) {
+            c[*ncandidates] = i;
+            *ncandidates = *ncandidates + 1;
+        }
+    }
+}
+/* ]]] */
+
+/* customize backtrack to TSP solutions */
+
+void backtrack(tsp_solution *s, int k, tsp_instance *input) {
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int ncandidates;      /* next position candidate count */
+    int i;                /* counter */
+
+    if (is_a_solution(s, k, input)) {
+        process_solution(s, k, input);
+    } else {
+        k = k + 1;
+        construct_candidates(s, k, input, c, &ncandidates);
+        for (i = 0; i < ncandidates; i++) {
+            s->p[k] = c[i];
+            s->n = k;
+            make_move(s, k, input);
+            backtrack(s, k, input);
+            unmake_move(s, k, input);
+
+            if (finished) {
+                return; /* terminate early */
             }
         }
     }
-    struct State {
-        double cost, bound;
-        std::vector<int> path;
-        std::uint32_t used;
-    };
-    auto bound = [&](const State &state) {
-        double estimate = state.cost + minimum[state.path.back()];
-        for (int vertex = 0; vertex < n; ++vertex) {
-            if (!(state.used & (std::uint32_t(1) << vertex))) {
-                estimate += minimum[vertex];
-            }
-        }
-        return estimate;
-    };
-    if (method == "exact" || method == "best") {
-        // Each still-unassigned outgoing tour edge is at least that vertex's
-        // cheapest edge. This lower bound is admissible even with duplicate cities.
-        auto extend = [&](const State &state, int vertex) {
-            State next = state;
-            next.cost += distances[state.path.back()][vertex];
-            next.path.push_back(vertex);
-            next.used |= std::uint32_t(1) << vertex;
-            next.bound = bound(next);
-            return next;
-        };
-        auto finish = [&](const State &state) {
-            double cost = tour_cost(points, state.path);
-            if (cost < best.cost) {
-                best = {cost, state.path};
-            }
-        };
-        State first{0, 0, {0}, 1};
-        first.bound = bound(first);
-        if (method == "exact") {
-            std::function<void(const State &)> visit = [&](const State &state) {
-                if (static_cast<int>(state.path.size()) == n) {
-                    finish(state);
-                    return;
-                }
-                // Roundoff slack prevents pruning a slightly underestimated best.
-                if (state.bound > best.cost + epsilon * std::max(1.0, best.cost)) {
-                    return;
-                }
-                for (int vertex = 1; vertex < n; ++vertex) {
-                    if (!(state.used & (std::uint32_t(1) << vertex))) {
-                        visit(extend(state, vertex));
-                    }
-                }
-            };
-            visit(first);
+}
+
+/* [[[ astar_generate_tsp_cut */
+void solve_tsp(tsp_instance *t, tsp_solution *s) {
+    first_solution(&best_solution, t);
+    best_cost = solution_cost(&best_solution, t);
+    /* Fix the first city: rotations describe the same closed tour. */
+    initialize_solution(s, t);
+    extend_solution(s, t, 1);
+    backtrack(s, 1, t);
+}
+/* ]]] */
+
+/* customize branch and bound  to TSP solutions */
+
+/* [[[ astar_branch_and_bound_cut */
+void branch_and_bound(tsp_solution *s, tsp_instance *t) {
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int nc;               /* next position candidate count */
+    int i;                /* counter */
+
+    first_solution(&best_solution, t);
+    best_cost = solution_cost(&best_solution, t);
+    initialize_solution(s, t);
+    extend_solution(s, t, 1);
+    pq_init(&q);
+    pq_insert(&q, s);
+
+    /* Queue keys are conservative lower bounds, not complete-tour costs. */
+    while (!empty_pq(&q) && top_pq(&q).cost < best_cost) {
+        *s = extract_min(&q);
+        if (is_a_solution(s, s->n, t)) {
+            process_solution(s, s->n, t);
         } else {
-            auto later = [](const State &a, const State &b) { return a.bound > b.bound; };
-            TourQueue<State, decltype(later)> ready(later);
-            ready.push(std::move(first));
-            while (!ready.empty()) {
-                State state = ready.top();
-                ready.pop();
-                if (state.bound > best.cost + epsilon * std::max(1.0, best.cost)) {
-                    continue;
-                }
-                if (static_cast<int>(state.path.size()) == n) {
-                    finish(state);
-                    continue;
-                }
-                for (int vertex = 1; vertex < n; ++vertex) {
-                    if (!(state.used & (std::uint32_t(1) << vertex))) {
-                        ready.push(extend(state, vertex));
-                    }
-                }
+            construct_candidates(s, (s->n) + 1, t, c, &nc);
+            for (i = 0; i < nc; i++) {
+                extend_solution(s, t, c[i]);
+                pq_insert(&q, s);
+                contract_solution(s, t);
             }
         }
-        return best;
     }
-    return best;
 }
-} // namespace adm
+/* ]]] */
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        std::cout << exact_tsp({{0, 0}, {1, 0}, {1, 1}, {0, 1}}, "best").cost << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+/*************************************************************/
+/*************************************************************/
+
+void read_tsp(tsp_instance *t) {
+    int i, j; /* counters */
+
+    scanf("%d\n", &(t->n));
+
+    for (i = 1; i <= (t->n); i++) {
+        scanf("%d %d %d\n", &j, &(t->p[i].x), &(t->p[i].y));
     }
 }
-#endif
+
+void print_tsp(tsp_instance *t) {
+    int i; /* counter */
+
+    for (i = 1; i <= (t->n); i++) {
+        printf("%d %d %d\n", i, (t->p[i].x), (t->p[i].y));
+    }
+}
+
+int sq(int x) {
+    return (x * x);
+}
+
+double d(int x1, int y1, int x2, int y2) {
+    return hypot((double)x1 - x2, (double)y1 - y2);
+}
+
+double d1(int i, int j, tsp_instance *t) {
+    return (d(t->p[i].x, t->p[i].y, t->p[j].x, t->p[j].y));
+}
+
+double distance(tsp_solution *s, int x, int y, tsp_instance *t) {
+    int i, j;
+
+    i = x;
+    j = y;
+
+    if (i == ((t->n) + 1)) {
+        i = 1;
+    }
+
+    if (j == ((t->n) + 1)) {
+        j = 1;
+    }
+
+    if (i == 0) {
+        i = (t->n);
+    }
+
+    if (j == 0) {
+        j = (t->n);
+    }
+
+    return (d1(s->p[i], s->p[j], t));
+}
+
+/**********************************************************************/
+
+double solution_cost(tsp_solution *s, tsp_instance *t) {
+    int i;       /* counter */
+    double cost; /* cost of solution */
+
+    cost = distance(s, t->n, 1, t);
+    for (i = 1; i < (t->n); i++) {
+        cost = cost + distance(s, i, i + 1, t);
+    }
+
+    s->cost = cost;
+    return (cost);
+}
+
+/* [[[ astar_partial_solution_lb_cut */
+double partial_solution_cost(tsp_solution *s, tsp_instance *t) {
+    int i;             /* counter */
+    double cost = 0.0; /* cost of solution */
+
+    for (i = 1; i < (s->n); i++) {
+        cost = cost + distance(s, i, i + 1, t);
+    }
+
+    return (cost);
+}
+
+double partial_solution_lb(tsp_solution *s, tsp_instance *t) {
+    int remaining = t->n - s->n + (s->n > 0);
+    double bound = partial_solution_cost(s, t);
+    if (lb_flag) {
+        bound += remaining * minlb;
+    }
+    /* Round conservatively: a lower bound must not round above a tour. */
+    return fmax(0.0, bound - 64 * DBL_EPSILON * (fabs(bound) + 1));
+}
+/* ]]] */
+
+void initialize_solution(tsp_solution *s, tsp_instance *t) {
+    s->n = 0;
+    s->cost = 0;
+}
+
+/* [[[ astar_extend_contract-cut */
+void extend_solution(tsp_solution *s, tsp_instance *t, int v) {
+    s->n++;
+    s->p[s->n] = v;
+    s->cost = partial_solution_lb(s, t);
+}
+
+void contract_solution(tsp_solution *s, tsp_instance *t) {
+    s->n--;
+    s->cost = partial_solution_lb(s, t);
+}
+/* ]]] */
+
+void first_solution(tsp_solution *s, tsp_instance *t) {
+    int i; /* counter */
+
+    s->n = t->n;
+    for (i = 1; i <= t->n; i++) {
+        s->p[i] = i;
+    }
+    s->cost = solution_cost(s, t);
+}
+
+void copy_solution(tsp_solution *s, tsp_solution *t) {
+    int i; /* counter */
+    t->cost = s->cost;
+    t->n = s->n;
+    for (i = 1; i <= (s->n); i++) {
+        t->p[i] = s->p[i];
+    }
+}
+
+void print_solution(tsp_solution *s) {
+    int i; /* counter */
+
+    printf(" n = %d   ", s->n);
+    for (i = 1; i <= (s->n); i++) {
+        printf(" %d", s->p[i]);
+    }
+    printf("\n------------------------------------------------------\n");
+}
+
+void read_solution(tsp_solution *s) {
+    int i; /* counter */
+
+    scanf("%d\n", &(s->n));
+
+    for (i = 1; i <= (s->n); i++) {
+        scanf("%d", &(s->p[i]));
+    }
+}
+
+/*************************************************************/
+
+/* Compute lower bounds on edge costs for all vertices */
+
+double find_vertex_lower_bounds(tsp_instance *t, double lb[]) {
+    int i, j;         /* counters */
+    double minweight; /* min weight edge in graph */
+
+    minweight = MAXD;
+    for (i = 1; i <= t->n; i++) {
+        lb[i] = MAXD;
+        for (j = 1; j <= t->n; j++) {
+            if ((i != j) && (lb[i] > d1(i, j, t))) {
+                lb[i] = d1(i, j, t);
+            }
+        }
+        if (minweight > lb[i]) {
+            minweight = lb[i];
+        }
+    }
+
+    return (minweight);
+}
+
+/*************************************************************/
+
+int main(void) {
+    tsp_solution s; /* solution vector */
+    tsp_instance t; /* tsp points */
+    int i;          /* counter */
+
+    read_tsp(&t);
+    print_tsp(&t);
+
+    /*
+    first_solution(&s,&t);
+    best_cost = solution_cost(&s, &t);
+
+    print_solution(&s);
+    printf("INITIAL SOLUTION COST = %7.1f\n",best_cost);
+*/
+
+    minlb = find_vertex_lower_bounds(&t, lb);
+
+    /*
+    printf("minlb = %7.1f\n",minlb);
+
+    for (i=1; i<=t.n; i++) {
+	printf(" lb[%d] = %7.1f\n", i, lb[i]);
+    }
+*/
+
+    for (i = false; i <= true; i++) {
+
+        first_solution(&s, &t);
+        best_cost = solution_cost(&s, &t);
+
+        /*
+    print_solution(&s);
+    printf("INITIAL SOLUTION COST = %7.1f\n",best_cost);
+*/
+
+        lb_flag = i;
+        constructions = evaluations = 0;
+        solve_tsp(&t, &s);
+        printf(" evaluations = %ld backtracking lb_flag=%d \n", evaluations, lb_flag);
+        printf(" constructions = %ld \n", constructions);
+
+        print_solution(&best_solution);
+        printf("OPTIMAL SOLUTION COST = %7.1f\n", best_cost);
+
+        /********* Branch and Bound Search **************/
+
+        first_solution(&s, &t);
+        best_cost = solution_cost(&s, &t);
+
+        /*
+    print_solution(&s);
+    printf("INITIAL SOLUTION COST = %7.1f\n",best_cost);
+*/
+
+        maxqueuesize = constructions = evaluations = 0;
+        branch_and_bound(&s, &t);
+        printf(" evaluations = %ld  branch-and-bound lb_flag=%d \n", evaluations, lb_flag);
+        printf(" constructions = %ld  maxqueuesize = %ld \n", constructions, maxqueuesize);
+
+        print_solution(&best_solution);
+        printf("OPTIMAL B-AND-B SOLUTION COST = %7.1f\n", best_cost);
+    }
+
+    return 0;
+}

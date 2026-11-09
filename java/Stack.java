@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    stack.c
+
+    Implementation of a LIFO stack abstract data type.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,26 +19,50 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+public class Stack {
+    public static final int STACKSIZE = 1000;
+    public static class stack {
+        int[] s = new int[(STACKSIZE + 1)]; /* body of queue */
+        int top = 0; /* position of top element */
+        int count = 0; /* number of stack elements */
+    }
 
-public final class Stack<T> {
+    public static void init_stack(Stack.stack s) {
+        s.top = (-1);
+        s.count = 0;
+    }
 
-    private final List<T> values = new ArrayList<>();
-    public int size() {
-        return values.size();
-    }
-    public boolean isEmpty() {
-        return values.isEmpty();
-    }
-    public void push(T value) {
-        values.add(value);
-    }
-    public T pop() {
-        if (values.isEmpty()) {
-            throw new NoSuchElementException("empty stack");
+    public static void push(Stack.stack s, int x) {
+        if ((s.count >= STACKSIZE)) {
+            C.printf("Warning: stack overflow push x=%d\n", x);
+        } else {
+            s.top = (s.top + 1);
+            s.s[s.top] = x;
+            s.count = (s.count + 1);
         }
-        return values.remove(values.size() - 1);
     }
+
+    public static int pop(Stack.stack s) {
+        int x = 0;
+        if ((s.count <= 0)) {
+            C.printf("Warning: empty stack pop.\n");
+        }
+        x = s.s[s.top];
+        s.top = (s.top - 1);
+        s.count = (s.count - 1);
+        return x;
+    }
+
+    public static int empty_stack(Stack.stack s) {
+        return ((s.count <= 0) ? 1 : 0);
+    }
+
+    public static void print_stack(Stack.stack s) {
+        int i = 0; /* counter */
+        for (i = (s.count - 1); (i >= 0); i--) {
+            C.printf("%d ", s.s[i]);
+        }
+        C.printf("\n");
+    }
+
 }

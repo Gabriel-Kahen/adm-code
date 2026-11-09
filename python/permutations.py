@@ -13,33 +13,104 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""permutations.c translated to Python; indices start at zero."""
+"""Direct translation of permutations.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from .backtrack import backtrack
+from ._c import *
+from . import _c
+
+# max possible next extensions
+MAXCANDIDATES = 100
+# maximum solution size
+NMAX = 100
+finished = False
 
 
-def permutations(size: int) -> list[list[int]]:
-    """All permutations of 0..n-1, O(n*n!) output; restricted to n<=9."""
-    if not 0 <= size <= 9:
-        raise ValueError("permutations require 0 <= n <= 9")
-    result = []
-    backtrack(
-        [],
-        lambda prefix: len(prefix) == size,
-        lambda prefix: (value for value in range(size) if value not in prefix),
-        lambda prefix: result.append(list(prefix)) is None,
-    )
-    return result
+def process_solution(a, k, input):
+    # i: counter
+    i = 1
+    while (i <= k):
+        printf(" %d", a[i])
+        i += 1
+    printf("\n")
+
+
+def is_a_solution(a, k, n):
+    return (k == n)
+
+
+def make_move(a, k, n):
+    pass
+
+
+def unmake_move(a, k, n):
+    pass
+
+
+# What are possible elements of the next slot in the permutation?
+def construct_candidates(a, k, n, c, nc):
+    # i: counter
+    # in_perm: what is now in the permutation?
+    in_perm = [0 for _ in range((NMAX + 1))]
+    i = 1
+    while (i <= NMAX):
+        in_perm[i] = False
+        i += 1
+    i = 1
+    while (i < k):
+        in_perm[a[i]] = True
+        i += 1
+    nc[0] = 0
+    i = 1
+    while (i <= n):
+        if (not in_perm[i]):
+            c[nc[0]] = i
+            nc[0] = (nc[0] + 1)
+        i += 1
+
+
+def backtrack(a, k, input):
+    # c: candidates for next position
+    c = [0 for _ in range(MAXCANDIDATES)]
+    # ncandidates: next position candidate count
+    ncandidates = [0]
+    # i: counter
+    if is_a_solution(a, k, input):
+        process_solution(a, k, input)
+    else:
+        k = (k + 1)
+        construct_candidates(a, k, input, c, ncandidates)
+        i = 0
+        while (i < ncandidates[0]):
+            a[k] = c[i]
+            make_move(a, k, input)
+            backtrack(a, k, input)
+            unmake_move(a, k, input)
+            if finished:
+                # return: terminate early
+                return
+            i += 1
+
+
+def generate_permutations(n):
+    # a: solution vector
+    a = [0 for _ in range((NMAX + 1))]
+    backtrack(a, 0, n)
+
+
+def main():
+    generate_permutations(0)
+    generate_permutations(1)
+    generate_permutations(2)
+    generate_permutations(3)
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    print(permutations(int(sys.stdin.read().strip() or "3")))
+    exit(main())

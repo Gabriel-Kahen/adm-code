@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    topsort.c
+
+    Topologically sort a directed acyclic graph (DAG) by indegre-zero deletion.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,43 +19,80 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
+public class Topsort {
+    public static final int TREE = 0;
+    public static final int BACK = 1;
+    public static final int CROSS = 2;
+    public static final int FORWARD = 3;
+    public static final int MAXV = 100;
+    public static final int QUEUESIZE = 1000;
 
-public final class Topsort {
-    public static List<Integer> topological(Graph graph) {
-        Graph.requireDirected(graph);
-        List<List<Graph.Arc>> adjacency = graph.adjacency();
-        List<Integer> result = new ArrayList<>();
-
-        int[] incoming = new int[graph.n];
-        for (Graph.Edge edge : graph.edges) {
-            incoming[edge.to()]++;
+    public static void compute_indegrees(Graph.graph g, int[] in) {
+        int i = 0; /* counter */
+        Graph.edgenode p = null; /* temporary pointer */
+        for (i = 1; (i <= g.nvertices); i++) {
+            in[i] = 0;
         }
-        ArrayDeque<Integer> ready = new ArrayDeque<>();
-        for (int i = 0; i < graph.n; i++) {
-            if (incoming[i] == 0) {
-                ready.add(i);
+        for (i = 1; (i <= g.nvertices); i++) {
+            p = g.edges[i];
+            while ((p != null)) {
+                in[p.y]++;
+                p = p.next;
             }
         }
-        while (!ready.isEmpty()) {
-            int from = ready.remove();
-            result.add(from);
-            for (Graph.Arc arc : adjacency.get(from)) {
-                if (--incoming[arc.to()] == 0) {
-                    ready.add(arc.to());
+    }
+
+    public static void topsort(Graph.graph g, int[] sorted) {
+        int[] indegree = new int[(MAXV + 1)]; /* indegree of each vertex */
+        Queue.queue zeroin = new Queue.queue(); /* vertices of indegree 0 */
+        int x = 0; /* current and next vertex */
+        int y = 0;
+        int i = 0; /* counters */
+        int j = 0;
+        Graph.edgenode p = null; /* temporary pointer */
+        compute_indegrees(g, indegree);
+        Queue.init_queue(zeroin);
+        for (i = 1; (i <= g.nvertices); i++) {
+            if ((indegree[i] == 0)) {
+                Queue.enqueue(zeroin, i);
+            }
+        }
+        j = 0;
+        while (!((Queue.empty_queue(zeroin) != 0))) {
+            j = (j + 1);
+            x = Queue.dequeue(zeroin);
+            sorted[j] = x;
+            p = g.edges[x];
+            while ((p != null)) {
+                y = p.y;
+                indegree[y]--;
+                if ((indegree[y] == 0)) {
+                    Queue.enqueue(zeroin, y);
                 }
+                p = p.next;
             }
         }
-        if (result.size() != graph.n) {
-            throw new IllegalArgumentException("cycle prevents topological order");
+        if ((j != g.nvertices)) {
+            C.printf("Not a DAG -- only %d vertices found\n", j);
         }
-        return result;
+    }
+
+    public static int main() {
+        Graph.graph g = new Graph.graph();
+        int[] out = new int[(MAXV + 1)];
+        int i = 0;
+        Graph.read_graph(g, true);
+        Graph.print_graph(g);
+        topsort(g, out);
+        for (i = 1; (i <= g.nvertices); i++) {
+            C.printf(" %d", out[i]);
+        }
+        C.printf("\n");
+        return 0;
     }
 
     public static void main(String[] args) {
-        Graph graph = Graph.read(new java.util.Scanner(System.in), true, false);
-        System.out.println(topological(graph));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

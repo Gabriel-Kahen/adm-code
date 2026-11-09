@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    topsort1.c
+
+    Topologically sort a directed acyclic graph by DFS numbering (DAG)
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,50 +19,63 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "graph.hpp"
+#include <stdio.h>
 
-namespace adm {
-std::vector<int> topological_dfs(const Graph &graph) {
-    directed(graph);
-    std::vector<int> result;
+#include <stdbool.h>
+#include "bfs-dfs.hpp"
+#include "stack.hpp"
 
-    std::vector<int> color(graph.size());
-    std::function<void(int)> visit = [&](int vertex) {
-        require(color[vertex] != 1, "topological order requires acyclic graph");
-        if (color[vertex] == 2) {
-            return;
-        }
-        color[vertex] = 1;
-        for (const auto &edge : graph.neighbors(vertex)) {
-            visit(edge.to);
-        }
-        color[vertex] = 2;
-        result.push_back(vertex);
-    };
-    for (int vertex = 0; vertex < graph.size(); ++vertex) {
-        if (!color[vertex]) {
-            visit(vertex);
-        }
-    }
-    std::reverse(result.begin(), result.end());
+stack sorted; /* topological ordering of vertices */
 
-    return result;
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
+
+extern int entry_time[]; /* time of vertex entry */
+extern int exit_time[];  /* time of vertex exit */
+
+void process_vertex_early(int v) {}
+
+/* [[[ pvlate_topsort_cut */
+void process_vertex_late(int v) {
+    push(&sorted, v);
 }
-} // namespace adm
+/* ]]] */
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto graph = read_graph(std::cin, true);
-        for (auto vertex : topological_dfs(graph)) {
-            std::cout << vertex << " ";
-        }
-        std::cout << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+/* [[[ pedge_topsort_cut */
+void process_edge(int x, int y) {
+    int edge_class; /* edge class */
+
+    edge_class = edge_classification(x, y);
+
+    if (edge_class == BACK) {
+        printf("Warning: directed cycle found, not a DAG\n");
     }
 }
-#endif
+/* ]]] */
+
+/* [[[ topsort_cut */
+void topsort(graph *g) {
+    int i; /* counter */
+
+    init_stack(&sorted);
+
+    for (i = 1; i <= g->nvertices; i++) {
+        if (!discovered[i]) {
+            dfs(g, i);
+        }
+    }
+    print_stack(&sorted); /* report topological order */
+}
+/* ]]] */
+
+int main(void) {
+    graph g;
+
+    read_graph(&g, true);
+    print_graph(&g);
+
+    topsort(&g);
+
+    return 0;
+}

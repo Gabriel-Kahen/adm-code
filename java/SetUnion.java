@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    set_union.c
+
+    Implementation of a heap / priority queue abstract data type.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,52 +19,57 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-public final class SetUnion {
+public class SetUnion {
+    public static final int SET_SIZE = 1000;
+    public static class union_find {
+        int[] p = new int[(SET_SIZE + 1)]; /* parent element */
+        int[] size = new int[(SET_SIZE + 1)]; /* number of elements in subtree i */
+        int n = 0; /* number of elements in set */
+    }
 
-    private final int[] parent;
-    private final int[] size;
-    public SetUnion(int n) {
-        if (n < 0) {
-            throw new IllegalArgumentException("negative set size");
+    public static void union_find_init(SetUnion.union_find s, int n) {
+        int i = 0; /* counter */
+        for (i = 1; (i <= n); i++) {
+            s.p[i] = i;
+            s.size[i] = 1;
         }
-        parent = new int[n];
-        size = new int[n];
-        for (int i = 0; i < n; i++) {
-            parent[i] = i;
-            size[i] = 1;
+        s.n = n;
+    }
+
+    public static int find(SetUnion.union_find s, int x) {
+        if ((s.p[x] == x)) {
+            return x;
+        }
+        return find(s, s.p[x]);
+    }
+
+    public static void union_sets(SetUnion.union_find s, int s1, int s2) {
+        int r1 = 0; /* roots of sets */
+        int r2 = 0;
+        r1 = find(s, s1);
+        r2 = find(s, s2);
+        if ((r1 == r2)) {
+            return; /* already in same set */
+        }
+        if ((s.size[r1] >= s.size[r2])) {
+            s.size[r1] = (s.size[r1] + s.size[r2]);
+            s.p[r2] = r1;
+        } else {
+            s.size[r2] = (s.size[r1] + s.size[r2]);
+            s.p[r1] = r2;
         }
     }
-    public int find(int x) {
-        if (x < 0 || x >= parent.length) {
-            throw new IllegalArgumentException("invalid element");
-        }
-        int root = x;
-        while (root != parent[root]) {
-            root = parent[root];
-        }
-        while (x != root) {
-            int next = parent[x];
-            parent[x] = root;
-            x = next;
-        }
-        return root;
+
+    public static boolean same_component(SetUnion.union_find s, int s1, int s2) {
+        return (find(s, s1) == find(s, s2));
     }
-    public boolean union(int a, int b) {
-        a = find(a);
-        b = find(b);
-        if (a == b) {
-            return false;
+
+    public static void print_union_find(SetUnion.union_find s) {
+        int i = 0; /* counter */
+        for (i = 1; (i <= s.n); i++) {
+            C.printf("%i  set=%d size=%d \n", i, s.p[i], s.size[i]);
         }
-        if (size[a] < size[b]) {
-            int swap = a;
-            a = b;
-            b = swap;
-        }
-        parent[b] = a;
-        size[a] += size[b];
-        return true;
+        C.printf("\n");
     }
-    public int size(int x) {
-        return size[find(x)];
-    }
+
 }

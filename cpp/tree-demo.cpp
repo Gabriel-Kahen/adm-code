@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    tree-demo.c
+
+    Driver for a binary search tree container implementation.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,94 +19,197 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 #include "tree.hpp"
 
-namespace adm {
-void BinarySearchTree::insert(Integer value) {
-    auto *link = &root_;
-    while (*link) {
-        if ((*link)->value == value) {
-            return;
-        }
-        link = value < (*link)->value ? &(*link)->left : &(*link)->right;
-    }
-    *link = std::make_unique<Node>(value);
+tree *parent; /* last node visited */
+
+tree *init_tree(void) {
+    return (NULL);
 }
 
-bool BinarySearchTree::contains(Integer value) const {
-    Node *node = root_.get();
-    while (node) {
-        if (node->value == value) {
-            return true;
-        }
-        node = value < node->value ? node->left.get() : node->right.get();
+bool empty_tree(tree *t) {
+    if (t == NULL) {
+        return (true);
     }
-    return false;
+    return (false);
 }
 
-bool BinarySearchTree::erase_node(std::unique_ptr<Node> &node, Integer value) {
-    if (!node) {
-        return false;
+/* [[[ search_tree_cut */
+tree *search_tree(tree *l, item_type x) {
+    if (l == NULL) {
+        return (NULL);
     }
-    if (value < node->value) {
-        return erase_node(node->left, value);
+
+    if (l->item == x) {
+        return (l);
     }
-    if (value > node->value) {
-        return erase_node(node->right, value);
-    }
-    if (!node->left) {
-        auto removed = std::move(node);
-        node = std::move(removed->right);
-    } else if (!node->right) {
-        auto removed = std::move(node);
-        node = std::move(removed->left);
+
+    if (x < l->item) {
+        return (search_tree(l->left, x));
     } else {
-        Node *successor = node->right.get();
-        while (successor->left) {
-            successor = successor->left.get();
-        }
-        node->value = successor->value;
-        erase_node(node->right, successor->value);
-    }
-    return true;
-}
-
-bool BinarySearchTree::erase(Integer value) {
-    return erase_node(root_, value);
-}
-
-Integers BinarySearchTree::values() const {
-    Integers result;
-    std::function<void(const Node *)> visit = [&](const Node *node) {
-        if (!node) {
-            return;
-        }
-        visit(node->left.get());
-        result.push_back(node->value);
-        visit(node->right.get());
-    };
-    visit(root_.get());
-    return result;
-}
-} // namespace adm
-
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        BinarySearchTree tree;
-        tree.insert(3);
-        tree.insert(1);
-        tree.insert(2);
-        tree.erase(3);
-        for (auto value : tree.values()) {
-            std::cout << value << " ";
-        }
-        std::cout << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+        return (search_tree(l->right, x));
     }
 }
-#endif
+/* ]]] */
+
+/* [[[ insert_tree_cut */
+void insert_tree(tree **l, item_type x, tree *parent) {
+    tree *p; /* temporary pointer */
+
+    if (*l == NULL) {
+        p = (tree *)malloc(sizeof(tree));
+        p->item = x;
+        p->left = p->right = NULL;
+        p->parent = parent;
+        *l = p;
+        return;
+    }
+
+    if (x < (*l)->item) {
+        insert_tree(&((*l)->left), x, *l);
+    } else {
+        insert_tree(&((*l)->right), x, *l);
+    }
+}
+/* ]]] */
+
+void print_tree(tree *l) {
+    if (l != NULL) {
+        print_tree(l->left);
+        printf("%d ", l->item);
+        print_tree(l->right);
+    }
+}
+
+/* [[[ sucessor_descd_cut */
+tree *successor_descendant(tree *t) {
+    tree *succ; /* successor pointer */
+
+    if (t->right == NULL) {
+        return (NULL);
+    }
+    succ = t->right;
+    while (succ->left != NULL) {
+        succ = succ->left;
+    }
+    return (succ);
+}
+/* ]]] */
+
+/* [[[ find_minimum_cut */
+tree *find_minimum(tree *t) {
+    tree *min; /* pointer to minimum */
+
+    if (t == NULL) {
+        return (NULL);
+    }
+
+    min = t;
+    while (min->left != NULL) {
+        min = min->left;
+    }
+    return (min);
+}
+/* ]]] */
+
+tree *predecessor_descendant(tree *t) {
+    tree *pred; /* predecessor pointer */
+
+    if (t->left == NULL) {
+        return (NULL);
+    }
+
+    pred = t->left;
+    while (pred->right != NULL) {
+        pred = pred->right;
+    }
+    return (pred);
+}
+
+/* [[[ delete_tree_cut */
+tree *delete_tree(tree *t, item_type x) {
+    tree *target = search_tree(t, x);
+    tree *removed, *child;
+    if (target == NULL) {
+        printf("Warning: key to be deleted %d is not in tree.\n", x);
+        return t;
+    }
+    /* Detach a node by identity: equal keys need not identify the same node.
+       The successor of a two-child node has at most one child. */
+    removed =
+        (target->left != NULL && target->right != NULL) ? successor_descendant(target) : target;
+    child = removed->left != NULL ? removed->left : removed->right;
+    if (removed->parent == NULL) {
+        t = child;
+    } else if (removed->parent->left == removed) {
+        removed->parent->left = child;
+    } else {
+        removed->parent->right = child;
+    }
+    if (child != NULL) {
+        child->parent = removed->parent;
+    }
+    if (removed != target) {
+        target->item = removed->item;
+    }
+    free(removed);
+    return t;
+}
+/* ]]] */
+
+void process_item(item_type x) {
+    printf("%d", x);
+}
+
+/* [[[ traverse_tree_cut */
+void traverse_tree(tree *l) {
+    if (l != NULL) {
+        traverse_tree(l->left);
+        process_item(l->item);
+        traverse_tree(l->right);
+    }
+}
+/* ]]] */
+
+int main(void) {
+    char c;      /* input character */
+    item_type d; /* input item */
+    tree *l;     /* tree under construction */
+    tree *tmp;   /* returned tree from search */
+
+    l = init_tree();
+
+    while (scanf("%c", &c) != EOF) {
+        if (tolower(c) == 'p') {
+            print_tree(l);
+            printf("\n");
+        }
+        if (tolower(c) == 'i') {
+            scanf("%d", &d);
+            printf("new item: %d\n", d);
+            insert_tree(&l, d, NULL);
+        }
+        if (tolower(c) == 's') {
+            scanf("%d", &d);
+            tmp = search_tree(l, d);
+            if (tmp == NULL) {
+                printf("item %d not found\n", d);
+            } else {
+                printf("item %d found\n", d);
+            }
+        }
+        if (tolower(c) == 'd') {
+            scanf("%d", &d);
+            printf(" deleting item %d\n", d);
+            l = delete_tree(l, d);
+            print_tree(l);
+            printf("\n");
+        }
+    }
+    return 0;
+}

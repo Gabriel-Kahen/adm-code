@@ -1,4 +1,12 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	subsetsum.c
+
+	Solve the subset sum problem by dynamic programming
+
+	Note: the first dimension of the table will denote the rank of the integer
+	being considered, with the second dimension denoting the realizable sums.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,54 +22,83 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
+#include <stdbool.h>
 
-namespace adm {
-std::optional<std::vector<int>> subset_sum(const Integers &values, Integer target) {
-    require(target >= 0, "negative subset-sum target");
-    // Pseudopolynomial storage; explicitly reject requests beyond practical memory.
-    require(target <= 10000000, "subset-sum target exceeds memory budget 10000000");
-    std::vector<int> chosen(static_cast<std::size_t>(target) + 1, -1);
-    chosen[0] = -2;
-    for (std::size_t i = 0; i < values.size(); ++i) {
-        require(values[i] >= 0, "negative subset-sum value");
-        if (values[i] == 0 || values[i] > target) {
-            continue;
-        }
-        for (Integer sum = target; sum >= values[i]; --sum) {
-            if (chosen[sum] == -1 && chosen[sum - values[i]] != -1) {
-                chosen[sum] = static_cast<int>(i);
+#define MAXN 100     /* largest n */
+#define MAXSUM 10000 /* largest sum we will consider */
+
+#define NIL -1
+
+/* compute whether k can be made as a subset sum from s */
+
+/* [[[ subset_sum_cut */
+bool sum[MAXN + 1][MAXSUM + 1];   /* table of realizable sums */
+int parent[MAXN + 1][MAXSUM + 1]; /* table of parent pointers */
+
+bool subset_sum(int s[], int n, int k) {
+    int i, j; /* counters */
+
+    sum[0][0] = true;
+    parent[0][0] = NIL;
+
+    for (i = 1; i <= k; i++) {
+        sum[0][i] = false;
+        parent[0][i] = NIL;
+    }
+
+    for (i = 1; i <= n; i++) { /* build table */
+        for (j = 0; j <= k; j++) {
+            sum[i][j] = sum[i - 1][j];
+            parent[i][j] = NIL;
+
+            if ((j >= s[i - 1]) && (sum[i - 1][j - s[i - 1]] == true)) {
+                sum[i][j] = true;
+                parent[i][j] = j - s[i - 1];
             }
         }
     }
-    if (chosen[target] == -1) {
-        return std::nullopt;
-    }
-    std::vector<int> indices;
-    for (Integer sum = target; sum > 0;) {
-        int index = chosen[sum];
-        indices.push_back(index);
-        sum -= values[index];
-    }
-    std::sort(indices.begin(), indices.end());
-    return indices;
-}
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto result = subset_sum({1, 3, 4}, 7);
-        if (result) {
-            for (auto index : *result) {
-                std::cout << index << " ";
-            }
-        }
-        std::cout << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+    return (sum[n][k]);
+}
+/* ]]] */
+
+/* [[[ subset_sum_report_cut */
+void report_subset(int n, int k) {
+    if (k == 0) {
+        return;
+    }
+
+    if (parent[n][k] == NIL) {
+        report_subset(n - 1, k);
+    } else {
+        report_subset(n - 1, parent[n][k]);
+        printf(" %d ", k - parent[n][k]);
     }
 }
-#endif
+/* ]]] */
+
+int main(void) {
+    int r, n, k, i, s[MAXN + 1], m, j;
+
+    scanf("%d", &m);
+
+    for (j = 0; j < m; j++) {
+
+        scanf("%d %d", &n, &k);
+        printf("n=%d  k=%d \n", n, k);
+
+        for (i = 0; i < n; i++) {
+            scanf("%d", &s[i]);
+            printf(" %d ", s[i]);
+        }
+
+        printf("\n Is %d realizable: %d\n", k, r = subset_sum(s, n, k));
+
+        if (r)
+            report_subset(n, k);
+        printf("\n\n");
+    }
+
+    return 0;
+}

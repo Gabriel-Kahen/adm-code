@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*	stack.h
+
+	Header file for queue implementation
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,29 +21,16 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
+#define STACKSIZE 1000
 
-#include "item.hpp"
+typedef struct {
+    int s[STACKSIZE + 1]; /* body of queue */
+    int top;              /* position of top element */
+    int count;            /* number of stack elements */
+} stack;
 
-namespace adm {
-template <class T> class Stack {
-    std::vector<T> values_;
-
-  public:
-    void push(T value) {
-        values_.push_back(std::move(value));
-    }
-    T pop() {
-        require(!empty(), "empty stack");
-        T value = std::move(values_.back());
-        values_.pop_back();
-        return value;
-    }
-    bool empty() const {
-        return values_.empty();
-    }
-    std::size_t size() const {
-        return values_.size();
-    }
-};
-} // namespace adm
+void init_stack(stack *s);
+void push(stack *s, int x);
+int pop(stack *s);
+void print_stack(stack *s);
+int empty_stack(stack *s);

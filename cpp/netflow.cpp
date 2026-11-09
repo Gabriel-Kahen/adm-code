@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    netflow.c
+
+      Network flow implementation -- Ford-Fulkerson augmenting path algorithm.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,63 +19,303 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "graph.hpp"
-#include "wgraph.hpp"
+#include <stdio.h>
+#include <stdlib.h>
 
-namespace adm {
-Integer maximum_flow(const Graph &graph, int source, int sink) {
-    directed(graph);
-    graph.validate_vertex(source);
-    graph.validate_vertex(sink);
-    require(source != sink, "flow endpoints must differ");
-    Matrix residual(graph.size(), Integers(graph.size()));
-    for (const auto &edge : graph.edges()) {
-        require(edge.weight >= 0, "negative flow capacity");
-        residual[edge.from][edge.to] = add(residual[edge.from][edge.to], edge.weight);
+#include <stdbool.h>
+#include "geometry.hpp"
+#include "queue.hpp"
+
+#define MAXV 100     /* maximum number of vertices */
+#define MAXDEGREE 50 /* maximum outdegree of a vertex */
+
+/* [[[ netflow_edgenode_cut */
+typedef struct edgenode {
+    int v;                 /* neighboring vertex */
+    long long capacity;    /* capacity of edge */
+    long long flow;        /* signed net flow; reverse edge stores its negative */
+    long long residual;    /* residual capacity of edge */
+    struct edgenode *next; /* next edge in list */
+} edgenode;
+/* ]]] */
+
+typedef struct {
+    edgenode *edges[MAXV + 1]; /* adjacency info */
+    int degree[MAXV + 1];      /* outdegree of each vertex */
+    int nvertices;             /* number of vertices in the graph */
+    int nedges;                /* number of edges in the graph */
+} flow_graph;
+
+void initialize_graph(flow_graph *g) { /* graph to initialize */
+    int i;                             /* counter */
+
+    g->nvertices = 0;
+    g->nedges = 0;
+
+    for (i = 0; i <= MAXV; i++) {
+        g->degree[i] = 0;
     }
-    Integer total = 0;
-    while (true) {
-        std::vector<int> parent(graph.size(), -1);
-        parent[source] = source;
-        std::deque<int> pending{source};
-        while (!pending.empty() && parent[sink] == -1) {
-            int vertex = pending.front();
-            pending.pop_front();
-            for (int next = 0; next < graph.size(); ++next) {
-                if (parent[next] == -1 && residual[vertex][next] > 0) {
-                    parent[next] = vertex;
-                    pending.push_back(next);
+
+    for (i = 0; i <= MAXV; i++) {
+        g->edges[i] = NULL;
+    }
+}
+
+edgenode *find_edge(flow_graph *g, int x, int y);
+
+void insert_flow_edge(flow_graph *g, int x, int y, bool directed, int w) {
+    edgenode *edge; /* temporary pointer */
+    edgenode *parallel_edge = find_edge(g, x, y);
+    /* Parallel arcs share a single residual-capacity entry. */
+    if (parallel_edge != NULL) {
+        parallel_edge->capacity += w;
+        parallel_edge->residual += w;
+        if (!directed) {
+            insert_flow_edge(g, y, x, true, w);
+        }
+        return;
+    }
+    edge = (edgenode *)malloc(sizeof(edgenode)); /* allocate storage for edgenode */
+
+    edge->v = y;
+    edge->capacity = w;
+    edge->flow = 0;
+    edge->residual = w;
+    edge->next = g->edges[x];
+
+    g->edges[x] = edge; /* insert at head of list */
+    g->degree[x]++;
+
+    if (!directed) {
+        insert_flow_edge(g, y, x, true, w);
+    } else {
+        g->nedges++;
+    }
+}
+
+void read_flow_graph(flow_graph *g, bool directed) {
+    int i;       /* counter */
+    int m;       /* number of edges */
+    int x, y, w; /* placeholder for edge and weight */
+
+    initialize_graph(g);
+
+    scanf("%d %d\n", &(g->nvertices), &m);
+
+    for (i = 1; i <= m; i++) {
+        scanf("%d %d %d\n", &x, &y, &w);
+        insert_flow_edge(g, x, y, directed, w);
+    }
+}
+
+/* [[[ netflow_fedge_cut */
+edgenode *find_edge(flow_graph *g, int x, int y) {
+    edgenode *p; /* temporary pointer */
+
+    p = g->edges[x];
+
+    while (p != NULL) {
+        if (p->v == y) {
+            return (p);
+        }
+        p = p->next;
+    }
+
+    return (NULL);
+}
+/* ]]] */
+
+void add_residual_edges(flow_graph *g) {
+    int i;       /* counter */
+    edgenode *p; /* temporary pointer */
+
+    for (i = 1; i <= g->nvertices; i++) {
+        p = g->edges[i];
+        while (p != NULL) {
+            if (find_edge(g, p->v, i) == NULL) {
+                insert_flow_edge(g, p->v, i, true, 0);
+            }
+            p = p->next;
+        }
+    }
+}
+
+void print_flow_graph(flow_graph *g) {
+    int i;       /* counter */
+    edgenode *p; /* temporary pointer */
+
+    for (i = 1; i <= g->nvertices; i++) {
+        printf("%d: ", i);
+        p = g->edges[i];
+        while (p != NULL) {
+            printf(" %d(%lld,%lld,%lld)", p->v, p->capacity, p->flow, p->residual);
+            p = p->next;
+        }
+        printf("\n");
+    }
+}
+
+bool processed[MAXV + 1];  /* which vertices have been processed */
+bool discovered[MAXV + 1]; /* which vertices have been found */
+int parent[MAXV + 1];      /* discovery relation */
+
+bool finished = false; /* if true, cut off search immediately */
+
+void initialize_search(flow_graph *g) { /* graph to traverse */
+    int i;                              /* counter */
+
+    for (i = 1; i <= g->nvertices; i++) {
+        processed[i] = false;
+        discovered[i] = false;
+        parent[i] = -1;
+    }
+}
+
+void process_vertex_early(int v) { /* vertex to process */ }
+
+void process_vertex_late(int v) { /* vertex to process */ }
+
+void process_edge(int x, int y) { /* edge to process */ }
+
+/* [[[ netflow_vedge_cut */
+bool valid_edge(edgenode *e) {
+    return (e->residual > 0);
+}
+/* ]]] */
+
+void bfs(flow_graph *g, int start) {
+    queue q;     /* queue of vertices to visit */
+    int v;       /* current vertex */
+    int y;       /* successor vertex */
+    edgenode *p; /* temporary pointer */
+
+    init_queue(&q);
+    enqueue(&q, start);
+    discovered[start] = true;
+
+    while (!empty_queue(&q)) {
+        v = dequeue(&q);
+        process_vertex_early(v);
+        processed[v] = true;
+        p = g->edges[v];
+        while (p != NULL) {
+            y = p->v;
+            if (valid_edge(p)) {
+                if (!processed[y]) {
+                    process_edge(v, y);
+                }
+
+                if (!discovered[y]) {
+                    enqueue(&q, y);
+                    discovered[y] = true;
+                    parent[y] = v;
                 }
             }
+            p = p->next;
         }
-        if (parent[sink] == -1) {
-            return total;
-        }
-        Integer amount = std::numeric_limits<Integer>::max();
-        for (int vertex = sink; vertex != source; vertex = parent[vertex]) {
-            amount = std::min(amount, residual[parent[vertex]][vertex]);
-        }
-        for (int vertex = sink; vertex != source; vertex = parent[vertex]) {
-            residual[parent[vertex]][vertex] -= amount;
-            residual[vertex][parent[vertex]] = add(residual[vertex][parent[vertex]], amount);
-        }
-        total = add(total, amount);
+        process_vertex_late(v);
     }
 }
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        int source, sink;
-        require(bool(std::cin >> source >> sink), "missing source and sink");
-        auto graph = read_weighted_graph(std::cin, true);
-        std::cout << maximum_flow(graph, source - 1, sink - 1) << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+int find_path(int start, int end, int parents[]) {
+    if (end == -1) {
+        printf("\nNo path");
+        return 0;
+    }
+    if (start == end) {
+        printf("\n%d", start);
+    } else {
+        if (!find_path(start, parents[end], parents)) {
+            return 0;
+        }
+        printf(" %d", end);
+    }
+    return 1;
+}
+
+/* [[[ path_volume_cut */
+long long path_volume(flow_graph *g, int start, int end) {
+    edgenode *e; /* edge in question */
+
+    if (parent[end] == -1) {
+        return (0);
+    }
+
+    e = find_edge(g, parent[end], end);
+
+    if (start == parent[end]) {
+        return (e->residual);
+    } else {
+        return (min(path_volume(g, start, parent[end]), e->residual));
     }
 }
-#endif
+/* ]]] */
+
+/* [[[ augment_path_cut */
+void augment_path(flow_graph *g, int start, int end, long long volume) {
+    edgenode *forward;
+    edgenode *reverse;
+
+    if (start == end) {
+        return;
+    }
+
+    forward = find_edge(g, parent[end], end);
+    forward->flow += volume;
+    forward->residual -= volume;
+
+    /* Reverse residual capacity permits undoing an earlier routing decision.
+       Each direction stores the negative of its partner's net flow. */
+    reverse = find_edge(g, end, parent[end]);
+    reverse->flow -= volume;
+    reverse->residual += volume;
+
+    augment_path(g, start, parent[end], volume);
+}
+/* ]]] */
+
+/* [[[ netflow_cut */
+void netflow(flow_graph *g, int source, int sink) {
+    long long volume; /* weight of the augmenting path */
+
+    /* Every arc needs a reverse entry before augmentations can cancel flow. */
+    add_residual_edges(g);
+
+    initialize_search(g);
+    bfs(g, source);
+
+    volume = path_volume(g, source, sink);
+
+    while (volume > 0) {
+        augment_path(g, source, sink, volume);
+        initialize_search(g);
+        bfs(g, source);
+        volume = path_volume(g, source, sink);
+    }
+}
+/* ]]] */
+
+int main(void) {
+    flow_graph g;     /* graph to analyze */
+    int source, sink; /* source and sink vertices */
+    long long flow;   /* total flow */
+    edgenode *p;      /* temporary pointer */
+
+    scanf("%d %d", &source, &sink);
+    read_flow_graph(&g, true);
+
+    netflow(&g, source, sink);
+
+    print_flow_graph(&g);
+
+    flow = 0;
+    p = g.edges[source];
+    while (p != NULL) {
+        flow += p->flow;
+        p = p->next;
+    }
+
+    printf("total flow = %lld\n", flow);
+
+    return 0;
+}

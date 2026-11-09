@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/* 	random.c
+
+	Compute random numbers within given ranges
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,37 +19,65 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-public final class Random {
+public class Random {
+    /*      These functions generate random numbers in the designated ranges */
+    public static void swap(int[] a, int i, int[] b, int j) {
+        int t = a[i];
+        a[i] = b[j];
+        b[j] = t;
+    }
+    /*      Construct a random permutation of the $n$ elements of the
+            given array.
+    */
+    public static void random_permutation(int[] a, int offset, int n) {
+        for (int i = n; i > 1; i--) swap(a, offset + i - 1, a, offset + random_int(0, i - 1));
+    }
 
-    private final java.util.Random random;
-    public Random(long seed) {
-        random = new java.util.Random(seed);
+
+    public static void swap(int[] a, int[] b) {
+        int x = 0;
+        x = a[0];
+        a[0] = b[0];
+        b[0] = x;
     }
-    public int integer(int low, int high) {
-        if (low > high) {
-            throw new IllegalArgumentException("empty integer interval");
+
+    public static int random_int(int low, int high) { /* lower/upper bounds on numb*/
+        int i = 0; /* random number*/
+        int j = 0;
+        int r = 0;
+        i = (Integer.MAX_VALUE / ((high - low) + 1));
+        i *= ((high - low) + 1);
+        while (((j = C.rand()) >= i)) {
+            continue;
         }
-        return (int)((long)low + random.nextLong((long)high - low + 1));
+        r = ((j % ((high - low) + 1)) + low);
+        if (((r < low) || (r > high))) {
+            C.printf("Error: random integer %d out of range [%d,%d]\n", r, low, high);
+        }
+        return r;
     }
-    public double real(double low, double high) {
-        Geometry.finite(low);
-        Geometry.finite(high);
-        if (low > high) {
-            throw new IllegalArgumentException("empty real interval");
-        }
-        if (low == high) {
-            return low;
-        }
-        double fraction = random.nextDouble();
-        double value = Geometry.finite((1 - fraction) * low + fraction * high);
-        return value < high ? Math.max(low, value) : Math.nextDown(high);
-    }
-    public void shuffle(int[] values) {
-        for (int i = values.length - 1; i > 0; i--) {
-            int j = random.nextInt(i + 1);
-            int value = values[i];
-            values[i] = values[j];
-            values[j] = value;
+
+    public static void random_permutation(int[] a, int n) {
+        int i = 0;
+        for (i = n; (i > 1); i--) {
+            Random.swap(a, (i - 1), a, random_int(0, (i - 1)));
         }
     }
+
+    public static double random_float(int low, int high) { /*lower/upper bounds on numb*/
+        double i = 0; /* avoid arithmetic trouble */
+        double j = 0;
+        double r = 0; /* random number*/
+        i = (Integer.MAX_VALUE / (high - low));
+        i *= (high - low);
+        while (((j = C.rand()) >= i)) {
+            continue;
+        }
+        r = (((j / i) * (high - low)) + low);
+        if (((r < low) || (r > high))) {
+            C.printf("ERROR: random real %f out of range [%d,%d]\n", r, low, high);
+        }
+        return r;
+    }
+
 }

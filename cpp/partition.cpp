@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*  partition.c
+
+    Optimally balance partitions using dynamic programming
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,62 +19,106 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
 
-namespace adm {
-struct Partition {
-    Integer cost;
-    Matrix groups;
-};
+#define MAXN 45 /* largest number of books */
+#define MAXK 10 /* largest number of dividers */
 
-Partition linear_partition(const Integers &values, int groups) {
-    require(groups >= 1 && static_cast<std::size_t>(groups) <= values.size(),
-            "partition requires 1 <= groups <= item count");
-    Integers prefix(values.size() + 1);
-    for (std::size_t i = 0; i < values.size(); ++i) {
-        require(values[i] >= 0, "negative partition value");
-        prefix[i + 1] = add(prefix[i], values[i]);
+long long max(long long a, long long b) {
+    return ((a > b) ? a : b);
+}
+
+void read_partition(int s[], int *n, int *k) {
+    int i; /* counter */
+
+    scanf("%d %d\n", n, k);
+    for (i = 1; i <= *n; i++) {
+        scanf("%d\n", &(s[i]));
     }
-    std::vector<std::vector<std::optional<Integer>>> cost(
-        groups + 1, std::vector<std::optional<Integer>>(values.size() + 1));
-    std::vector<std::vector<std::size_t>> split(groups + 1,
-                                                std::vector<std::size_t>(values.size() + 1));
-    cost[0][0] = 0;
-    for (int count = 1; count <= groups; ++count) {
-        for (std::size_t end = static_cast<std::size_t>(count); end <= values.size(); ++end) {
-            for (std::size_t begin = static_cast<std::size_t>(count - 1); begin < end; ++begin) {
-                if (!cost[count - 1][begin]) {
-                    continue;
-                }
-                Integer candidate = std::max(*cost[count - 1][begin], prefix[end] - prefix[begin]);
-                if (!cost[count][end] || candidate < *cost[count][end]) {
-                    cost[count][end] = candidate;
-                    split[count][end] = begin;
+}
+
+/* [[[ print_books_297_cut */
+void print_books(int s[], int start, int end) {
+    int i; /* counter */
+
+    printf("{");
+    for (i = start; i <= end; i++) {
+        printf(" %d ", s[i]);
+    }
+    printf("}\n");
+}
+/* ]]] */
+
+void print_matrix(long long m[MAXN + 1][MAXK + 1], int n, int k) {
+    int i, j; /* counters */
+
+    printf("\n");
+    for (i = 1; i <= n; i++) {
+        for (j = 1; j <= k; j++) {
+            printf(" %lld ", m[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+/* [[[ reconstruct_partition_297_cut */
+void reconstruct_partition(int s[], int d[MAXN + 1][MAXK + 1], int n, int k) {
+    if (k == 1) {
+        print_books(s, 1, n);
+    } else {
+        reconstruct_partition(s, d, d[n][k], k - 1);
+        print_books(s, d[n][k] + 1, n);
+    }
+}
+/* ]]] */
+
+/* [[[ partition_296_cut */
+void partition(int s[], int n, int k) {
+    long long prefix_sum[MAXN + 1];
+    long long best_cost[MAXN + 1][MAXK + 1];
+    int divider[MAXN + 1][MAXK + 1];
+    long long split_cost;
+    int i, j, x;
+
+    if (n < 1 || n > MAXN || k < 1 || k > MAXK || k > n) {
+        fprintf(stderr, "invalid partition dimensions\n");
+        return;
+    }
+
+    prefix_sum[0] = 0; /* construct prefix sums */
+    for (i = 1; i <= n; i++) {
+        prefix_sum[i] = prefix_sum[i - 1] + s[i];
+    }
+
+    for (i = 1; i <= n; i++) {
+        best_cost[i][1] = prefix_sum[i]; /* initialize boundaries */
+    }
+
+    /* best_cost[i][j] balances the first i books into j nonempty groups.
+       A split after x leaves j - 1 nonempty groups on its left. */
+    for (i = 2; i <= n; i++) {
+        for (j = 2; j <= k && j <= i; j++) {
+            for (x = j - 1; x <= (i - 1); x++) {
+                split_cost = max(best_cost[x][j - 1], prefix_sum[i] - prefix_sum[x]);
+                /* The first feasible split initializes the cell without an infinity sentinel. */
+                if (x == j - 1 || best_cost[i][j] > split_cost) {
+                    best_cost[i][j] = split_cost;
+                    divider[i][j] = x;
                 }
             }
         }
     }
-    Matrix parts;
-    std::size_t end = values.size();
-    for (int count = groups; count > 0; --count) {
-        std::size_t begin = split[count][end];
-        parts.emplace_back(values.begin() + static_cast<std::ptrdiff_t>(begin),
-                           values.begin() + static_cast<std::ptrdiff_t>(end));
-        end = begin;
-    }
-    std::reverse(parts.begin(), parts.end());
-    return {*cost[groups][values.size()], parts};
+    reconstruct_partition(s, divider, n, k); /* print book partition */
 }
-} // namespace adm
+/* ]]] */
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        std::cout << linear_partition({1, 2, 3}, 2).cost << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
-    }
+int main(void) {
+    int s[MAXN + 1]; /* book thicknesses to partition */
+    int n;           /* how many books? */
+    int k;           /* how many partitions? */
+
+    read_partition(s, &n, &k);
+    partition(s, n, k);
+
+    return 0;
 }
-#endif

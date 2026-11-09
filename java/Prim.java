@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    prim.c
+
+    Compute minimum spanning trees of graphs via Dijkstra/Prim's algorithm.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,56 +19,68 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
+public class Prim {
+    public static final int TREE = 0;
+    public static final int BACK = 1;
+    public static final int CROSS = 2;
+    public static final int FORWARD = 3;
+    public static final int MAXV = 100;
+    public static final long MAXINT = (Long.MAX_VALUE / 4);
 
-public final class Prim {
-    record Candidate(int from, int to, long weight, int id) {}
-
-    static final Comparator<Candidate> BY_WEIGHT = Comparator.comparingLong(Candidate::weight)
-                                                       .thenComparingInt(Candidate::from)
-                                                       .thenComparingInt(Candidate::to)
-                                                       .thenComparingInt(Candidate::id);
-
-    /** Minimum spanning FOREST, including disconnected/empty graphs. */
-    public static Wgraph.Forest minimumSpanningForest(Graph graph) {
-        Graph.requireUndirected(graph);
-        List<long[]> chosen = new ArrayList<>();
-        long total = 0;
-
-        List<List<Graph.Arc>> adjacency = graph.adjacency();
-        boolean[] seen = new boolean[graph.n];
-        PriorityQueue<Candidate> candidates = new PriorityQueue<>(BY_WEIGHT);
-        for (int root = 0; root < graph.n; root++) {
-            if (seen[root]) {
-                continue;
+    public static long prim(Graph.graph g, int start) {
+        int i = 0;
+        Graph.edgenode edge = null;
+        boolean[] in_tree = new boolean[(MAXV + 1)];
+        long[] distance = new long[(MAXV + 1)]; /* cheapest known edge from the tree */
+        int vertex = 0;
+        int neighbor = 0;
+        long next_distance = 0;
+        long tree_weight = 0;
+        for (i = 1; (i <= g.nvertices); i++) {
+            in_tree[i] = false;
+            distance[i] = MAXINT;
+            Wgraph.parent[i] = (-1);
+        }
+        distance[start] = 0;
+        vertex = start;
+        /* Grow the tree in start's connected component; other parents remain -1. */
+        while (!(in_tree[vertex])) {
+            in_tree[vertex] = true;
+            if ((vertex != start)) {
+                C.printf("edge (%d,%d) in tree \n", Wgraph.parent[vertex], vertex);
+                tree_weight = (tree_weight + next_distance);
             }
-            seen[root] = true;
-            for (Graph.Arc arc : adjacency.get(root)) {
-                candidates.add(new Candidate(root, arc.to(), arc.weight(), arc.id()));
-            }
-            while (!candidates.isEmpty()) {
-                Candidate edge = candidates.remove();
-                if (seen[edge.to()]) {
-                    continue;
+            edge = g.edges[vertex];
+            while ((edge != null)) {
+                neighbor = edge.y;
+                if (((distance[neighbor] > edge.weight) && !(in_tree[neighbor]))) {
+                    distance[neighbor] = edge.weight;
+                    Wgraph.parent[neighbor] = vertex;
                 }
-                seen[edge.to()] = true;
-                chosen.add(new long[] {edge.from(), edge.to(), edge.weight()});
-                total = Math.addExact(total, edge.weight());
-                for (Graph.Arc arc : adjacency.get(edge.to())) {
-                    if (!seen[arc.to()]) {
-                        candidates.add(new Candidate(edge.to(), arc.to(), arc.weight(), arc.id()));
-                    }
+                edge = edge.next;
+            }
+            next_distance = MAXINT;
+            for (i = 1; (i <= g.nvertices); i++) {
+                if ((!(in_tree[i]) && (next_distance > distance[i]))) {
+                    next_distance = distance[i];
+                    vertex = i;
                 }
             }
         }
-        return new Wgraph.Forest(total, chosen);
+        return tree_weight;
+    }
+
+    public static int main() {
+        Graph.graph g = new Graph.graph();
+        long weight = 0;
+        Wgraph.read_graph(g, false);
+        weight = prim(g, 1);
+        C.printf("Out of Prim: weight = %lld \n", weight);
+        return 0;
     }
 
     public static void main(String[] args) {
-        Graph graph = Graph.read(new java.util.Scanner(System.in), false, true);
-        System.out.println(minimumSpanningForest(graph));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

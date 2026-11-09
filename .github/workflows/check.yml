@@ -16,7 +16,9 @@ jobs:
           distribution: temurin
           java-version: "17"
       - run: make -j2 all test
-      - name: Check C++ memory and arithmetic safety
+      - name: Check translated auxiliary structures with sanitizers
         run: |
-          clang++ -std=c++17 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer tests/cpp.cpp -o build/tests/cpp-sanitized
-          ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ./build/tests/cpp-sanitized
+          clang++ -std=c++17 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -Icpp -x c++ tests/structures.c cpp/queue.cpp cpp/stack.cpp cpp/priority_queue.cpp cpp/set_union.cpp cpp/graph.cpp -o build/tests/structures-sanitized
+          ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ./build/tests/structures-sanitized
+          clang++ -std=c++17 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -x c++ tests/tsp_values.c cpp/tsp-pq.cpp -o build/tests/tsp-values-sanitized
+          ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ./build/tests/tsp-values-sanitized

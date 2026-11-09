@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	findcycle.c
+
+	Identify a cycle in a graph, if one exists.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,37 +19,45 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.List;
+public class Findcycle {
+    public static final int TREE = 0;
+    public static final int BACK = 1;
+    public static final int CROSS = 2;
+    public static final int FORWARD = 3;
+    public static final int MAXV = 100;
 
-public final class Findcycle {
-    public static boolean hasCycle(Graph graph) {
-        Graph.requireUndirected(graph);
-        List<List<Graph.Arc>> adjacency = graph.adjacency();
-        boolean[] seen = new boolean[graph.n];
-        for (int i = 0; i < graph.n; i++) {
-            if (!seen[i] && cycleVisit(adjacency, i, -1, seen)) {
-                return true;
-            }
-        }
-        return false;
+    /* flag for early search cutoff */
+    public static void process_vertex_early(int v) {
     }
 
-    static boolean cycleVisit(List<List<Graph.Arc>> adjacency, int from, int parentEdge,
-                              boolean[] seen) {
-        seen[from] = true;
-        for (Graph.Arc arc : adjacency.get(from)) {
-            if (arc.id() == parentEdge) {
-                continue;
-            }
-            if (seen[arc.to()] || cycleVisit(adjacency, arc.to(), arc.id(), seen)) {
-                return true;
-            }
+    public static void process_vertex_late(int v) {
+    }
+
+    public static void process_edge(int x, int y) {
+        if ((BfsDfs.parent[y] != x)) { /* found back edge! */
+            C.printf("Cycle from %d to %d:", y, x);
+            BfsDfs.find_path(y, x, BfsDfs.parent);
+            BfsDfs.finished = true;
         }
-        return false;
+    }
+
+    public static int main() {
+        BfsDfs.callbacks = new BfsDfs.Callbacks() {
+            public void process_vertex_early(int v) { Findcycle.process_vertex_early(v); }
+            public void process_vertex_late(int v) { Findcycle.process_vertex_late(v); }
+            public void process_edge(int x, int y) { Findcycle.process_edge(x, y); }
+        };
+        Graph.graph g = new Graph.graph();
+        Graph.read_graph(g, false);
+        Graph.print_graph(g);
+        BfsDfs.initialize_search(g);
+        BfsDfs.dfs(g, 1);
+        C.printf("\n");
+        return 0;
     }
 
     public static void main(String[] args) {
-        Graph graph = Graph.read(new java.util.Scanner(System.in), false, false);
-        System.out.println(hasCycle(graph));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

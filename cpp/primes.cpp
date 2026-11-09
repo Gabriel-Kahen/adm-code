@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    primes.c
+
+    Compute the prime factorization of an integer.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,38 +19,43 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <math.h>
+#include <stdio.h>
 
-namespace adm {
-Integers prime_factors(Integer n) {
-    require(n >= 1, "factorization requires positive integer");
-    Integers factors;
-    for (Integer divisor = 2; divisor <= n / divisor; divisor += divisor == 2 ? 1 : 2) {
-        while (n % divisor == 0) {
-            factors.push_back(divisor);
-            n /= divisor;
+void prime_factorization(long x) {
+    long i; /* counter */
+    long c; /* remaining product to factor */
+
+    c = x;
+
+    while ((c % 2) == 0) {
+        printf("%d\n", 2);
+        c = c / 2;
+    }
+
+    i = 3;
+
+    while (i <= (sqrt(c) + 1)) {
+        if ((c % i) == 0) {
+            printf("%ld\n", i);
+            c = c / i;
+        } else {
+            i = i + 2;
         }
     }
-    if (n > 1) {
-        factors.push_back(n);
-    }
-    return factors;
-}
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        Integer n = 360;
-        std::cin >> n;
-        for (auto value : prime_factors(n)) {
-            std::cout << value << " ";
-        }
-        std::cout << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+    if (c > 1) {
+        printf("%ld\n", c);
     }
 }
-#endif
+
+int main(void) {
+    long p;
+
+    while (scanf("%ld", &p) != EOF) {
+        printf("prime factorization of p=%ld \n", p);
+        prime_factorization(p);
+    }
+
+    return 0;
+}

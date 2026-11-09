@@ -1,4 +1,4 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,69 +14,115 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.math.BigInteger;
+public class Fib {
+    public static final int MAXN = 92; /* largest n for which F(n) fits in a long */
+    public static final int UNKNOWN = -1; /* contents denote an empty cell */
+    public static long[] f = new long[(MAXN + 1)]; /* array for caching fib values */
 
-public final class Fib {
-    /** F(0)=0, F(1)=1; recursive O(phi^n), table/constant O(n) additions. */
-    public static BigInteger fibonacci(String method, int n) {
-        if (n < 0 || n > 100000) {
-            throw new IllegalArgumentException("Fibonacci index outside 0..100000");
+    /* Returns -1 with errno set for invalid arguments or an unrepresentable result. */
+    public static long binomial_coefficient(int n, int k) {
+        long[] bc = new long[MAXN + 1];
+        int i = 0;
+        int j = 0;
+        int last = 0;
+        C.errno = 0;
+        if (((((n < 0) || (n > MAXN)) || (k < 0)) || (k > n))) {
+            C.errno = 33;
+            return (-1);
         }
-        return switch (method) {
-            case "recursive" -> {
-                if (n > 35) {
-                    throw new IllegalArgumentException("recursive Fibonacci is limited to 35");
+        if ((k > (n - k))) {
+            k = (n - k);
+        }
+        bc[0] = 1;
+        for (i = 1; (i <= n); i++) {
+            last = ((i < k) ? i : k);
+            for (j = last; (j > 0); j--) {
+                if ((bc[j] > (Long.MAX_VALUE - bc[(j - 1)]))) {
+                    C.errno = 34;
+                    return (-1);
                 }
-                yield recursiveFibonacci(n);
+                bc[j] += bc[(j - 1)];
             }
-            case "memo" -> {
-                if (n > 1000) {
-                    throw new IllegalArgumentException("memo Fibonacci is limited to 1000");
-                }
-                yield memoFibonacci(n, new BigInteger[n + 1]);
-            }
-            case "table" -> {
-                BigInteger[] values = new BigInteger[Math.max(2, n + 1)];
-                values[0] = BigInteger.ZERO;
-                values[1] = BigInteger.ONE;
-                for (int i = 2; i <= n; i++) {
-                    values[i] = values[i - 1].add(values[i - 2]);
-                }
-                yield values[n];
-            }
-            case "constant" -> {
-                BigInteger previous = BigInteger.ZERO;
-                BigInteger current = BigInteger.ONE;
-                for (int i = 0; i < n; i++) {
-                    BigInteger next = previous.add(current);
-                    previous = current;
-                    current = next;
-                }
-                yield previous;
-            }
-            default -> throw new IllegalArgumentException("unknown Fibonacci method");
-        };
+        }
+        return bc[k];
     }
 
-    static BigInteger recursiveFibonacci(int n) {
-        if (n < 2) {
-            return BigInteger.valueOf(n);
+    public static long fib_r(int n) {
+        if ((n == 0)) {
+            return 0;
         }
-        return recursiveFibonacci(n - 1).add(recursiveFibonacci(n - 2));
+        if ((n == 1)) {
+            return 1;
+        }
+        return (fib_r((n - 1)) + fib_r((n - 2)));
     }
 
-    static BigInteger memoFibonacci(int n, BigInteger[] cache) {
-        if (n < 2) {
-            return BigInteger.valueOf(n);
+    public static long fib_c(int n) {
+        if ((f[n] == UNKNOWN)) {
+            f[n] = (fib_c((n - 1)) + fib_c((n - 2)));
         }
-        if (cache[n] == null) {
-            cache[n] = memoFibonacci(n - 1, cache).add(memoFibonacci(n - 2, cache));
+        return f[n];
+    }
+
+    public static long fib_c_driver(int n) {
+        int i = 0; /* counter */
+        f[0] = 0;
+        f[1] = 1;
+        for (i = 2; (i <= n); i++) {
+            f[i] = UNKNOWN;
         }
-        return cache[n];
+        return fib_c(n);
+    }
+
+    public static long fib_dp(int n) {
+        int i = 0; /* counter */
+        long[] f = new long[(MAXN + 1)]; /* array for caching values */
+        f[0] = 0;
+        f[1] = 1;
+        for (i = 2; (i <= n); i++) {
+            f[i] = (f[(i - 1)] + f[(i - 2)]);
+        }
+        return f[n];
+    }
+
+    public static long fib_ultimate(int n) {
+        int i = 0; /* counter */
+        long back2 = 0; /* last two values of f[n] */
+        long back1 = 1;
+        long next = 0; /* placeholder for sum */
+        if ((n == 0)) {
+            return 0;
+        }
+        for (i = 2; (i < n); i++) {
+            next = (back1 + back2);
+            back2 = back1;
+            back1 = next;
+        }
+        return (back1 + back2);
+    }
+
+    public static int main() {
+        int i = 0;
+        int ntest = 92;
+        for (i = 0; (i <= ntest); i++) {
+            C.printf("fib_c(%d) = %ld\n", i, fib_c_driver(i));
+        }
+        for (i = 0; (i <= ntest); i++) {
+            C.printf("fib_dp(%d) = %ld\n", i, fib_dp(i));
+        }
+        for (i = 0; (i <= ntest); i++) {
+            C.printf("fib_dp2(%d) = %ld\n", i, fib_ultimate(i));
+        }
+        /*
+            for (i = 0; i <= ntest; i++) {
+                printf("fib(%d) = %ld\n",i, fib_r(i));
+            }
+        */
+        return 0;
     }
 
     public static void main(String[] args) {
-        java.util.Scanner in = new java.util.Scanner(System.in);
-        System.out.println(fibonacci("table", in.hasNextInt() ? in.nextInt() : 10));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

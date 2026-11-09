@@ -1,1 +1,1 @@
-"""Direct Python counterparts of the C source files."""
+"""Direct translations of the accompanying C teaching programs."""

@@ -13,93 +13,175 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""tree-demo.c translated to Python; indices start at zero."""
+"""Direct translation of tree-demo.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from collections.abc import Iterator
-from dataclasses import dataclass
-from typing import Generic, TypeVar
+from ._c import *
+from . import _c
 
-T = TypeVar("T")
+class tree:
+    def __init__(self):
+        # item: data item
+        self.item = 0
+        # parent: pointer to parent
+        self.parent = None
+        # left: pointer to left child
+        self.left = None
+        # right: pointer to right child
+        self.right = None
 
 
-@dataclass
-class TreeNode(Generic[T]):
-    value: T
-    left: "TreeNode[T] | None" = None
-    right: "TreeNode[T] | None" = None
+# parent: last node visited
+parent = None
 
 
-class BinarySearchTree(Generic[T]):
-    """Unbalanced ordered set; duplicate insertions do nothing. Operations O(height)."""
+def init_tree():
+    return None
 
-    def __init__(self) -> None:
-        self.root: TreeNode[T] | None = None
 
-    def search(self, value: T) -> TreeNode[T] | None:
-        node = self.root
-        while node is not None and node.value != value:
-            node = node.left if value < node.value else node.right
-        return node
-
-    def insert(self, value: T) -> None:
-        if self.root is None:
-            self.root = TreeNode(value)
-            return
-        node = self.root
-        while node.value != value:
-            attribute = "left" if value < node.value else "right"
-            child = getattr(node, attribute)
-            if child is None:
-                setattr(node, attribute, TreeNode(value))
-                return
-            node = child
-
-    def delete(self, value: T) -> bool:
-        parent = None
-        node = self.root
-        while node is not None and node.value != value:
-            parent, node = node, node.left if value < node.value else node.right
-        if node is None:
-            return False
-        if node.left is not None and node.right is not None:
-            successor_parent, successor = node, node.right
-            while successor.left is not None:
-                successor_parent, successor = successor, successor.left
-            node.value = successor.value
-            parent, node = successor_parent, successor
-        child = node.left if node.left is not None else node.right
-        if parent is None:
-            self.root = child
-        elif parent.left is node:
-            parent.left = child
-        else:
-            parent.right = child
+def empty_tree(t):
+    if (t == None):
         return True
+    return False
 
-    def __iter__(self) -> Iterator[T]:
-        stack = []
-        node = self.root
-        while node is not None or stack:
-            while node is not None:
-                stack.append(node)
-                node = node.left
-            node = stack.pop()
-            yield node.value
-            node = node.right
+
+def search_tree(l, x):
+    if (l == None):
+        return None
+    if (l.item == x):
+        return l
+    if (x < l.item):
+        return search_tree(l.left, x)
+    else:
+        return search_tree(l.right, x)
+
+
+def insert_tree(l, x, parent):
+    # p: temporary pointer
+    if (l[0] == None):
+        p = tree()
+        p.item = x
+        p.right = None
+        p.left = p.right
+        p.parent = parent
+        l[0] = p
+        return
+    if (x < l[0].item):
+        insert_tree(address(l[0], 'left'), x, l[0])
+    else:
+        insert_tree(address(l[0], 'right'), x, l[0])
+
+
+def print_tree(l):
+    if (l != None):
+        print_tree(l.left)
+        printf("%d ", l.item)
+        print_tree(l.right)
+
+
+def successor_descendant(t):
+    # succ: successor pointer
+    if (t.right == None):
+        return None
+    succ = t.right
+    while (succ.left != None):
+        succ = succ.left
+    return succ
+
+
+def find_minimum(t):
+    # min: pointer to minimum
+    if (t == None):
+        return None
+    min = t
+    while (min.left != None):
+        min = min.left
+    return min
+
+
+def predecessor_descendant(t):
+    # pred: predecessor pointer
+    if (t.left == None):
+        return None
+    pred = t.left
+    while (pred.right != None):
+        pred = pred.right
+    return pred
+
+
+def delete_tree(t, x):
+    target = search_tree(t, x)
+    if (target == None):
+        printf("Warning: key to be deleted %d is not in tree.\n", x)
+        return t
+    # Detach a node by identity: equal keys need not identify the same node.
+    # The successor of a two-child node has at most one child.
+    removed = (successor_descendant(target) if ((target.left != None) and (target.right != None)) else target)
+    child = (removed.left if (removed.left != None) else removed.right)
+    if (removed.parent == None):
+        t = child
+    else:
+        if (removed.parent.left == removed):
+            removed.parent.left = child
+        else:
+            removed.parent.right = child
+    if (child != None):
+        child.parent = removed.parent
+    if (removed != target):
+        target.item = removed.item
+    # Python releases this node when its references disappear.
+    return t
+
+
+def process_item(x):
+    printf("%d", x)
+
+
+def traverse_tree(l):
+    if (l != None):
+        traverse_tree(l.left)
+        process_item(l.item)
+        traverse_tree(l.right)
+
+
+def main():
+    # c: input character
+    c = [0]
+    # d: input item
+    d = [0]
+    # l: tree under construction
+    l = [None]
+    # tmp: returned tree from search
+    l[0] = init_tree()
+    while (scanf("%c", c) != EOF):
+        if (tolower(c[0]) == ord('p')):
+            print_tree(l[0])
+            printf("\n")
+        if (tolower(c[0]) == ord('i')):
+            scanf("%d", d)
+            printf("new item: %d\n", d[0])
+            insert_tree(l, d[0], None)
+        if (tolower(c[0]) == ord('s')):
+            scanf("%d", d)
+            tmp = search_tree(l[0], d[0])
+            if (tmp == None):
+                printf("item %d not found\n", d[0])
+            else:
+                printf("item %d found\n", d[0])
+        if (tolower(c[0]) == ord('d')):
+            scanf("%d", d)
+            printf(" deleting item %d\n", d[0])
+            l[0] = delete_tree(l[0], d[0])
+            print_tree(l[0])
+            printf("\n")
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    tree = BinarySearchTree()
-    for value in (3, 1, 2):
-        tree.insert(value)
-    tree.delete(3)
-    print(list(tree))
+    exit(main())

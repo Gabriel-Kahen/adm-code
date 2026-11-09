@@ -1,4 +1,8 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	convolve.c
+	Compute the convolution function of two sequences
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,37 +15,67 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
 
-namespace adm {
-Integers convolve(const Integers &a, const Integers &b) {
-    if (a.empty() || b.empty()) {
-        return {};
-    }
-    Integers result(a.size() + b.size() - 1);
-    for (std::size_t i = 0; i < a.size(); ++i) {
-        for (std::size_t j = 0; j < b.size(); ++j) {
-            result[i + j] = add(result[i + j], multiply(a[i], b[j]));
-        }
-    }
-    return result;
+#define MAXN 100 /* largest n or m */
+
+int max(int x, int y) {
+    if (x > y)
+        return (x);
+    else
+        return (y);
 }
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        for (auto value : convolve({1, 2}, {3, 4})) {
-            std::cout << value << " ";
-        }
-        std::cout << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
+int min(int x, int y) {
+    if (x < y)
+        return (x);
+    else
+        return (y);
+}
+
+int main(void) {
+    int i, j;                              /* counters */
+    int a[MAXN], b[MAXN], c[2 * MAXN - 1]; /* sequences */
+    int n, m;                              /* sequence lengths */
+
+    for (i = 0; i < MAXN; i++) {
+        a[i] = b[i] = 0;
+    }
+
+    for (i = 0; i < 2 * MAXN - 1; i++) {
+        c[i] = 0;
+    }
+
+    if (scanf("%d", &m) != 1 || m < 1 || m > MAXN) {
         return 1;
     }
+    for (i = 0; i < m; i++) {
+        scanf("%d", &a[i]);
+    }
+
+    if (scanf("%d", &n) != 1 || n < 1 || n > MAXN) {
+        return 1;
+    }
+    for (i = 0; i < n; i++) {
+        scanf("%d", &b[i]);
+    }
+
+    /* [[[ convolve_cut */
+    for (i = 0; i < n + m - 1; i++) {
+        for (j = max(0, i - (n - 1)); j <= min(m - 1, i); j++) {
+            c[i] = c[i] + a[j] * b[i - j];
+        }
+    }
+    /* ]]] */
+
+    for (i = 0; i < m + n - 1; i++) {
+        printf("%d ", c[i]);
+    }
+
+    printf("\n");
+
+    return 0;
 }
-#endif

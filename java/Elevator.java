@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	elevator.c
+
+	Elevator stop optimization via dynamic programming.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,76 +19,121 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+public class Elevator {
+    public static final int NFLOORS = 25; /* the height of the building in floors */
+    public static final int MAX_RIDERS = 50; /* what is the capacity of the elevator? */
+    public static final int MAXINT = 100007;
+    public static int[] stops = new int[(MAX_RIDERS + 1)]; /* what floor does everyone get off at? */
+    public static int nriders = 0; /* number of riders */
+    public static int nstops = 0; /* number of allowable stops */
+    public static int[][] m = new int[(NFLOORS + 1)][(MAX_RIDERS + 1)]; /* dynamic programming cost table */
+    public static int[][] p = new int[(NFLOORS + 1)][(MAX_RIDERS + 1)]; /* dynamic programming parent table */
 
-public final class Elevator {
-    public record Result(long cost, List<Integer> stops) {}
+    public static int min(int a, int b) {
+        if ((a < b)) {
+            return a;
+        }
+        return b;
+    }
 
-    /** At most budget stops on integer floors 1..maxFloor; floor 0 is always available. */
-    public static Result elevator(int[] destinations, int budget, int maxFloor) {
-        if (budget < 0 || maxFloor < 0 || maxFloor > 1000) {
-            throw new IllegalArgumentException("invalid elevator budget or floor bound (0..1000)");
-        }
-        for (int floor : destinations) {
-            if (floor < 0 || floor > maxFloor) {
-                throw new IllegalArgumentException("destination outside building");
+    public static int floors_walked(int previous, int current) {
+        int nsteps = 0; /* total distance traveled */
+        int i = 0; /* counter */
+        for (i = 1; (i <= nriders); i++) {
+            if (((stops[i] > previous) && (stops[i] <= current))) {
+                nsteps += min((stops[i] - previous), (current - stops[i]));
             }
         }
-        int k = Math.min(budget, maxFloor);
-        long[] above = new long[maxFloor + 1];
-        long[][] between = new long[maxFloor + 1][maxFloor + 1];
-        for (int previous = 0; previous <= maxFloor; previous++) {
-            for (int floor : destinations) {
-                if (floor > previous) {
-                    above[previous] += floor - previous;
-                }
-            }
-            for (int current = previous + 1; current <= maxFloor; current++) {
-                for (int floor : destinations) {
-                    if (floor > previous && floor <= current) {
-                        between[previous][current] += Math.min(floor - previous, current - floor);
+        return nsteps;
+    }
+
+    /*	m[i][j] denotes the cost of serving all the riders using j stops,
+	the last of which is at floor i.  Zero is the originating floor.
+    */
+    public static int optimize_floors() {
+        int i = 0;
+        int j = 0;
+        int k = 0;
+        int cost = 0; /* costs placeholder */
+        int laststop = 0; /* the elevator's last stop */
+        if (((((nriders < 0) || (nriders > MAX_RIDERS)) || (nstops < 0)) || (nstops > MAX_RIDERS))) {
+            return (-1);
+        }
+        for (i = 0; (i <= NFLOORS); i++) {
+            m[i][0] = floors_walked(0, MAXINT);
+            p[i][0] = (-1);
+        }
+        for (j = 1; (j <= nstops); j++) {
+            for (i = 0; (i <= NFLOORS); i++) {
+                m[i][j] = MAXINT;
+                for (k = 0; (k <= i); k++) {
+                    cost = (((m[k][(j - 1)] - floors_walked(k, MAXINT)) + floors_walked(k, i)) + floors_walked(i, MAXINT));
+                    if ((cost < m[i][j])) {
+                        m[i][j] = cost;
+                        p[i][j] = k; /* counters */
                     }
                 }
             }
         }
-        Long[][] cost = new Long[k + 1][maxFloor + 1];
-        int[][] parent = new int[k + 1][maxFloor + 1];
-        cost[0][0] = above[0];
-        long best = above[0];
-        int bestCount = 0;
-        int bestFloor = 0;
-        for (int used = 1; used <= k; used++) {
-            for (int current = used; current <= maxFloor; current++) {
-                for (int previous = 0; previous < current; previous++) {
-                    if (cost[used - 1][previous] == null) {
-                        continue;
-                    }
-                    long candidate = cost[used - 1][previous] - above[previous] +
-                                     between[previous][current] + above[current];
-                    if (cost[used][current] == null || candidate < cost[used][current]) {
-                        cost[used][current] = candidate;
-                        parent[used][current] = previous;
-                    }
-                }
-                if (cost[used][current] != null && cost[used][current] < best) {
-                    best = cost[used][current];
-                    bestCount = used;
-                    bestFloor = current;
-                }
+        laststop = 0;
+        for (i = 1; (i <= NFLOORS); i++) {
+            if ((m[i][nstops] < m[laststop][nstops])) {
+                laststop = i;
             }
         }
-        List<Integer> stops = new ArrayList<>();
-        for (int used = bestCount, floor = bestFloor; used > 0; used--) {
-            stops.add(floor);
-            floor = parent[used][floor];
+        return laststop;
+    }
+
+    public static void reconstruct_path(int lastfloor, int stops_to_go) {
+        if ((stops_to_go > 1)) {
+            reconstruct_path(p[lastfloor][stops_to_go], (stops_to_go - 1));
         }
-        Collections.reverse(stops);
-        return new Result(best, stops);
+        C.printf("%d\n", lastfloor);
+    }
+
+    public static void print_matrix(int[][] m) {
+        int i = 0; /* counters */
+        int j = 0;
+        for (j = 0; (j <= nstops); j++) {
+            for (i = 0; (i <= NFLOORS); i++) {
+                C.printf("%3d", m[i][j]);
+            }
+            C.printf("\n");
+        }
+    }
+
+    public static int main() {
+        int i = 0; /* counter */
+        int laststop = 0;
+        int _read0 = C.scan("%d %d");
+        if (_read0 > 0) nriders = C.scanInt(0);
+        if (_read0 > 1) nstops = C.scanInt(1);
+        if ((((((_read0 != 2) || (nriders < 0)) || (nriders > MAX_RIDERS)) || (nstops < 0)) || (nstops > MAX_RIDERS))) {
+            C.fprintf("invalid elevator dimensions\n");
+            return 1;
+        }
+        for (i = 1; (i <= nriders); i++) {
+            int _read1 = C.scan("%d");
+            if (_read1 > 0) stops[i] = C.scanInt(0);
+            if ((((_read1 != 1) || (stops[i] < 0)) || (stops[i] > NFLOORS))) {
+                C.fprintf("invalid destination floor\n");
+                return 1;
+            }
+        }
+        for (i = 1; (i <= nriders); i++) {
+            C.printf("%d\n", stops[i]);
+        }
+        laststop = optimize_floors();
+        print_matrix(m);
+        C.printf("\n");
+        print_matrix(p);
+        C.printf("cost = %d\n", m[laststop][nstops]);
+        reconstruct_path(laststop, nstops);
+        return 0;
     }
 
     public static void main(String[] args) {
-        System.out.println(elevator(new int[] {1, 3, 6}, 2, 6));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

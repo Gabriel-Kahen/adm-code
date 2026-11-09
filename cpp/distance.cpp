@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	distance.c
+
+	Compute Euclidian distances
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,32 +16,31 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
+
 #include "distance.hpp"
 
-namespace adm {
-double distance(const std::vector<double> &a, const std::vector<double> &b) {
-    require(a.size() == b.size(), "distance dimension mismatch");
-    double result = 0;
-    for (std::size_t i = 0; i < a.size(); ++i) {
-        result = std::hypot(result, a[i] - b[i]);
-    }
-    require(std::isfinite(result), "distance overflow");
-    return result;
-}
-} // namespace adm
+double distance(point a, point b) {
+    int i;
+    double d = 0.0;
+    double delta;
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        std::cout << distance({0, 0, 0}, {3, 4, 0}) << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+    for (i = 0; i < DIMENSION; i++) {
+        delta = (double)a[i] - (double)b[i];
+        d += delta * delta;
     }
+
+    return (sqrt(d));
 }
-#endif
+
+int main(void) {
+    point a = {6, 2, 3};
+    point b = {6, 3, 4};
+
+    printf("distance = %f\n", distance(a, b));
+
+    return 0;
+}

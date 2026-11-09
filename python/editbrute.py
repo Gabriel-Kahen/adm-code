@@ -11,37 +11,199 @@
 # "Programming Challenges: The Programming Contest Training Manual"
 # by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 # See our website www.programming-challenges.com for additional information,
-# or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+# or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""editbrute.c translated to Python; indices start at zero."""
+"""Direct translation of editbrute.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
+
+from ._c import *
+from . import _c
+from . import editdistance
+from . import editinput
+
+# [[ cell_instance_cut
+# m: dynamic programming table
+m = [[editdistance.cell() for _ in range((editdistance.MAXLEN + 1))] for _ in range((editdistance.MAXLEN + 1))]
 
 
-def edit_distance_brute(first: str, second: str) -> int:
-    """Exponential recurrence without memoization; restricted to total length <= 18."""
-    if len(first) + len(second) > 18:
-        raise ValueError("brute edit distance requires combined length <= 18")
+# ]]
+def goal_cell(s, t, i, j):
+    i[0] = (strlen(s) - 1)
+    j[0] = (strlen(t) - 1)
 
-    def recurse(row: int, column: int) -> int:
-        if row == 0 or column == 0:
-            return max(row, column)
-        return min(
-            recurse(row - 1, column - 1) + (first[row - 1] != second[column - 1]),
-            recurse(row - 1, column) + 1,
-            recurse(row, column - 1) + 1,
-        )
 
-    return recurse(len(first), len(second))
+def match(c, d):
+    if (c == d):
+        return 0
+    return 1
+
+
+def indel(c):
+    return 1
+
+
+def row_init(i, m):
+    m[0][i].cost = i
+    if (i > 0):
+        m[0][i].parent = editdistance.INSERT
+    else:
+        m[0][i].parent = (-1)
+
+
+def column_init(i, m):
+    m[i][0].cost = i
+    if (i > 0):
+        m[i][0].parent = editdistance.DELETE
+    else:
+        m[0][i].parent = (-1)
+
+
+def match_out(s, t, i, j):
+    if (s[i] == t[j]):
+        printf("M")
+    else:
+        printf("S")
+
+
+def insert_out(t, j):
+    printf("I")
+
+
+def delete_out(s, i):
+    printf("D")
+
+
+def string_compare2(s, t, i, j, m):
+    # k: counter
+    # opt: cost of the three options
+    opt = [0 for _ in range(3)]
+    # lowest_cost: lowest cost
+    # indel is the cost of an insertion or deletion
+    if (i == 0):
+        m[i][j].cost = (j * indel(ord(' ')))
+        m[i][j].parent = (editdistance.INSERT if j else (-1))
+        return m[i][j].cost
+    if (j == 0):
+        m[i][j].cost = (i * indel(ord(' ')))
+        m[i][j].parent = editdistance.DELETE
+        return m[i][j].cost
+    opt[editdistance.MATCH] = (string_compare2(s, t, (i - 1), (j - 1), m) + match(s[i], t[j]))
+    opt[editdistance.INSERT] = (string_compare2(s, t, i, (j - 1), m) + indel(t[j]))
+    opt[editdistance.DELETE] = (string_compare2(s, t, (i - 1), j, m) + indel(s[i]))
+    lowest_cost = opt[editdistance.MATCH]
+    m[i][j].parent = editdistance.MATCH
+    k = editdistance.INSERT
+    while (k <= editdistance.DELETE):
+        if (opt[k] < lowest_cost):
+            lowest_cost = opt[k]
+            m[i][j].parent = k
+        k += 1
+    # REMOVE FROM PRINTED VERSION
+    m[i][j].cost = lowest_cost
+    return lowest_cost
+
+
+def string_compare_r(s, t, i, j):
+    # k: counter
+    # opt: cost of the three options
+    opt = [0 for _ in range(3)]
+    # lowest_cost: lowest cost
+    # indel is the cost of an insertion or deletion
+    if (i == 0):
+        m[i][j].cost = (j * indel(ord(' ')))
+        m[i][j].parent = (editdistance.INSERT if j else (-1))
+        return m[i][j].cost
+    if (j == 0):
+        m[i][j].cost = (i * indel(ord(' ')))
+        m[i][j].parent = editdistance.DELETE
+        return m[i][j].cost
+    # match is the cost of a match/substitution
+    opt[editdistance.MATCH] = (string_compare_r(s, t, (i - 1), (j - 1)) + match(s[i], t[j]))
+    opt[editdistance.INSERT] = (string_compare_r(s, t, i, (j - 1)) + indel(t[j]))
+    opt[editdistance.DELETE] = (string_compare_r(s, t, (i - 1), j) + indel(s[i]))
+    lowest_cost = opt[editdistance.MATCH]
+    m[i][j].parent = editdistance.MATCH
+    k = editdistance.INSERT
+    while (k <= editdistance.DELETE):
+        if (opt[k] < lowest_cost):
+            lowest_cost = opt[k]
+            m[i][j].parent = k
+        k += 1
+    return lowest_cost
+
+
+def reconstruct_path(s, t, i, j, m):
+    if (m[i][j].parent == (-1)):
+        return
+    if (m[i][j].parent == editdistance.MATCH):
+        reconstruct_path(s, t, (i - 1), (j - 1), m)
+        match_out(s, t, i, j)
+        return
+    if (m[i][j].parent == editdistance.INSERT):
+        reconstruct_path(s, t, i, (j - 1), m)
+        insert_out(t, j)
+        return
+    if (m[i][j].parent == editdistance.DELETE):
+        reconstruct_path(s, t, (i - 1), j, m)
+        delete_out(s, i)
+        return
+
+
+def print_matrix(s, t, costQ, m):
+    # j: counters
+    # y: string lengths
+    x = strlen(s)
+    y = strlen(t)
+    printf("   ")
+    i = 0
+    while (i < y):
+        printf("  %c", t[i])
+        i += 1
+    printf("\n")
+    i = 0
+    while (i < x):
+        printf("%c: ", s[i])
+        j = 0
+        while (j < y):
+            if costQ:
+                printf(" %2d", m[i][j].cost)
+            else:
+                printf(" %2d", m[i][j].parent)
+            j += 1
+        printf("\n")
+        i += 1
+
+
+def main():
+    i = [0]
+    j = [0]
+    # s: input strings
+    s = [0 for _ in range((editdistance.MAXLEN + 2))]
+    t = [0 for _ in range((editdistance.MAXLEN + 2))]
+    t[0] = ord(' ')
+    s[0] = t[0]
+    if ((not editinput.read_edit_string(s, editdistance.MAXLEN)) or (not editinput.read_edit_string(t, editdistance.MAXLEN))):
+        fprintf(stderr, "expected two strings of at most %d characters\n", editdistance.MAXLEN)
+        return 1
+    cost1 = string_compare_r(s, t, (strlen(s) - 1), (strlen(t) - 1))
+    printf("matching cost = %d \n", (cost2 := string_compare2(s, t, (strlen(s) - 1), (strlen(t) - 1), m)))
+    if (cost1 != cost2):
+        printf("Editbrutes do not agree: cost1=%d cost2=%d\n", cost1, cost2)
+    print_matrix(s, t, True, m)
+    printf("\n")
+    print_matrix(s, t, False, m)
+    goal_cell(s, t, i, j)
+    printf("%d %d\n", i[0], j[0])
+    reconstruct_path(s, t, i[0], j[0], m)
+    printf("\n")
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    first, second = sys.stdin.read().split() or ["cat", "cut"]
-    print(edit_distance_brute(first, second))
+    exit(main())

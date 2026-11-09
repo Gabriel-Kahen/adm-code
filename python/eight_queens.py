@@ -11,39 +11,106 @@
 # "Programming Challenges: The Programming Contest Training Manual"
 # by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 # See our website www.programming-challenges.com for additional information,
-# or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+# or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""8-queens.c translated to Python; indices start at zero."""
+"""Direct translation of 8-queens.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
+
+from ._c import *
+from . import _c
+
+# max possible next extensions
+MAXCANDIDATES = 100
+# maximum solution size
+NMAX = 100
+finished = False
+# solution_count: how many solutions are there?
+solution_count = 0
 
 
-def queens(size: int) -> int:
-    """Count n-queens solutions by bitmask backtracking; restricted to n<=15."""
-    if not 0 <= size <= 15:
-        raise ValueError("queens requires 0 <= n <= 15")
-    full = (1 << size) - 1
+def process_solution(a, k, input):
+    global solution_count
+    solution_count += 1
 
-    def count(columns: int, down: int, up: int) -> int:
-        if columns == full:
-            return 1
-        available = full & ~(columns | down | up)
-        result = 0
-        while available:
-            bit = available & -available
-            available -= bit
-            result += count(columns | bit, ((down | bit) << 1) & full, (up | bit) >> 1)
-        return result
 
-    return count(0, 0, 0)
+def is_a_solution(a, k, n):
+    return (k == n)
+
+
+def make_move(a, k, n):
+    pass
+
+
+def unmake_move(a, k, n):
+    pass
+
+
+# What are possible elements of the next slot in the 8-queens
+# problem?
+def construct_candidates(a, k, n, c, ncandidates):
+    # j: counters
+    # legal_move: might the move be legal?
+    ncandidates[0] = 0
+    i = 1
+    while (i <= n):
+        legal_move = True
+        j = 1
+        while (j < k):
+            # diagonal threat
+            if (abs((k - j)) == abs((i - a[j]))):
+                legal_move = False
+            # column threat
+            if (i == a[j]):
+                legal_move = False
+            j += 1
+        if legal_move:
+            c[ncandidates[0]] = i
+            ncandidates[0] = (ncandidates[0] + 1)
+        i += 1
+
+
+def backtrack(a, k, input):
+    # c: candidates for next position
+    c = [0 for _ in range(MAXCANDIDATES)]
+    # ncandidates: next position candidate count
+    ncandidates = [0]
+    # i: counter
+    if is_a_solution(a, k, input):
+        process_solution(a, k, input)
+    else:
+        k = (k + 1)
+        construct_candidates(a, k, input, c, ncandidates)
+        i = 0
+        while (i < ncandidates[0]):
+            a[k] = c[i]
+            make_move(a, k, input)
+            backtrack(a, k, input)
+            unmake_move(a, k, input)
+            if finished:
+                # return: terminate early
+                return
+            i += 1
+
+
+def main():
+    global solution_count
+    # a: solution vector
+    a = [0 for _ in range((NMAX + 1))]
+    # i: counter
+    i = 1
+    while (i <= 10):
+        solution_count = 0
+        backtrack(a, 0, i)
+        printf("n=%d  solution_count=%d\n", i, solution_count)
+        i += 1
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    print(queens(int(sys.stdin.read().strip() or "8")))
+    exit(main())

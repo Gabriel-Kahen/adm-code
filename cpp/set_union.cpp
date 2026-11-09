@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    set_union.c
+
+    Implementation of a heap / priority queue abstract data type.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,42 +19,63 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
+
 #include "set_union.hpp"
 
-namespace adm {
-DisjointSet::DisjointSet(int n) {
-    require(n >= 0, "negative set count");
-    parent_.resize(n);
-    size_.assign(n, 1);
-    std::iota(parent_.begin(), parent_.end(), 0);
-}
+/* [[[ set_union_init_cut */
+void union_find_init(union_find *s, int n) {
+    int i; /* counter */
 
-int DisjointSet::find(int vertex) {
-    require(vertex >= 0 && static_cast<std::size_t>(vertex) < parent_.size(), "invalid set index");
-    int root = vertex;
-    while (parent_[root] != root) {
-        root = parent_[root];
+    for (i = 1; i <= n; i++) {
+        s->p[i] = i;
+        s->size[i] = 1;
     }
-    while (vertex != root) {
-        int next = parent_[vertex];
-        parent_[vertex] = root;
-        vertex = next;
-    }
-    return root;
+    s->n = n;
 }
+/* ]]] */
 
-bool DisjointSet::unite(int a, int b) {
-    a = find(a);
-    b = find(b);
-    if (a == b) {
-        return false;
+/* [[[ set_union_find_cut */
+int find(union_find *s, int x) {
+    if (s->p[x] == x) {
+        return (x);
     }
-    if (size_[a] < size_[b]) {
-        std::swap(a, b);
-    }
-    parent_[b] = a;
-    size_[a] += size_[b];
-    return true;
+    return (find(s, s->p[x]));
 }
-} // namespace adm
+/* ]]] */
+
+/* [[[ set_union_union_sets_cut */
+void union_sets(union_find *s, int s1, int s2) {
+    int r1, r2; /* roots of sets */
+
+    r1 = find(s, s1);
+    r2 = find(s, s2);
+
+    if (r1 == r2) {
+        return; /* already in same set */
+    }
+
+    if (s->size[r1] >= s->size[r2]) {
+        s->size[r1] = s->size[r1] + s->size[r2];
+        s->p[r2] = r1;
+    } else {
+        s->size[r2] = s->size[r1] + s->size[r2];
+        s->p[r1] = r2;
+    }
+}
+/* ]]] */
+
+/* [[[ same_component_cut */
+bool same_component(union_find *s, int s1, int s2) {
+    return (find(s, s1) == find(s, s2));
+}
+/* ]]] */
+
+void print_union_find(union_find *s) {
+    int i; /* counter */
+
+    for (i = 1; i <= s->n; i++) {
+        printf("%i  set=%d size=%d \n", i, s->p[i], s->size[i]);
+    }
+    printf("\n");
+}

@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	kruskal.c
+
+	Compute minimum spanning trees of graphs via Kruskal's algorithm.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,40 +19,103 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "set_union.hpp"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 #include "graph.hpp"
-#include "wgraph.hpp"
+#include "set_union.hpp"
 
-namespace adm {
-SpanningForest kruskal(const Graph &graph) {
-    undirected(graph);
-    SpanningForest result;
+#define MAXINT 100007
 
-    auto edges = graph.edges();
-    std::stable_sort(edges.begin(), edges.end(),
-                     [](const Edge &a, const Edge &b) { return a.weight < b.weight; });
-    DisjointSet sets(graph.size());
-    for (const auto &edge : edges) {
-        if (sets.unite(edge.from, edge.to)) {
-            result.edges.push_back(edge);
-            result.cost = add(result.cost, edge.weight);
+typedef struct {
+    int x, y;   /* adjacency info */
+    int weight; /* edge weight, if any */
+} edge_pair;
+
+/************************************************************/
+
+int to_edge_array(graph *g, edge_pair edges[]) {
+    int i, edge_count; /* counters */
+    edgenode *edge;    /* temporary pointer */
+
+    edge_count = 0;
+    for (i = 1; i <= g->nvertices; i++) {
+        edge = g->edges[i];
+        while (edge != NULL) {
+            /* An undirected edge appears twice in the adjacency lists; omit loops. */
+            if (edge->y > i) {
+                edges[edge_count].x = i;
+                edges[edge_count].y = edge->y;
+                edges[edge_count].weight = edge->weight;
+                edge_count = edge_count + 1;
+            }
+            edge = edge->next;
+        }
+    }
+    return edge_count;
+}
+
+int weight_compare(const void *x, const void *y) {
+    const edge_pair *left = (const edge_pair *)x;
+    const edge_pair *right = (const edge_pair *)y;
+
+    if (left->weight < right->weight) {
+        return (-1);
+    }
+
+    if (left->weight > right->weight) {
+        return (1);
+    }
+
+    return (0);
+}
+
+/* [[[ kruskal_cut */
+long long kruskal(graph *g) {
+    int i;                 /* counter */
+    union_find components; /* union-find data structure */
+    edge_pair *edges;      /* storage for all input edges */
+    int edge_count;        /* extracted non-loop edge count */
+    long long weight = 0;  /* cost of the minimum spanning tree */
+
+    union_find_init(&components, g->nvertices);
+
+    edges = (edge_pair *)malloc((g->nedges ? g->nedges : 1) * sizeof(*edges));
+    if (edges == NULL) {
+        perror("kruskal edge allocation");
+        exit(EXIT_FAILURE);
+    }
+    /* The extracted count excludes self-loops and determines the initialized range. */
+    edge_count = to_edge_array(g, edges);
+    qsort(edges, edge_count, sizeof(*edges), &weight_compare);
+
+    for (i = 0; i < edge_count; i++) {
+        if (!same_component(&components, edges[i].x, edges[i].y)) {
+            printf("edge (%d,%d) in MST\n", edges[i].x, edges[i].y);
+            weight = weight + edges[i].weight;
+            union_sets(&components, edges[i].x, edges[i].y);
         }
     }
 
-    return result;
+    free(edges);
+    return (weight);
 }
-} // namespace adm
+/* ]]] */
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto graph = read_weighted_graph(std::cin, false);
-        std::cout << kruskal(graph).cost << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
-    }
+int main(void) {
+    graph g;
+    long long weight;
+
+    read_graph(&g, false);
+
+    /*
+    print_graph(&g);
+*/
+
+    weight = kruskal(&g);
+
+    printf("Out of Kruskal: weight=%lld \n", weight);
+
+    return 0;
 }
-#endif

@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	editdistance.c
+
+	A generic implementation of string comparison via dynamic programming
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,48 +19,100 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-public final class Editdistance {
-    public record Edit(int cost, String operations) {}
+public class Editdistance {
+    public interface Callbacks {
+        void row_init(int i, cell[][] m);
+        void column_init(int i, cell[][] m);
+        int match(char c, char d);
+        int indel(char c);
+        void goal_cell(char[] s, char[] t, int[] i, int[] j);
+        void match_out(char[] s, char[] t, int i, int j);
+        void insert_out(char[] t, int j);
+        void delete_out(char[] s, int i);
+    }
+    public static Callbacks callbacks;
 
-    /** Unit-cost Levenshtein distance and an executable M/S/I/D alignment. O(mn). */
-    public static Edit edit(String source, String target) {
-        int[][] cost = editTable(source, target, false);
-        int i = source.length();
-        int j = target.length();
-        StringBuilder reversed = new StringBuilder();
-        while (i > 0 || j > 0) {
-            if (i > 0 && j > 0 &&
-                cost[i][j] ==
-                    cost[i - 1][j - 1] + (source.charAt(i - 1) == target.charAt(j - 1) ? 0 : 1)) {
-                reversed.append(source.charAt(i - 1) == target.charAt(j - 1) ? 'M' : 'S');
-                i--;
-                j--;
-            } else if (i > 0 && cost[i][j] == cost[i - 1][j] + 1) {
-                reversed.append('D');
-                i--;
-            } else {
-                reversed.append('I');
-                j--;
-            }
-        }
-        return new Edit(cost[source.length()][target.length()], reversed.reverse().toString());
+    public static final int MAXLEN = 101; /* longest possible string */
+    public static final int MATCH = 0; /* enumerated type symbol for match */
+    public static final int INSERT = 1; /* enumerated type symbol for insert */
+    public static final int DELETE = 2; /* enumerated type symbol for delete */
+    public static class cell {
+        int cost = 0; /* cost of reaching this cell */
+        int parent = 0; /* parent cell */
     }
 
-    static int[][] editTable(String source, String target, boolean freePrefix) {
-        int[][] cost = new int[source.length() + 1][target.length() + 1];
-        for (int i = 0; i <= source.length(); i++) {
-            cost[i][0] = i;
+    public static int string_compare(char[] s, char[] t, Editdistance.cell[][] m) {
+        int[] i = new int[]{0};
+        int[] j = new int[]{0};
+        int k = 0;
+        int[] opt = new int[3]; /* cost of the three options */
+        for (i[0] = 0; (i[0] <= MAXLEN); i[0]++) {
+            callbacks.row_init(i[0], m);
+            callbacks.column_init(i[0], m);
         }
-        for (int j = 0; j <= target.length(); j++) {
-            cost[0][j] = freePrefix ? 0 : j;
-        }
-        for (int i = 1; i <= source.length(); i++) {
-            for (int j = 1; j <= target.length(); j++) {
-                int diagonal =
-                    cost[i - 1][j - 1] + (source.charAt(i - 1) == target.charAt(j - 1) ? 0 : 1);
-                cost[i][j] = Math.min(diagonal, 1 + Math.min(cost[i - 1][j], cost[i][j - 1]));
+        for (i[0] = 1; (i[0] < C.strlen(s)); i[0]++) {
+            for (j[0] = 1; (j[0] < C.strlen(t)); j[0]++) {
+                opt[MATCH] = (m[(i[0] - 1)][(j[0] - 1)].cost + callbacks.match(s[i[0]], t[j[0]]));
+                opt[INSERT] = (m[i[0]][(j[0] - 1)].cost + callbacks.indel(t[j[0]]));
+                opt[DELETE] = (m[(i[0] - 1)][j[0]].cost + callbacks.indel(s[i[0]]));
+                m[i[0]][j[0]].cost = opt[MATCH];
+                m[i[0]][j[0]].parent = MATCH;
+                for (k = INSERT; (k <= DELETE); k++) {
+                    if ((opt[k] < m[i[0]][j[0]].cost)) {
+                        m[i[0]][j[0]].cost = opt[k];
+                        m[i[0]][j[0]].parent = k; /* counters */
+                    }
+                }
             }
         }
-        return cost;
+        callbacks.goal_cell(s, t, i, j);
+        return m[i[0]][j[0]].cost;
     }
+
+    public static void reconstruct_path(char[] s, char[] t, int i, int j, Editdistance.cell[][] m) {
+        if ((m[i][j].parent == (-1))) {
+            return;
+        }
+        if ((m[i][j].parent == MATCH)) {
+            reconstruct_path(s, t, (i - 1), (j - 1), m);
+            callbacks.match_out(s, t, i, j);
+            return;
+        }
+        if ((m[i][j].parent == INSERT)) {
+            reconstruct_path(s, t, i, (j - 1), m);
+            callbacks.insert_out(t, j);
+            return;
+        }
+        if ((m[i][j].parent == DELETE)) {
+            reconstruct_path(s, t, (i - 1), j, m);
+            callbacks.delete_out(s, i);
+            return;
+        }
+    }
+
+    public static void print_matrix(char[] s, char[] t, boolean costQ, Editdistance.cell[][] m) {
+        int i = 0; /* counters */
+        int j = 0;
+        int x = 0; /* string lengths */
+        int y = 0;
+        x = C.strlen(s);
+        y = C.strlen(t);
+        C.printf("   ");
+        for (i = 0; (i < y); i++) {
+            C.printf("  %c", t[i]);
+        }
+        C.printf("\n");
+        for (i = 0; (i < x); i++) {
+            C.printf("%c: ", s[i]);
+            for (j = 0; (j < y); j++) {
+                if (costQ) {
+                    C.printf(" %2d", m[i][j].cost);
+                } else {
+                    C.printf(" %2d", m[i][j].parent);
+                }
+            }
+            C.printf("\n");
+        }
+    }
+
 }

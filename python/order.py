@@ -13,41 +13,82 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""order.c translated to Python; indices start at zero."""
+"""Direct translation of order.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
+
+from ._c import *
+from . import _c
 
 
-def grid_order(method: str, rows: int, columns: int) -> list[list[int]]:
-    """Visit every cell once, with row/column/snake/diagonal order; O(rows*columns)."""
-    if rows < 0 or columns < 0:
-        raise ValueError("negative grid dimensions")
-    if method == "row":
-        return [[row, column] for row in range(rows) for column in range(columns)]
-    if method == "column":
-        return [[row, column] for column in range(columns) for row in range(rows)]
-    if method == "snake":
-        return [
-            [row, column if row % 2 == 0 else columns - 1 - column]
-            for row in range(rows)
-            for column in range(columns)
-        ]
-    if method == "diagonal":
-        return [
-            [row, diagonal - row]
-            for diagonal in range(rows + columns - 1)
-            for row in range(max(0, diagonal - columns + 1), min(rows - 1, diagonal) + 1)
-        ]
-    raise ValueError("unknown grid order")
+
+def process(i, j):
+    printf("(%d,%d)\n", i, j)
+
+
+def row_major(n, m):
+    # j: counters
+    i = 1
+    while (i <= n):
+        j = 1
+        while (j <= m):
+            process(i, j)
+            j += 1
+        i += 1
+
+
+def column_major(n, m):
+    # j: counters
+    j = 1
+    while (j <= m):
+        i = 1
+        while (i <= n):
+            process(i, j)
+            i += 1
+        j += 1
+
+
+def snake_order(n, m):
+    # j: counters
+    i = 1
+    while (i <= n):
+        j = 1
+        while (j <= m):
+            process(i, (j + (((m + 1) - (2 * j)) * c_mod((i + 1), 2))))
+            j += 1
+        i += 1
+
+
+def diagonal_order(n, m):
+    d = 1
+    while (d <= ((n + m) - 1)):
+        first = max(1, ((d + 1) - m))
+        last = min(n, d)
+        row = first
+        while (row <= last):
+            process(row, ((d + 1) - row))
+            row += 1
+        d += 1
+
+
+def main():
+    printf("row_major\n")
+    row_major(5, 5)
+    printf("\ncolumn_major\n")
+    column_major(3, 3)
+    printf("\nsnake_order\n")
+    snake_order(5, 5)
+    printf("\ndiagonal_order\n")
+    diagonal_order(3, 4)
+    printf("\ndiagonal_order\n")
+    diagonal_order(4, 3)
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    for method in ("row", "column", "snake", "diagonal"):
-        print(method, grid_order(method, 3, 4))
+    exit(main())

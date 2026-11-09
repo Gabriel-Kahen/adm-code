@@ -1,4 +1,6 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,10 +16,26 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
+#define NMAX 20 /* maximum number of points */
 
-#include "tsp.hpp"
+typedef struct {
+    int x, y; /* x and y coordinates of point */
+} point;
 
-namespace adm {
-Tour exact_tsp(const std::vector<Point> &points, const std::string &method);
-} // namespace adm
+typedef struct {
+    int n;             /* how many points in problem? */
+    point p[NMAX + 1]; /* array of points */
+} tsp_instance;
+
+typedef struct {
+    double cost;     /* lower bound on full cost solution */
+    int n;           /* how many elements in permutation? */
+    int p[NMAX + 1]; /* array of indices */
+} tsp_solution;
+
+double solution_cost(tsp_solution *s, tsp_instance *t);
+/*void initialize_solution(int n, tsp_solution *s);*/
+void initialize_solution(tsp_solution *s, tsp_instance *t);
+void copy_solution(tsp_solution *s, tsp_solution *t);
+void random_solution(tsp_solution *s);
+double transition(tsp_solution *s, tsp_instance *t, int i, int j);

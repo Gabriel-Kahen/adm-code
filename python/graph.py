@@ -13,79 +13,153 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""graph.c translated to Python; indices start at zero."""
+"""Direct translation of graph.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from dataclasses import dataclass
+from ._c import *
+from . import _c
 
-
-@dataclass(frozen=True)
-class Edge:
-    source: int
-    target: int
-    weight: int
-    identifier: int
-
-
-class Graph:
-    """Mutable multigraph. Deletion uses stable edge IDs; an undirected edge is stored twice."""
-
-    def __init__(self, size: int, directed: bool = False) -> None:
-        if size < 0:
-            raise ValueError("negative vertex count")
-        self.n = size
-        self.directed = directed
-        self.adjacency: list[list[tuple[int, int, int]]] = [[] for _ in range(size)]
-        self.edges: dict[int, Edge] = {}
-        self._next_id = 0
-
-    def vertex(self, value: int) -> None:
-        if not 0 <= value < self.n:
-            raise ValueError("vertex out of range")
-
-    def require_directed(self, directed: bool) -> None:
-        if self.directed != directed:
-            raise ValueError(
-                "algorithm requires " + ("directed" if directed else "undirected") + " graph"
-            )
-
-    def add_edge(self, source: int, target: int, weight: int = 1) -> int:
-        self.vertex(source)
-        self.vertex(target)
-        identifier = self._next_id
-        self._next_id += 1
-        self.edges[identifier] = Edge(source, target, weight, identifier)
-        self.adjacency[source].append((target, weight, identifier))
-        if not self.directed:
-            self.adjacency[target].append((source, weight, identifier))
-        return identifier
-
-    def delete_edge(self, identifier: int) -> bool:
-        edge = self.edges.pop(identifier, None)
-        if edge is None:
-            return False
-        for vertex in {edge.source, edge.target}:
-            self.adjacency[vertex] = [arc for arc in self.adjacency[vertex] if arc[2] != identifier]
-        return True
+# #define _NULL       0       null pointer
+# DFS edge types
+# tree edge
+# back edge
+# cross edge
+# forward edge
+# maximum number of vertices
+class edgenode:
+    def __init__(self):
+        # y: adjacency info
+        self.y = 0
+        # weight: edge weight, if any
+        self.weight = 0
+        # next: next edge in list
+        self.next = None
 
 
-def read_graph(stream, directed=False, weighted=False):
-    """Read the original C input format; convert vertex labels 1..n to 0..n-1."""
-    tokens = list(map(int, stream.read().split()))
-    if len(tokens) < 2:
-        raise ValueError("expected vertex and edge counts")
-    size, count = tokens[:2]
-    width = 3 if weighted else 2
-    if count < 0 or len(tokens) != 2 + width * count:
-        raise ValueError("incorrect edge count")
-    graph = Graph(size, directed)
-    for offset in range(2, len(tokens), width):
-        source, target = tokens[offset : offset + 2]
-        graph.add_edge(source - 1, target - 1, tokens[offset + 2] if weighted else 1)
-    return graph
+class graph:
+    def __init__(self):
+        # edges: adjacency info
+        self.edges = [None for _ in range((MAXV + 1))]
+        # degree: outdegree of each vertex
+        self.degree = [0 for _ in range((MAXV + 1))]
+        # nvertices: number of vertices in the graph
+        self.nvertices = 0
+        # nedges: number of edges in the graph
+        self.nedges = 0
+        # directed: is the graph directed?
+        self.directed = 0
+
+
+TREE = 0
+BACK = 1
+CROSS = 2
+FORWARD = 3
+MAXV = 100
+
+
+def initialize_graph(g, directed):
+    # i: counter
+    g.nvertices = 0
+    g.nedges = 0
+    g.directed = directed
+    i = 1
+    while (i <= MAXV):
+        g.degree[i] = 0
+        i += 1
+    i = 1
+    while (i <= MAXV):
+        g.edges[i] = None
+        i += 1
+
+
+def insert_edge(g, x, y, directed):
+    # p: temporary pointer
+    # allocate edgenode storage
+    p = edgenode()
+    p.weight = 0
+    p.y = y
+    p.next = g.edges[x]
+    # insert at head of list
+    g.edges[x] = p
+    g.degree[x] += 1
+    if (not directed):
+        insert_edge(g, y, x, True)
+    else:
+        g.nedges += 1
+
+
+def read_graph(g, directed):
+    # i: counter
+    # m: number of edges
+    m = [0]
+    # y: vertices in edge (x,y)
+    x = [0]
+    y = [0]
+    initialize_graph(g, directed)
+    scanf("%d %d", address(g, 'nvertices'), m)
+    i = 1
+    while (i <= m[0]):
+        scanf("%d %d", x, y)
+        insert_edge(g, x[0], y[0], directed)
+        i += 1
+
+
+def delete_edge(g, x, y, directed):
+    # p_back: temporary pointers
+    p = g.edges[x]
+    p_back = None
+    while (p != None):
+        if (p.y == y):
+            g.degree[x] -= 1
+            if (p_back != None):
+                p_back.next = p.next
+            else:
+                g.edges[x] = p.next
+            # Python releases this node when its references disappear.
+            if (not directed):
+                delete_edge(g, y, x, True)
+            else:
+                g.nedges -= 1
+            return
+        else:
+            p_back = p
+            p = p.next
+    printf("Warning: deletion(%d,%d) not found in g.\n", x, y)
+
+
+def print_graph(g):
+    # i: counter
+    # p: temporary pointer
+    i = 1
+    while (i <= g.nvertices):
+        printf("%d: ", i)
+        p = g.edges[i]
+        while (p != None):
+            printf(" %d", p.y)
+            p = p.next
+        printf("\n")
+        i += 1
+
+
+def transpose(g):
+    # gt: transpose of graph g
+    # x: counter
+    # p: temporary pointer
+    gt = graph()
+    # initialize directed graph
+    initialize_graph(gt, True)
+    gt.nvertices = g.nvertices
+    x = 1
+    while (x <= g.nvertices):
+        p = g.edges[x]
+        while (p != None):
+            insert_edge(gt, p.y, x, True)
+            p = p.next
+        x += 1
+    return gt

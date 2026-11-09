@@ -1,4 +1,12 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	subsetsum.c
+
+	Solve the subset sum problem by dynamic programming
+
+	Note: the first dimension of the table will denote the rank of the integer
+	being considered, with the second dimension denoting the realizable sums.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,48 +22,78 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+public class Subsetsum {
+    public static final int MAXN = 100; /* largest n */
+    public static final int MAXSUM = 10000; /* largest sum we will consider */
+    public static final int NIL = -1;
+    public static boolean[][] sum = new boolean[(MAXN + 1)][(MAXSUM + 1)]; /* table of realizable sums */
+    public static int[][] parent = new int[(MAXN + 1)][(MAXSUM + 1)]; /* table of parent pointers */
 
-public final class Subsetsum {
-    /** 0/1 subset sum witness as increasing original indices. O(n target), target <= 1,000,000. */
-    public static List<Integer> subsetSum(long[] values, int target) {
-        if (target < 0 || target > 1000000) {
-            throw new IllegalArgumentException("target outside 0..1000000");
+    public static boolean subset_sum(int[] s, int n, int k) {
+        int i = 0; /* counters */
+        int j = 0;
+        sum[0][0] = true;
+        parent[0][0] = NIL;
+        for (i = 1; (i <= k); i++) {
+            sum[0][i] = false;
+            parent[0][i] = NIL;
         }
-        int[] item = new int[target + 1];
-        int[] previous = new int[target + 1];
-        Arrays.fill(item, -1);
-        item[0] = -2;
-        for (int index = 0; index < values.length; index++) {
-            if (values[index] < 0) {
-                throw new IllegalArgumentException("negative subset sum value");
-            }
-            if (values[index] == 0 || values[index] > target) {
-                continue;
-            }
-            int value = (int)values[index];
-            for (int sum = target; sum >= value; sum--) {
-                if (item[sum] == -1 && item[sum - value] != -1) {
-                    item[sum] = index;
-                    previous[sum] = sum - value;
+        for (i = 1; (i <= n); i++) { /* build table */
+            for (j = 0; (j <= k); j++) {
+                sum[i][j] = sum[(i - 1)][j];
+                parent[i][j] = NIL;
+                if (((j >= s[(i - 1)]) && (sum[(i - 1)][(j - s[(i - 1)])] == true))) {
+                    sum[i][j] = true;
+                    parent[i][j] = (j - s[(i - 1)]);
                 }
             }
         }
-        if (item[target] == -1) {
-            return null;
+        return sum[n][k];
+    }
+
+    public static void report_subset(int n, int k) {
+        if ((k == 0)) {
+            return;
         }
-        List<Integer> result = new ArrayList<>();
-        for (int sum = target; sum != 0; sum = previous[sum]) {
-            result.add(item[sum]);
+        if ((parent[n][k] == NIL)) {
+            report_subset((n - 1), k);
+        } else {
+            report_subset((n - 1), parent[n][k]);
+            C.printf(" %d ", (k - parent[n][k]));
         }
-        Collections.reverse(result);
-        return result;
+    }
+
+    public static int main() {
+        int r = 0;
+        int n = 0;
+        int k = 0;
+        int i = 0;
+        int[] s = new int[(MAXN + 1)];
+        int m = 0;
+        int j = 0;
+        int _read0 = C.scan("%d");
+        if (_read0 > 0) m = C.scanInt(0);
+        for (j = 0; (j < m); j++) {
+            int _read1 = C.scan("%d %d");
+            if (_read1 > 0) n = C.scanInt(0);
+            if (_read1 > 1) k = C.scanInt(1);
+            C.printf("n=%d  k=%d \n", n, k);
+            for (i = 0; (i < n); i++) {
+                int _read2 = C.scan("%d");
+                if (_read2 > 0) s[i] = C.scanInt(0);
+                C.printf(" %d ", s[i]);
+            }
+            C.printf("\n Is %d realizable: %d\n", k, (r = (subset_sum(s, n, k) ? 1 : 0)));
+            if ((r != 0)) {
+                report_subset(n, k);
+            }
+            C.printf("\n\n");
+        }
+        return 0;
     }
 
     public static void main(String[] args) {
-        System.out.println(subsetSum(new long[] {1, 3, 4}, 7));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	graph.c
+
+	A generic adjacency list graph data type.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,108 +19,128 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public class Graph {
-    public record Edge(int from, int to, long weight, int id) {}
+    public static final int QUEUESIZE = 1000;
+    public static final int TREE = 0; /* tree edge */
+    public static final int BACK = 1; /* back edge */
+    public static final int CROSS = 2; /* cross edge */
+    public static final int FORWARD = 3; /* forward edge */
+    public static final int MAXV = 100; /* maximum number of vertices */
+    public static class edgenode {
+        int y = 0; /* adjacency info */
+        int weight = 0; /* edge weight, if any */
+        Graph.edgenode next = null; /* next edge in list */
+    }
+    public static class graph {
+        Graph.edgenode[] edges = new Graph.edgenode[(MAXV + 1)]; /* adjacency info */
+        int[] degree = new int[(MAXV + 1)]; /* outdegree of each vertex */
+        int nvertices = 0; /* number of vertices in the graph */
+        int nedges = 0; /* number of edges in the graph */
+        int directed = 0; /* is the graph directed? */
+    }
 
-    record Arc(int to, long weight, int id) {}
+    public static void initialize_graph(Graph.graph g, boolean directed) {
+        int i = 0; /* counter */
+        g.nvertices = 0;
+        g.nedges = 0;
+        g.directed = (directed ? 1 : 0);
+        for (i = 1; (i <= MAXV); i++) {
+            g.degree[i] = 0;
+        }
+        for (i = 1; (i <= MAXV); i++) {
+            g.edges[i] = null;
+        }
+    }
 
-    public final int n;
-    public final boolean directed;
-    final List<Edge> edges = new ArrayList<>();
-    private int nextId;
-    public Graph(int n, boolean directed) {
-        if (n < 0) {
-            throw new IllegalArgumentException("negative vertex count");
-        }
-        this.n = n;
-        this.directed = directed;
-    }
-    public void vertex(int v) {
-        if (v < 0 || v >= n) {
-            throw new IllegalArgumentException("vertex outside graph");
+    public static void insert_edge(Graph.graph g, int x, int y, boolean directed) {
+        Graph.edgenode p = null; /* temporary pointer */
+        p = new Graph.edgenode(); /* allocate edgenode storage */
+        p.weight = 0;
+        p.y = y;
+        p.next = g.edges[x];
+        g.edges[x] = p; /* insert at head of list */
+        g.degree[x]++;
+        if (!(directed)) {
+            insert_edge(g, y, x, true);
+        } else {
+            g.nedges++;
         }
     }
-    public void add(int from, int to, long weight) {
-        vertex(from);
-        vertex(to);
-        edges.add(new Edge(from, to, weight, nextId++));
+
+    public static void read_graph(Graph.graph g, boolean directed) {
+        int i = 0; /* counter */
+        int m = 0; /* number of edges */
+        int x = 0; /* vertices in edge (x,y) */
+        int y = 0;
+        initialize_graph(g, directed);
+        int _read0 = C.scan("%d %d");
+        if (_read0 > 0) g.nvertices = C.scanInt(0);
+        if (_read0 > 1) m = C.scanInt(1);
+        for (i = 1; (i <= m); i++) {
+            int _read1 = C.scan("%d %d");
+            if (_read1 > 0) x = C.scanInt(0);
+            if (_read1 > 1) y = C.scanInt(1);
+            insert_edge(g, x, y, directed);
+        }
     }
-    public boolean delete(int from, int to) {
-        vertex(from);
-        vertex(to);
-        for (int i = 0; i < edges.size(); i++) {
-            Edge edge = edges.get(i);
-            if ((edge.from() == from && edge.to() == to) ||
-                (!directed && edge.from() == to && edge.to() == from)) {
-                edges.remove(i);
-                return true;
+
+    public static void delete_edge(Graph.graph g, int x, int y, boolean directed) {
+        Graph.edgenode p = null; /* temporary pointers */
+        Graph.edgenode p_back = null;
+        p = g.edges[x];
+        p_back = null;
+        while ((p != null)) {
+            if ((p.y == y)) {
+                g.degree[x]--;
+                if ((p_back != null)) {
+                    p_back.next = p.next;
+                } else {
+                    g.edges[x] = p.next;
+                }
+                // Java garbage collection releases p;
+                if (!(directed)) {
+                    delete_edge(g, y, x, true);
+                } else {
+                    g.nedges--;
+                }
+                return;
+            } else {
+                p_back = p;
+                p = p.next;
             }
         }
-        return false;
+        C.printf("Warning: deletion(%d,%d) not found in g.\n", x, y);
     }
-    public List<Edge> edges() {
-        return List.copyOf(edges);
-    }
-    List<List<Arc>> adjacency() {
-        List<List<Arc>> result = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            result.add(new ArrayList<>());
+
+    public static void print_graph(Graph.graph g) {
+        int i = 0; /* counter */
+        Graph.edgenode p = null; /* temporary pointer */
+        for (i = 1; (i <= g.nvertices); i++) {
+            C.printf("%d: ", i);
+            p = g.edges[i];
+            while ((p != null)) {
+                C.printf(" %d", p.y);
+                p = p.next;
+            }
+            C.printf("\n");
         }
-        for (Edge edge : edges) {
-            result.get(edge.from()).add(new Arc(edge.to(), edge.weight(), edge.id()));
-            if (!directed) {
-                result.get(edge.to()).add(new Arc(edge.from(), edge.weight(), edge.id()));
+    }
+
+    public static Graph.graph transpose(Graph.graph g) {
+        Graph.graph gt = null; /* transpose of graph g */
+        int x = 0; /* counter */
+        Graph.edgenode p = null; /* temporary pointer */
+        gt = new Graph.graph();
+        initialize_graph(gt, true); /* initialize directed graph */
+        gt.nvertices = g.nvertices;
+        for (x = 1; (x <= g.nvertices); x++) {
+            p = g.edges[x];
+            while ((p != null)) {
+                insert_edge(gt, p.y, x, true);
+                p = p.next;
             }
         }
-        return result;
+        return gt;
     }
 
-    static void requireUndirected(Graph graph) {
-        if (graph.directed) {
-            throw new IllegalArgumentException("undirected graph required");
-        }
-    }
-
-    static void requireDirected(Graph graph) {
-        if (!graph.directed) {
-            throw new IllegalArgumentException("directed graph required");
-        }
-    }
-
-    public static int compareLists(List<Integer> left, List<Integer> right) {
-        int common = Math.min(left.size(), right.size());
-        for (int i = 0; i < common; i++) {
-            int comparison = Integer.compare(left.get(i), right.get(i));
-            if (comparison != 0) {
-                return comparison;
-            }
-        }
-        return Integer.compare(left.size(), right.size());
-    }
-
-    static List<List<Integer>> canonical(List<List<Integer>> groups) {
-        for (List<Integer> group : groups) {
-            Collections.sort(group);
-        }
-        groups.sort(Graph::compareLists);
-        return groups;
-    }
-    public static Graph read(java.util.Scanner input, boolean directed, boolean weighted) {
-        int n = input.nextInt();
-        int count = input.nextInt();
-        if (count < 0) {
-            throw new IllegalArgumentException("negative edge count");
-        }
-        Graph graph = new Graph(n, directed);
-        for (int i = 0; i < count; i++) {
-            int from = input.nextInt() - 1;
-            int to = input.nextInt() - 1;
-            graph.add(from, to, weighted ? input.nextLong() : 1);
-        }
-        return graph;
-    }
 }
