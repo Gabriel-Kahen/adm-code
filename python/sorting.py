@@ -119,7 +119,7 @@ def binary_search(s, key, low, high):
     if (low > high):
         # key not found
         return (-1)
-    middle = c_div((low + high), 2)
+    middle = (low + high) // 2
     if (s[middle] == key):
         return middle
     if (s[middle] > key):
@@ -161,10 +161,10 @@ def merge(s, low, middle, high):
 
 def merge_sort(s, low, high):
     # middle: index of middle element
-    if (low < high):
-        middle = c_div((low + high), 2)
+    if low < high:
+        middle = (low + high) // 2
         merge_sort(s, low, middle)
-        merge_sort(s, (middle + 1), high)
+        merge_sort(s, middle + 1, high)
         merge(s, low, middle, high)
 
 

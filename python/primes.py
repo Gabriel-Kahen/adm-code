@@ -31,14 +31,14 @@ def prime_factorization(x):
     # i: counter
     # c: remaining product to factor
     c = x
-    while (c_mod(c, 2) == 0):
+    while (c % 2 == 0):
         printf("%d\n", 2)
-        c = c_div(c, 2)
+        c = c // 2
     i = 3
     while (i <= (sqrt(c) + 1)):
-        if (c_mod(c, i) == 0):
+        if (c % i == 0):
             printf("%ld\n", i)
-            c = c_div(c, i)
+            c = c // i
         else:
             i = (i + 2)
     if (c > 1):

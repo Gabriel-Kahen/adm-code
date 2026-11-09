@@ -44,7 +44,7 @@ def pq_parent(n):
     if (n == 1):
         return (-1)
     # implicitly take floor(n/2)
-    return c_div(int(n), 2)
+    return int(n) // 2
 
 
 def pq_young_child(n):
@@ -126,7 +126,7 @@ def make_heap_fast(q, s, n):
     while (i < n):
         q.q[(i + 1)] = s[i]
         i += 1
-    i = c_div(q.n, 2)
+    i = q.n // 2
     while (i >= 1):
         bubble_down(q, i)
         i -= 1

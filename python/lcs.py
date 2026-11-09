@@ -97,7 +97,7 @@ def main():
         fprintf(stderr, "expected two strings of at most %d characters\n", editdistance.MAXLEN)
         return 1
     complen = editdistance.string_compare(s, t, m)
-    lcslen = c_div((((strlen(s) + strlen(t)) - 2) - complen), 2)
+    lcslen = (strlen(s) + strlen(t) - 2 - complen) // 2
     printf("length of longest common subsequence = %d\n", lcslen)
     goal_cell(s, t, i, j)
     editdistance.reconstruct_path(s, t, i[0], j[0], m)

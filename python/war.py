@@ -39,18 +39,18 @@ suits = char_array("cdhs", len("cdhs") + 1)
 
 # Return the suit and value of the given card.
 def suit(card):
-    return suits[c_mod(card, NSUITS)]
+    return suits[card % NSUITS]
 
 
 def value(card):
-    return values[c_div(card, NSUITS)]
+    return values[card // NSUITS]
 
 
 def print_card_queue(q):
     i = q.first
     while (i != q.last):
         printf("%c%c ", value(q.q[i]), suit(q.q[i]))
-        i = c_mod((i + 1), queue.QUEUESIZE)
+        i = (i + 1) % queue.QUEUESIZE
     printf("%2d ", q.q[i])
     printf("\n")
 
@@ -59,7 +59,7 @@ def print_card_queue(q):
 def rank_card(value, suit):
     # j: counters
     i = 0
-    while (i < c_div(NCARDS, NSUITS)):
+    while (i < NCARDS // NSUITS):
         if (values[i] == value):
             j = 0
             while (j < NSUITS):
@@ -90,7 +90,7 @@ def random_init_decks(a, b):
     queue.init_queue(a)
     queue.init_queue(b)
     i = 0
-    while (i < c_div(NCARDS, 2)):
+    while (i < NCARDS // 2):
         queue.enqueue(a, perm[(2 * i)])
         queue.enqueue(b, perm[((2 * i) + 1)])
         i = (i + 1)
@@ -121,13 +121,13 @@ def war(a, b):
         if inwar:
             inwar = False
         else:
-            if (c_div(x, NSUITS) > c_div(y, NSUITS)):
+            if (x // NSUITS > y // NSUITS):
                 clear_queue(c, a)
             else:
-                if (c_div(x, NSUITS) < c_div(y, NSUITS)):
+                if (x // NSUITS < y // NSUITS):
                     clear_queue(c, b)
                 else:
-                    if (c_div(y, NSUITS) == c_div(x, NSUITS)):
+                    if (y // NSUITS == x // NSUITS):
                         inwar = True
     if ((not queue.empty_queue(a)) and queue.empty_queue(b)):
         printf("a wins in %d steps \n", steps)
