@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    prim.c
+
+    Compute minimum spanning trees of graphs via Dijkstra/Prim's algorithm.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,55 +19,74 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "graph.hpp"
-#include "wgraph.hpp"
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-namespace adm {
-SpanningForest prim(const Graph &graph) {
-    undirected(graph);
-    SpanningForest result;
+#include "bfs-dfs.hpp"
 
-    using Choice = std::tuple<Integer, int, int>;
-    std::priority_queue<Choice, std::vector<Choice>, std::greater<Choice>> ready;
-    std::vector<bool> seen(graph.size());
-    for (int root = 0; root < graph.size(); ++root) {
-        if (seen[root]) {
-            continue;
+#define MAXINT (LLONG_MAX / 4)
+
+/************************************************************/
+/* [[[ prim_cut */
+long long prim(graph *g, int start) {
+    int i;
+    edgenode *edge;
+    bool in_tree[MAXV + 1];
+    long long distance[MAXV + 1]; /* cheapest known edge from the tree */
+    int vertex, neighbor;
+    long long next_distance;
+    long long tree_weight = 0;
+
+    for (i = 1; i <= g->nvertices; i++) {
+        in_tree[i] = false;
+        distance[i] = MAXINT;
+        parent[i] = -1;
+    }
+
+    distance[start] = 0;
+    vertex = start;
+
+    /* Grow the tree in start's connected component; other parents remain -1. */
+    while (!in_tree[vertex]) {
+        in_tree[vertex] = true;
+        if (vertex != start) {
+            printf("edge (%d,%d) in tree \n", parent[vertex], vertex);
+            tree_weight = tree_weight + next_distance;
         }
-        ready.emplace(0, root, -1);
-        while (!ready.empty()) {
-            auto [weight, vertex, parent] = ready.top();
-            ready.pop();
-            if (seen[vertex]) {
-                continue;
+        edge = g->edges[vertex];
+        while (edge != NULL) {
+            neighbor = edge->y;
+            if ((distance[neighbor] > edge->weight) && (!in_tree[neighbor])) {
+                distance[neighbor] = edge->weight;
+                parent[neighbor] = vertex;
             }
-            seen[vertex] = true;
-            if (parent != -1) {
-                result.edges.push_back({parent, vertex, weight});
-                result.cost = add(result.cost, weight);
-            }
-            for (const auto &edge : graph.neighbors(vertex)) {
-                if (!seen[edge.to]) {
-                    ready.emplace(edge.weight, edge.to, vertex);
-                }
+            edge = edge->next;
+        }
+
+        next_distance = MAXINT;
+        for (i = 1; i <= g->nvertices; i++) {
+            if ((!in_tree[i]) && (next_distance > distance[i])) {
+                next_distance = distance[i];
+                vertex = i;
             }
         }
     }
 
-    return result;
+    return (tree_weight);
 }
-} // namespace adm
+/* ]]] */
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto graph = read_weighted_graph(std::cin, false);
-        std::cout << prim(graph).cost << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
-    }
+int main(void) {
+    graph g;
+    long long weight;
+
+    read_graph(&g, false);
+
+    weight = prim(&g, 1);
+
+    printf("Out of Prim: weight = %lld \n", weight);
+
+    return 0;
 }
-#endif

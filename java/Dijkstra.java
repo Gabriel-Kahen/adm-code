@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	dijkstra.c
+
+	Compute shortest paths in weighted graphs using Dijkstra's algorithm
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,59 +16,78 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
+public class Dijkstra {
+    public static final int TREE = 0;
+    public static final int BACK = 1;
+    public static final int CROSS = 2;
+    public static final int FORWARD = 3;
+    public static final int MAXV = 100;
+    public static final long MAXINT = (Long.MAX_VALUE / 4);
 
-public final class Dijkstra {
-    record Distance(int vertex, long value) {}
-
-    /** Nonnegative weights only. O((V+E) log(E+1)), checked long path additions. */
-    public static Long[] dijkstra(Graph graph, int source) {
-        return dijkstraPaths(graph, source).distances();
-    }
-
-    public record ShortestPaths(Long[] distances, int[] parents) {}
-
-    /** Dijkstra distances and parent witness, with -1 for source/unreachable parents. */
-    public static ShortestPaths dijkstraPaths(Graph graph, int source) {
-        graph.vertex(source);
-        for (Graph.Edge edge : graph.edges) {
-            if (edge.weight() < 0) {
-                throw new IllegalArgumentException("negative Dijkstra edge");
-            }
+    /* Dijkstra requires nonnegative edge weights. Unreachable vertices keep parent -1. */
+    public static long dijkstra(Graph.graph g, int start) {
+        int i = 0;
+        Graph.edgenode edge = null;
+        boolean[] settled = new boolean[(MAXV + 1)];
+        long[] distance = new long[(MAXV + 1)]; /* shortest known distance from start */
+        int vertex = 0;
+        int neighbor = 0;
+        long next_distance = 0;
+        long tree_weight = 0;
+        for (i = 1; (i <= g.nvertices); i++) {
+            settled[i] = false;
+            distance[i] = MAXINT;
+            Wgraph.parent[i] = (-1);
         }
-        List<List<Graph.Arc>> adjacency = graph.adjacency();
-        Long[] distance = new Long[graph.n];
-        int[] parents = new int[graph.n];
-        Arrays.fill(parents, -1);
-        PriorityQueue<Distance> queue =
-            new PriorityQueue<>(Comparator.comparingLong(Distance::value));
-        distance[source] = 0L;
-        queue.add(new Distance(source, 0));
-        while (!queue.isEmpty()) {
-            Distance current = queue.remove();
-            if (distance[current.vertex] != current.value) {
-                continue;
+        distance[start] = 0;
+        vertex = start;
+        while (!(settled[vertex])) {
+            settled[vertex] = true;
+            if ((vertex != start)) {
+                C.printf("edge (%d,%d) in tree \n", Wgraph.parent[vertex], vertex);
+                /* The distance difference is this parent edge's weight, not a full path length. */
+                tree_weight += (distance[vertex] - distance[Wgraph.parent[vertex]]);
             }
-            for (Graph.Arc arc : adjacency.get(current.vertex)) {
-                long candidate = Math.addExact(current.value, arc.weight());
-                if (distance[arc.to()] == null || candidate < distance[arc.to()]) {
-                    distance[arc.to()] = candidate;
-                    parents[arc.to()] = current.vertex;
-                    queue.add(new Distance(arc.to(), candidate));
+            edge = g.edges[vertex];
+            while ((edge != null)) {
+                neighbor = edge.y;
+                if ((distance[neighbor] > (distance[vertex] + edge.weight))) {
+                    distance[neighbor] = (distance[vertex] + edge.weight);
+                    Wgraph.parent[neighbor] = vertex;
+                }
+                edge = edge.next;
+            }
+            /* If none is reachable, vertex stays settled and the outer loop stops. */
+            next_distance = MAXINT;
+            for (i = 1; (i <= g.nvertices); i++) {
+                if ((!(settled[i]) && (next_distance > distance[i]))) {
+                    next_distance = distance[i];
+                    vertex = i;
                 }
             }
         }
-        return new ShortestPaths(distance, parents);
+        return tree_weight;
+    }
+
+    public static int main() {
+        Graph.graph g = new Graph.graph();
+        int i = 0;
+        long weight = 0;
+        Wgraph.read_graph(g, false);
+        weight = dijkstra(g, 1);
+        C.printf("Total SPST edgeweight = %lld \n", weight);
+        for (i = 1; (i <= g.nvertices); i++) {
+            Wgraph.find_path(1, i, Wgraph.parent);
+        }
+        C.printf("\n");
+        return 0;
     }
 
     public static void main(String[] args) {
-        Graph graph = Graph.read(new java.util.Scanner(System.in), false, true);
-        System.out.println(Arrays.toString(dijkstra(graph, 0)));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

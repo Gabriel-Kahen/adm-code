@@ -13,64 +13,138 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""priority_queue.c translated to Python; indices start at zero."""
+"""Direct translation of priority_queue.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from collections.abc import Iterable
-from typing import Generic, TypeVar
+from ._c import *
+from . import _c
 
-T = TypeVar("T")
+class priority_queue:
+    def __init__(self):
+        # q: body of queue
+        self.q = [0 for _ in range((PQ_SIZE + 1))]
+        # n: number of queue elements
+        self.n = 0
 
 
-class MinHeap(Generic[T]):
-    """Binary minimum heap: O(log n) insert/remove, O(n) construction."""
+PQ_SIZE = 1000
 
-    def __init__(self, values: Iterable[T] = ()) -> None:
-        self._values = list(values)
-        for parent in range(len(self._values) // 2 - 1, -1, -1):
-            self._sink(parent)
 
-    def _sink(self, parent: int) -> None:
-        values = self._values
-        while 2 * parent + 1 < len(values):
-            child = 2 * parent + 1
-            if child + 1 < len(values) and values[child + 1] < values[child]:
-                child += 1
-            if not values[child] < values[parent]:
-                break
-            values[parent], values[child] = values[child], values[parent]
-            parent = child
+def pq_init(q):
+    q.n = 0
 
-    def push(self, value: T) -> None:
-        self._values.append(value)
-        child = len(self._values) - 1
-        while child:
-            parent = (child - 1) // 2
-            if not self._values[child] < self._values[parent]:
-                break
-            self._values[parent], self._values[child] = self._values[child], self._values[parent]
-            child = parent
 
-    def pop(self) -> T:
-        if not self._values:
-            raise IndexError("empty heap")
-        smallest = self._values[0]
-        last = self._values.pop()
-        if self._values:
-            self._values[0] = last
-            self._sink(0)
-        return smallest
+def pq_parent(n):
+    if (n == 1):
+        return (-1)
+    # implicitly take floor(n/2)
+    return c_div(int(n), 2)
 
-    def peek(self) -> T:
-        if not self._values:
-            raise IndexError("empty heap")
-        return self._values[0]
 
-    def __len__(self) -> int:
-        return len(self._values)
+def pq_young_child(n):
+    return (2 * n)
+
+
+def pq_swap(q, i, j):
+    # temp: placeholder
+    temp = q.q[i]
+    q.q[i] = q.q[j]
+    q.q[j] = temp
+
+
+def bubble_up(q, p):
+    if (pq_parent(p) == (-1)):
+        # return: at root of heap, no parent
+        return
+    if (q.q[pq_parent(p)] > q.q[p]):
+        pq_swap(q, p, pq_parent(p))
+        bubble_up(q, pq_parent(p))
+
+
+def bubble_down(q, p):
+    # c: child index
+    # i: counter
+    # min_index: index of lightest child
+    c = pq_young_child(p)
+    min_index = p
+    i = 0
+    while (i <= 1):
+        if ((c + i) <= q.n):
+            if (q.q[min_index] > q.q[(c + i)]):
+                min_index = (c + i)
+        i += 1
+    if (min_index != p):
+        pq_swap(q, p, min_index)
+        bubble_down(q, min_index)
+
+
+def pq_insert(q, x):
+    if (q.n >= PQ_SIZE):
+        printf("Warning: priority queue overflow! \n")
+    else:
+        q.n = (q.n + 1)
+        q.q[q.n] = x
+        bubble_up(q, q.n)
+
+
+def extract_min(q):
+    # minimum value
+    min = (-1)
+    if (q.n <= 0):
+        printf("Warning: empty priority queue.\n")
+    else:
+        min = q.q[1]
+        q.q[1] = q.q[q.n]
+        q.n = (q.n - 1)
+        bubble_down(q, 1)
+    return min
+
+
+def empty_pq(q):
+    return (q.n <= 0)
+
+
+def print_pq(q):
+    # i: counter
+    i = 1
+    while (i <= q.n):
+        printf("%d ", q.q[i])
+        i += 1
+    printf("\n")
+
+
+def make_heap_fast(q, s, n):
+    # i: counter
+    q.n = n
+    i = 0
+    while (i < n):
+        q.q[(i + 1)] = s[i]
+        i += 1
+    i = c_div(q.n, 2)
+    while (i >= 1):
+        bubble_down(q, i)
+        i -= 1
+
+
+def make_heap(q, s, n):
+    # i: counter
+    pq_init(q)
+    i = 0
+    while (i < n):
+        pq_insert(q, s[i])
+        i += 1
+
+
+def heap_compare(q, i, count, x):
+    if ((count <= 0) or (i > q.n)):
+        return count
+    if (q.q[i] < x):
+        count = heap_compare(q, pq_young_child(i), (count - 1), x)
+        count = heap_compare(q, (pq_young_child(i) + 1), count, x)
+    return count

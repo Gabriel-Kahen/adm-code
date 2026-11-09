@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    war.c
+
+    Simulation of the children's card game War
+
+    cards with format value, suit, e.g. 4h ranked by orders 23456789TJQKA and cdhs
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,84 +21,167 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayDeque;
+public class War {
+    public static final int QUEUESIZE = 1000;
+    public static final int NGAMES = 50;
+    public static final int MAXSTEPS = 100000;
+    public static final int NCARDS = 52; /* number of cards */
+    public static final int NSUITS = 4; /* number of suits */
+    public static char[] values = "23456789TJQKA".toCharArray();
+    public static char[] suits = "cdhs".toCharArray();
 
-public final class War {
-    static final String RANKS = "23456789TJQKA";
-
-    static final String SUITS = "cdhs";
-
-    public static int card(String encoded) {
-        if (encoded.length() != 2) {
-            throw new IllegalArgumentException("card must have rank and suit");
-        }
-        int rank = RANKS.indexOf(encoded.charAt(0));
-        int suit = SUITS.indexOf(encoded.charAt(1));
-        if (rank == -1 || suit == -1) {
-            throw new IllegalArgumentException("unknown card rank or suit");
-        }
-        return 4 * rank + suit;
+    /*    Return the suit and value of the given card.     */
+    public static char suit(int card) {
+        return suits[(card % NSUITS)];
     }
 
-    public static String uncard(int card) {
-        if (card < 0 || card >= 52) {
-            throw new IllegalArgumentException("card number outside 0..51");
-        }
-        return "" + RANKS.charAt(card / 4) + SUITS.charAt(card % 4);
+    public static char value(int card) {
+        return values[(card / NSUITS)];
     }
 
-    public record Result(String winner, int steps) {}
-
-    /** Original Result: each tied comparison is followed by one face-down pair, then another comparison. */
-    public static Result war(int limit, int[] first, int[] second) {
-        if (limit < 0) {
-            throw new IllegalArgumentException("negative game step limit");
+    public static void print_card_queue(Queue.queue q) {
+        int i = 0;
+        i = q.first;
+        while ((i != q.last)) {
+            C.printf("%c%c ", value(q.q[i]), suit(q.q[i]));
+            i = ((i + 1) % QUEUESIZE);
         }
-        boolean[] used = new boolean[52];
-        ArrayDeque<Integer> a = deck(first, used);
-        ArrayDeque<Integer> b = deck(second, used);
-        ArrayDeque<Integer> pot = new ArrayDeque<>();
-        int steps = 0;
-        boolean faceDown = false;
-        while (!a.isEmpty() && !b.isEmpty() && steps < limit) {
-            int x = a.remove();
-            int y = b.remove();
-            pot.add(x);
-            pot.add(y);
-            steps++;
-            if (faceDown) {
-                faceDown = false;
-            } else if (x / 4 == y / 4) {
-                faceDown = true;
-            } else {
-                ArrayDeque<Integer> winner = x / 4 > y / 4 ? a : b;
-                while (!pot.isEmpty()) {
-                    winner.add(pot.remove());
+        C.printf("%2d ", q.q[i]);
+        C.printf("\n");
+    }
+
+    /*     Rank the card with given value and suit.    */
+    public static int rank_card(char value, char suit) {
+        int i = 0; /* counters */
+        int j = 0;
+        for (i = 0; (i < (NCARDS / NSUITS)); i++) {
+            if ((values[i] == value)) {
+                for (j = 0; (j < NSUITS); j++) {
+                    if ((suits[j] == suit)) {
+                        return ((i * NSUITS) + j);
+                    }
                 }
             }
         }
-        if (!a.isEmpty() && b.isEmpty()) {
-            return new Result("a", steps);
-        }
-        if (a.isEmpty() && !b.isEmpty()) {
-            return new Result("b", steps);
-        }
-        return new Result("draw", steps);
+        C.printf("Warning: bad input value=%d, suit=%d\n", value, suit);
+        return (-1);
     }
 
-    static ArrayDeque<Integer> deck(int[] cards, boolean[] used) {
-        ArrayDeque<Integer> result = new ArrayDeque<>();
-        for (int card : cards) {
-            if (card < 0 || card >= 52 || used[card]) {
-                throw new IllegalArgumentException("invalid or duplicate card");
-            }
-            used[card] = true;
-            result.add(card);
+    public static void testcards() {
+        int i = 0; /* counter */
+        for (i = 0; (i < NCARDS); i++) {
+            C.printf(" i=%d card[i]=%c%c rank=%d\n", i, value(i), suit(i), rank_card(value(i), suit(i)));
         }
-        return result;
+    }
+
+    public static void random_init_decks(Queue.queue a, Queue.queue b) {
+        int i = 0; /* counter */
+        int[] perm = new int[(NCARDS + 1)];
+        for (i = 0; (i < NCARDS); i = (i + 1)) {
+            perm[i] = i;
+        }
+        Random.random_permutation(perm, NCARDS);
+        Queue.init_queue(a);
+        Queue.init_queue(b);
+        for (i = 0; (i < (NCARDS / 2)); i = (i + 1)) {
+            Queue.enqueue(a, perm[(2 * i)]);
+            Queue.enqueue(b, perm[((2 * i) + 1)]);
+        }
+        print_card_queue(a);
+        print_card_queue(b);
+    }
+
+    public static void clear_queue(Queue.queue a, Queue.queue b) {
+        while (!((Queue.empty_queue(a) != 0))) {
+            Queue.enqueue(b, Queue.dequeue(a));
+        }
+    }
+
+    public static void war(Queue.queue a, Queue.queue b) {
+        int steps = 0; /* step counter */
+        int x = 0; /* top cards */
+        int y = 0;
+        Queue.queue c = new Queue.queue(); /* cards involved in the war */
+        boolean inwar = false;
+        inwar = false;
+        Queue.init_queue(c);
+        while ((!((Queue.empty_queue(a) != 0)) && (!((Queue.empty_queue(b) != 0)) && (steps < MAXSTEPS)))) {
+            steps = (steps + 1);
+            x = Queue.dequeue(a);
+            y = Queue.dequeue(b);
+            Queue.enqueue(c, x);
+            Queue.enqueue(c, y);
+            if (inwar) { /* are we involved in a war? */
+                inwar = false;
+            } else {
+                if (((x / NSUITS) > (y / NSUITS))) {
+                    clear_queue(c, a);
+                } else {
+                    if (((x / NSUITS) < (y / NSUITS))) {
+                        clear_queue(c, b);
+                    } else {
+                        if (((y / NSUITS) == (x / NSUITS))) {
+                            inwar = true;
+                        }
+                    }
+                }
+            }
+        }
+        if ((!((Queue.empty_queue(a) != 0)) && (Queue.empty_queue(b) != 0))) {
+            C.printf("a wins in %d steps \n", steps);
+        } else {
+            if (((Queue.empty_queue(a) != 0) && !((Queue.empty_queue(b) != 0)))) {
+                C.printf("b wins in %d steps \n", steps);
+            } else {
+                if ((!((Queue.empty_queue(a) != 0)) && !((Queue.empty_queue(b) != 0)))) {
+                    C.printf("game tied after %d steps, |a|=%d |b|=%d \n", steps, a.count, b.count);
+                } else {
+                    C.printf("a and b tie in %d steps \n", steps);
+                }
+            }
+        }
+    }
+
+    public static int old_main() {
+        Queue.queue a = new Queue.queue();
+        Queue.queue b = new Queue.queue();
+        int i = 0;
+        for (i = 1; (i <= NGAMES); i++) {
+            random_init_decks(a, b);
+            war(a, b);
+        }
+        return 0;
+    }
+
+    public static int main() {
+        Queue.queue[] decks = new Queue.queue[2]; /* player's decks */
+        for (int _i0 = 0; _i0 < 2; _i0++) {
+            decks[_i0] = new Queue.queue();
+        }
+        char value = '\000'; /* input characters */
+        char suit = '\000';
+        int c = 0;
+        int i = 0; /* deck counter */
+        while (true) {
+            for (i = 0; (i <= 1); i++) {
+                Queue.init_queue(decks[i]);
+                while (((c = C.getchar()) != '\n')) {
+                    if ((c == -1)) {
+                        return (-1);
+                    }
+                    if ((c != ' ')) {
+                        value = (char)c;
+                        suit = (char)(C.getchar());
+                        Queue.enqueue(decks[i], rank_card(value, suit));
+                    }
+                }
+            }
+            war(decks[0], decks[1]);
+        }
     }
 
     public static void main(String[] args) {
-        System.out.println(war(100, new int[] {48}, new int[] {0}));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

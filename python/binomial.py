@@ -11,32 +11,68 @@
 # "Programming Challenges: The Programming Contest Training Manual"
 # by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 # See our website www.programming-challenges.com for additional information,
-# or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+# or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""binomial.c translated to Python; indices start at zero."""
+"""Direct translation of binomial.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
+
+from ._c import *
+from . import _c
+
+# binomial.c
+# Compute the binomial coefficients using dynamic programming
+# by: Steven Skiena
+# largest n or k
+MAXN = 100
 
 
-def binomial(n: int, k: int) -> int:
-    """Pascal-row DP, O(n min(k,n-k)) integer operations and O(min(k,n-k)) space."""
-    if n < 0 or not 0 <= k <= n:
-        raise ValueError("require 0 <= k <= n")
-    k = min(k, n - k)
-    row = [1] + [0] * k
-    for size in range(1, n + 1):
-        for column in range(min(size, k), 0, -1):
-            row[column] += row[column - 1]
-    return row[k]
+# compute n choose k
+# Returns -1 with errno set for invalid arguments or an unrepresentable result.
+def binomial_coefficient(n, k):
+    bc = array_init([0 for _ in range((MAXN + 1))], [0])
+    _c.errno = 0
+    if ((((n < 0) or (n > MAXN)) or (k < 0)) or (k > n)):
+        _c.errno = EDOM
+        return (-1)
+    if (k > (n - k)):
+        k = (n - k)
+    bc[0] = 1
+    i = 1
+    while (i <= n):
+        last = (i if (i < k) else k)
+        j = last
+        while (j > 0):
+            if (bc[j] > (LONG_MAX - bc[(j - 1)])):
+                _c.errno = ERANGE
+                return (-1)
+            bc[j] += bc[(j - 1)]
+            j -= 1
+        i += 1
+    return bc[k]
+
+
+def main():
+    a = [0]
+    b = [0]
+    n = [0]
+    scanf("%d", n)
+    i = 0
+    while (i < n[0]):
+        scanf("%d %d", a, b)
+        coefficient = binomial_coefficient(a[0], b[0])
+        if (coefficient < 0):
+            perror("binomial coefficient")
+            return 1
+        printf("%d choose %d = %ld\n", a[0], b[0], coefficient)
+        i += 1
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    n, k = map(int, (sys.stdin.read().split() or ["10", "5"]))
-    print(binomial(n, k))
+    exit(main())

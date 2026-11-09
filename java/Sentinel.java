@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*  sentinel.c
+
+    Example search program using sentinels
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,27 +19,47 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.Arrays;
+public class Sentinel {
+    public static final int MAXINT = 1000000;
+    public static int[] a = new int[100];
 
-public final class Sentinel {
-    /** Sentinel insertion expressed without an out-of-domain numeric sentinel. O(n). */
-    public static long[] insert(long[] sorted, long value) {
-        for (int i = 1; i < sorted.length; i++) {
-            if (sorted[i] < sorted[i - 1]) {
-                throw new IllegalArgumentException("array must be sorted");
-            }
+    public static int main() {
+        int i = 0;
+        int n = 0;
+        int x = 0;
+        for (i = 1; (i <= 20); i++) {
+            a[i] = i;
         }
-        long[] result = Arrays.copyOf(sorted, sorted.length + 1);
-        int i = sorted.length;
-        while (i > 0 && result[i - 1] > value) {
-            result[i] = result[i - 1];
-            i--;
+        n = 20;
+        x = (-1);
+        i = n;
+        while (((a[i] >= x) && (i >= 1))) {
+            a[(i + 1)] = a[i];
+            i = (i - 1);
         }
-        result[i] = value;
-        return result;
+        a[(i + 1)] = x;
+        C.printf("without sentinel, i=%d a[1]=%d\n", i, a[1]);
+        for (i = 1; (i <= 25); i++) {
+            C.printf("%d ", a[i]);
+        }
+        x = (-2);
+        n = 21;
+        i = n;
+        a[0] = (-MAXINT);
+        while ((a[i] >= x)) {
+            a[(i + 1)] = a[i];
+            i = (i - 1);
+        }
+        a[(i + 1)] = x;
+        C.printf("\nwith sentinel, i=%d a[1]=%d\n", i, a[1]);
+        for (i = 1; (i <= 25); i++) {
+            C.printf("%d ", a[i]);
+        }
+        return 0;
     }
 
     public static void main(String[] args) {
-        System.out.println(Arrays.toString(insert(new long[] {1, 2, 3}, -1)));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

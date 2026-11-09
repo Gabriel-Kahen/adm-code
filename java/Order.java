@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    order.c
+
+      Demonstrate traversal orders on a grid.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,56 +19,78 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+public class Order {
+    public static final double PI = 3.1415926; /* ratio of circumference to diameter */
+    public static final double EPSILON = 0.000001; /* a quantity small enough to be zero */
+    public static final int DIMENSION = 2; /* dimension of points */
+    public static final int X = 0; /* x-coordinate index */
+    public static final int Y = 1; /* y-coordinate index */
+    public static final int MAXPOLY = 200; /* maximum number of points in a polygon */
 
-public final class Order {
-    /** Traversal coordinates for any nonnegative rectangular dimensions. O(rows*columns). */
-    public static List<int[]> grid(String method, int rows, int columns) {
-        if (rows < 0 || columns < 0 || (long)rows * columns > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("invalid grid dimensions");
-        }
-        List<int[]> result = new ArrayList<>();
-        switch (method) {
-        case "row" -> {
-            for (int row = 0; row < rows; row++) {
-                for (int column = 0; column < columns; column++) {
-                    result.add(new int[] {row, column});
-                }
+    public static void process(int i, int j) {
+        C.printf("(%d,%d)\n", i, j);
+    }
+
+    public static void row_major(int n, int m) {
+        int i = 0;
+        int j = 0;
+        for (i = 1; (i <= n); i++) {
+            for (j = 1; (j <= m); j++) {
+                process(i, j); /* counters */
             }
         }
-        case "column" -> {
-            for (int column = 0; column < columns; column++) {
-                for (int row = 0; row < rows; row++) {
-                    result.add(new int[] {row, column});
-                }
+    }
+
+    public static void column_major(int n, int m) {
+        int i = 0;
+        int j = 0;
+        for (j = 1; (j <= m); j++) {
+            for (i = 1; (i <= n); i++) {
+                process(i, j); /* counters */
             }
         }
-        case "snake" -> {
-            for (int row = 0; row < rows; row++) {
-                for (int i = 0; i < columns; i++) {
-                    result.add(new int[] {row, row % 2 == 0 ? i : columns - 1 - i});
-                }
+    }
+
+    public static void snake_order(int n, int m) {
+        int i = 0; /* counters */
+        int j = 0;
+        for (i = 1; (i <= n); i++) {
+            for (j = 1; (j <= m); j++) {
+                process(i, (j + (((m + 1) - (2 * j)) * ((i + 1) % 2))));
             }
         }
-        case "diagonal" -> {
-            for (long diagonal = 0; diagonal < (long)rows + columns - 1; diagonal++) {
-                int first = (int)Math.max(0, diagonal - columns + 1);
-                int last = (int)Math.min(rows - 1L, diagonal);
-                for (int row = first; row <= last; row++) {
-                    result.add(new int[] {row, (int)(diagonal - row)});
-                }
+    }
+
+    public static void diagonal_order(int n, int m) {
+        int d = 0;
+        int row = 0;
+        int first = 0;
+        int last = 0;
+        for (d = 1; (d <= ((n + m) - 1)); d++) {
+            first = Math.max(1, ((d + 1) - m));
+            last = Math.min(n, d);
+            for (row = first; (row <= last); row++) {
+                process(row, ((d + 1) - row));
             }
         }
-        default -> throw new IllegalArgumentException("unknown grid traversal");
-        }
-        return result;
+    }
+
+    public static int main() {
+        C.printf("row_major\n");
+        row_major(5, 5);
+        C.printf("\ncolumn_major\n");
+        column_major(3, 3);
+        C.printf("\nsnake_order\n");
+        snake_order(5, 5);
+        C.printf("\ndiagonal_order\n");
+        diagonal_order(3, 4);
+        C.printf("\ndiagonal_order\n");
+        diagonal_order(4, 3);
+        return 0;
     }
 
     public static void main(String[] args) {
-        for (int[] cell : grid("diagonal", 3, 4)) {
-            System.out.println(Arrays.toString(cell));
-        }
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

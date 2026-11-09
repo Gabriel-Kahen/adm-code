@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	elevator.c
+
+	Elevator stop optimization via dynamic programming.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,81 +19,130 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
 
-namespace adm {
-struct Elevator {
-    Integer cost;
-    std::vector<int> stops;
-};
+#define NFLOORS 25    /* the height of the building in floors */
+#define MAX_RIDERS 50 /* what is the capacity of the elevator? */
+#define MAXINT 100007
 
-Elevator elevator_stops(const std::vector<int> &destinations, int budget, int max_floor) {
-    require(budget >= 0 && max_floor >= 0, "negative elevator dimension");
-    for (int destination : destinations) {
-        require(destination >= 0 && destination <= max_floor, "destination outside building");
+int stops[MAX_RIDERS + 1]; /* what floor does everyone get off at? */
+int nriders;               /* number of riders */
+int nstops;                /* number of allowable stops */
+
+int m[NFLOORS + 1][MAX_RIDERS + 1]; /* dynamic programming cost table */
+int p[NFLOORS + 1][MAX_RIDERS + 1]; /* dynamic programming parent table */
+
+int min(int a, int b) {
+    if (a < b) {
+        return (a);
     }
-    budget = std::min(budget, max_floor);
-    auto after = [&](int floor) {
-        Integer cost = 0;
-        for (int destination : destinations) {
-            if (destination > floor) {
-                cost = add(cost, destination - floor);
-            }
-        }
-        return cost;
-    };
-    auto between = [&](int low, int high) {
-        Integer cost = 0;
-        for (int destination : destinations) {
-            if (destination > low && destination <= high) {
-                cost = add(cost, std::min(destination - low, high - destination));
-            }
-        }
-        return cost;
-    };
-    std::vector<std::vector<std::optional<Integer>>> cost(
-        budget + 1, std::vector<std::optional<Integer>>(max_floor + 1));
-    std::vector<std::vector<int>> parent(budget + 1, std::vector<int>(max_floor + 1, -1));
-    cost[0][0] = after(0);
-    Elevator result{*cost[0][0], {}};
-    int best_count = 0, best_floor = 0;
-    for (int count = 1; count <= budget; ++count) {
-        for (int high = 1; high <= max_floor; ++high) {
-            for (int low = 0; low < high; ++low) {
-                if (!cost[count - 1][low]) {
-                    continue;
-                }
-                Integer candidate =
-                    add(add(*cost[count - 1][low] - after(low), between(low, high)), after(high));
-                if (!cost[count][high] || candidate < *cost[count][high]) {
-                    cost[count][high] = candidate;
-                    parent[count][high] = low;
-                }
-            }
-            if (cost[count][high] && *cost[count][high] < result.cost) {
-                result.cost = *cost[count][high];
-                best_count = count;
-                best_floor = high;
-            }
-        }
-    }
-    for (int count = best_count, floor = best_floor; count > 0; --count) {
-        result.stops.push_back(floor);
-        floor = parent[count][floor];
-    }
-    std::reverse(result.stops.begin(), result.stops.end());
-    return result;
+    return (b);
 }
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        std::cout << elevator_stops({1, 3, 6}, 2, 6).cost << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
+int floors_walked(int previous, int current) {
+    int nsteps = 0; /* total distance traveled */
+    int i;          /* counter */
+
+    for (i = 1; i <= nriders; i++) {
+        if ((stops[i] > previous) && (stops[i] <= current)) {
+            nsteps += min(stops[i] - previous, current - stops[i]);
+        }
+    }
+
+    return (nsteps);
+}
+
+/*	m[i][j] denotes the cost of serving all the riders using j stops,
+	the last of which is at floor i.  Zero is the originating floor.
+*/
+
+int optimize_floors(void) {
+    int i, j, k;  /* counters */
+    int cost;     /* costs placeholder */
+    int laststop; /* the elevator's last stop */
+
+    if (nriders < 0 || nriders > MAX_RIDERS || nstops < 0 || nstops > MAX_RIDERS) {
+        return -1;
+    }
+
+    for (i = 0; i <= NFLOORS; i++) {
+        m[i][0] = floors_walked(0, MAXINT);
+        p[i][0] = -1;
+    }
+
+    for (j = 1; j <= nstops; j++) {
+        for (i = 0; i <= NFLOORS; i++) {
+            m[i][j] = MAXINT;
+            for (k = 0; k <= i; k++) {
+                cost = m[k][j - 1] - floors_walked(k, MAXINT) + floors_walked(k, i) +
+                       floors_walked(i, MAXINT);
+                if (cost < m[i][j]) {
+                    m[i][j] = cost;
+                    p[i][j] = k;
+                }
+            }
+        }
+    }
+
+    laststop = 0;
+    for (i = 1; i <= NFLOORS; i++) {
+        if (m[i][nstops] < m[laststop][nstops]) {
+            laststop = i;
+        }
+    }
+
+    return (laststop);
+}
+
+void reconstruct_path(int lastfloor, int stops_to_go) {
+    if (stops_to_go > 1) {
+        reconstruct_path(p[lastfloor][stops_to_go], stops_to_go - 1);
+    }
+
+    printf("%d\n", lastfloor);
+}
+
+void print_matrix(int m[NFLOORS + 1][MAX_RIDERS + 1]) {
+    int i, j; /* counters */
+
+    for (j = 0; j <= nstops; j++) {
+        for (i = 0; i <= NFLOORS; i++) {
+            printf("%3d", m[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+int main(void) {
+    int i; /* counter */
+    int laststop;
+
+    if (scanf("%d %d", &nriders, &nstops) != 2 || nriders < 0 || nriders > MAX_RIDERS ||
+        nstops < 0 || nstops > MAX_RIDERS) {
+        fprintf(stderr, "invalid elevator dimensions\n");
         return 1;
     }
+
+    for (i = 1; i <= nriders; i++) {
+        if (scanf("%d", &stops[i]) != 1 || stops[i] < 0 || stops[i] > NFLOORS) {
+            fprintf(stderr, "invalid destination floor\n");
+            return 1;
+        }
+    }
+
+    for (i = 1; i <= nriders; i++) {
+        printf("%d\n", stops[i]);
+    }
+
+    laststop = optimize_floors();
+
+    print_matrix(m);
+    printf("\n");
+    print_matrix(p);
+
+    printf("cost = %d\n", m[laststop][nstops]);
+
+    reconstruct_path(laststop, nstops);
+
+    return 0;
 }
-#endif

@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*	graph.h
+
+	Header file for pointer-based graph data type
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,47 +21,46 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
+#include <stdbool.h>
 
-#include "item.hpp"
+/* #define _NULL       0       null pointer */
 
-namespace adm {
-struct Edge {
-    int from, to;
-    Integer weight;
-};
-struct Arc {
-    int to;
-    Integer weight;
-    std::size_t id;
-};
-class Graph {
-    int vertices_;
-    bool directed_;
-    std::vector<Edge> edges_;
-    std::vector<std::vector<Arc>> adjacency_;
-    void rebuild();
+/*	DFS edge types		*/
 
-  public:
-    explicit Graph(int vertices, bool directed = false);
-    int size() const {
-        return vertices_;
-    }
-    bool directed() const {
-        return directed_;
-    }
-    const std::vector<Edge> &edges() const {
-        return edges_;
-    }
-    const std::vector<Arc> &neighbors(int vertex) const;
-    void validate_vertex(int vertex) const;
-    void insert(int from, int to, Integer weight = 1);
-    bool erase(int from, int to); // Remove one matching input edge.
-};
-using Distances = std::vector<std::optional<Integer>>;
-using Groups = std::vector<std::vector<int>>;
-Groups canonical(Groups groups);
-void undirected(const Graph &graph);
-void directed(const Graph &graph);
-Graph read_graph(std::istream &input, bool directed = false, bool weighted = false);
-} // namespace adm
+#define TREE 0    /* tree edge */
+#define BACK 1    /* back edge */
+#define CROSS 2   /* cross edge */
+#define FORWARD 3 /* forward edge */
+
+/* [[[ graph_struct_cut */
+/* [[[ maxv_cut */
+#define MAXV 100 /* maximum number of vertices */
+/* ]]] */
+
+/* [[[ edge_struct_only_cut */
+typedef struct edgenode {
+    int y;                 /* adjacency info */
+    int weight;            /* edge weight, if any */
+    struct edgenode *next; /* next edge in list */
+} edgenode;
+/* ]]] */
+
+/* [[[ graph_struct_only_cut */
+typedef struct {
+    edgenode *edges[MAXV + 1]; /* adjacency info */
+    int degree[MAXV + 1];      /* outdegree of each vertex */
+    int nvertices;             /* number of vertices in the graph */
+    int nedges;                /* number of edges in the graph */
+    int directed;              /* is the graph directed? */
+} graph;
+/* ]]] */
+/* ]]] */
+
+void process_vertex_early(int v);
+void process_vertex_late(int v);
+void process_edge(int x, int y);
+
+void initialize_graph(graph *g, bool directed);
+void read_graph(graph *g, bool directed);
+void print_graph(graph *g);
+graph *transpose(graph *g);

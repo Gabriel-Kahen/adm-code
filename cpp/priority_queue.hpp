@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*	priority_queue.h
+
+	Header file for queue implementation
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,22 +21,26 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
-
 #include "item.hpp"
 
-namespace adm {
-class MinHeap {
-    Integers values_;
+#define PQ_SIZE 1000
 
-  public:
-    void push(Integer value);
-    Integer pop();
-    bool empty() const {
-        return values_.empty();
-    }
-    std::size_t size() const {
-        return values_.size();
-    }
-};
-} // namespace adm
+/* [[[ priority_queue_struct_cut */
+typedef struct {
+    item_type q[PQ_SIZE + 1]; /* body of queue */
+    int n;                    /* number of queue elements */
+} priority_queue;
+/* ]]] */
+
+void pq_init(priority_queue *q);
+int pq_parent(int n);
+int pq_young_child(int n);
+void pq_swap(priority_queue *q, int i, int j);
+void bubble_up(priority_queue *q, int p);
+void bubble_down(priority_queue *q, int p);
+void pq_insert(priority_queue *q, item_type x);
+item_type extract_min(priority_queue *q);
+bool empty_pq(priority_queue *q);
+void print_pq(priority_queue *q);
+void make_heap(priority_queue *q, item_type s[], int n);
+void make_heap1(priority_queue *q, item_type s[], int n);

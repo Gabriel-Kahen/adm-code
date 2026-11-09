@@ -13,65 +13,130 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""elevator.c translated to Python; indices start at zero."""
+"""Direct translation of elevator.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
+
+from ._c import *
+from . import _c
+
+# the height of the building in floors
+NFLOORS = 25
+# what is the capacity of the elevator?
+MAX_RIDERS = 50
+MAXINT = 100007
+# stops: what floor does everyone get off at?
+stops = [0 for _ in range((MAX_RIDERS + 1))]
+# nriders: number of riders
+nriders = 0
+# nstops: number of allowable stops
+nstops = 0
+# m: dynamic programming cost table
+m = [[0 for _ in range((MAX_RIDERS + 1))] for _ in range((NFLOORS + 1))]
+# p: dynamic programming parent table
+p = [[0 for _ in range((MAX_RIDERS + 1))] for _ in range((NFLOORS + 1))]
 
 
-def elevator_stops(destinations: list[int], budget: int, maximum_floor: int) -> dict:
-    """Minimize walking to ground or at most budget stops; O(F²(R+budget)) time.
+def min(a, b):
+    if (a < b):
+        return a
+    return b
 
-    Riders may walk either direction from their nearest stop. Stops are integer
-    floors 1..maximum_floor; ground floor 0 is always available at no budget cost.
-    """
-    if (
-        budget < 0
-        or maximum_floor < 0
-        or any(not 0 <= value <= maximum_floor for value in destinations)
-    ):
-        raise ValueError("invalid stop budget, building, or destination")
-    budget = min(budget, maximum_floor)
-    tail = [
-        sum(max(0, value - floor) for value in destinations) for floor in range(maximum_floor + 1)
-    ]
-    between = [[0] * (maximum_floor + 1) for _ in range(maximum_floor + 1)]
-    for first in range(maximum_floor + 1):
-        for second in range(first + 1, maximum_floor + 1):
-            between[first][second] = sum(
-                min(value - first, second - value)
-                for value in destinations
-                if first < value <= second
-            )
-    previous: list[int | None] = [tail[0]] + [None] * maximum_floor
-    parent_tables = []
-    best_cost, best_floor, best_count = tail[0], 0, 0
-    for count in range(1, budget + 1):
-        current: list[int | None] = [None] * (maximum_floor + 1)
-        parents = [-1] * (maximum_floor + 1)
-        for last in range(1, maximum_floor + 1):
-            for earlier in range(last):
-                if previous[earlier] is None:
-                    continue
-                candidate = previous[earlier] - tail[earlier] + between[earlier][last] + tail[last]
-                if current[last] is None or candidate < current[last]:
-                    current[last], parents[last] = candidate, earlier
-            if current[last] is not None and current[last] < best_cost:
-                best_cost, best_floor, best_count = current[last], last, count
-        previous = current
-        parent_tables.append(parents)
-    stops = []
-    for count in range(best_count, 0, -1):
-        stops.append(best_floor)
-        best_floor = parent_tables[count - 1][best_floor]
-    return {"cost": best_cost, "stops": stops[::-1]}
+
+def floors_walked(previous, current):
+    # total distance traveled
+    nsteps = 0
+    # i: counter
+    i = 1
+    while (i <= nriders):
+        if ((stops[i] > previous) and (stops[i] <= current)):
+            nsteps += min((stops[i] - previous), (current - stops[i]))
+        i += 1
+    return nsteps
+
+
+# m[i][j] denotes the cost of serving all the riders using j stops,
+# the last of which is at floor i.  Zero is the originating floor.
+def optimize_floors():
+    # k: counters
+    # cost: costs placeholder
+    # laststop: the elevator's last stop
+    if ((((nriders < 0) or (nriders > MAX_RIDERS)) or (nstops < 0)) or (nstops > MAX_RIDERS)):
+        return (-1)
+    i = 0
+    while (i <= NFLOORS):
+        m[i][0] = floors_walked(0, MAXINT)
+        p[i][0] = (-1)
+        i += 1
+    j = 1
+    while (j <= nstops):
+        i = 0
+        while (i <= NFLOORS):
+            m[i][j] = MAXINT
+            k = 0
+            while (k <= i):
+                cost = (((m[k][(j - 1)] - floors_walked(k, MAXINT)) + floors_walked(k, i)) + floors_walked(i, MAXINT))
+                if (cost < m[i][j]):
+                    m[i][j] = cost
+                    p[i][j] = k
+                k += 1
+            i += 1
+        j += 1
+    laststop = 0
+    i = 1
+    while (i <= NFLOORS):
+        if (m[i][nstops] < m[laststop][nstops]):
+            laststop = i
+        i += 1
+    return laststop
+
+
+def reconstruct_path(lastfloor, stops_to_go):
+    if (stops_to_go > 1):
+        reconstruct_path(p[lastfloor][stops_to_go], (stops_to_go - 1))
+    printf("%d\n", lastfloor)
+
+
+def print_matrix(m):
+    # j: counters
+    j = 0
+    while (j <= nstops):
+        i = 0
+        while (i <= NFLOORS):
+            printf("%3d", m[i][j])
+            i += 1
+        printf("\n")
+        j += 1
+
+
+def main():
+    # i: counter
+    if (((((scanf("%d %d", address(globals(), 'nriders'), address(globals(), 'nstops')) != 2) or (nriders < 0)) or (nriders > MAX_RIDERS)) or (nstops < 0)) or (nstops > MAX_RIDERS)):
+        fprintf(stderr, "invalid elevator dimensions\n")
+        return 1
+    i = 1
+    while (i <= nriders):
+        if (((scanf("%d", address(stops, i)) != 1) or (stops[i] < 0)) or (stops[i] > NFLOORS)):
+            fprintf(stderr, "invalid destination floor\n")
+            return 1
+        i += 1
+    i = 1
+    while (i <= nriders):
+        printf("%d\n", stops[i])
+        i += 1
+    laststop = optimize_floors()
+    print_matrix(m)
+    printf("\n")
+    print_matrix(p)
+    printf("cost = %d\n", m[laststop][nstops])
+    reconstruct_path(laststop, nstops)
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    print(elevator_stops([1, 3, 6], 2, 6))
+    exit(main())

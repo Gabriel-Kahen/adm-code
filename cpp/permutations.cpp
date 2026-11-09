@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    permutations.c
+
+    Construct all permutations via backtracking.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,51 +19,96 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "graph.hpp"
-#include "backtrack.hpp"
+#include <stdio.h>
 
-namespace adm {
-Groups permutations(int n) {
-    require(n >= 0 && n <= 10, "permutation enumeration requires 0 <= n <= 10");
-    Groups result;
-    std::vector<int> prefix;
-    std::vector<bool> used(n);
-    backtrack(
-        prefix, [n](const auto &path) { return static_cast<int>(path.size()) == n; },
-        [&](const auto &) {
-            std::vector<int> choices;
-            for (int i = 0; i < n; ++i) {
-                if (!used[i]) {
-                    choices.push_back(i);
-                }
-            }
-            return choices;
-        },
-        [&](int value) { used[value] = true; }, [&](int value) { used[value] = false; },
-        [&](const auto &path) {
-            result.push_back(path);
-            return false;
-        });
-    return result;
+#include <stdbool.h>
+
+#define MAXCANDIDATES 100 /* max possible next extensions */
+#define NMAX 100          /* maximum solution size */
+
+bool finished = false;
+
+/* [[[ process_solution_perms_cut */
+void process_solution(int a[], int k, int input) {
+    int i; /* counter */
+
+    for (i = 1; i <= k; i++) {
+        printf(" %d", a[i]);
+    }
+    printf("\n");
 }
-} // namespace adm
+/* ]]] */
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        int n = 3;
-        std::cin >> n;
-        for (auto row : permutations(n)) {
-            for (auto value : row) {
-                std::cout << value << " ";
-            }
-            std::cout << "\n";
+/* [[[ is_a_solution_perms_cut */
+int is_a_solution(int a[], int k, int n) {
+    return (k == n);
+}
+/* ]]] */
+
+void make_move(int a[], int k, int n) {}
+
+void unmake_move(int a[], int k, int n) {}
+
+/*    What are possible elements of the next slot in the permutation?  */
+/* [[[ construct_candidates_perms_cut */
+void construct_candidates(int a[], int k, int n, int c[], int *nc) {
+    int i;                  /* counter */
+    bool in_perm[NMAX + 1]; /* what is now in the permutation? */
+
+    for (i = 1; i <= NMAX; i++) {
+        in_perm[i] = false;
+    }
+
+    for (i = 1; i < k; i++) {
+        in_perm[a[i]] = true;
+    }
+
+    *nc = 0;
+    for (i = 1; i <= n; i++) {
+        if (!in_perm[i]) {
+            c[*nc] = i;
+            *nc = *nc + 1;
         }
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
     }
 }
-#endif
+/* ]]] */
+
+void backtrack(int a[], int k, int input) {
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int ncandidates;      /* next position candidate count */
+    int i;                /* counter */
+
+    if (is_a_solution(a, k, input)) {
+        process_solution(a, k, input);
+    } else {
+        k = k + 1;
+        construct_candidates(a, k, input, c, &ncandidates);
+        for (i = 0; i < ncandidates; i++) {
+            a[k] = c[i];
+            make_move(a, k, input);
+            backtrack(a, k, input);
+            unmake_move(a, k, input);
+
+            if (finished) {
+                return; /* terminate early */
+            }
+        }
+    }
+}
+
+/* [[[ generate_perms_cut */
+void generate_permutations(int n) {
+    int a[NMAX + 1]; /* solution vector */
+
+    backtrack(a, 0, n);
+}
+/* ]]] */
+
+int main(void) {
+    generate_permutations(0);
+    generate_permutations(1);
+    generate_permutations(2);
+    generate_permutations(3);
+
+    return 0;
+}

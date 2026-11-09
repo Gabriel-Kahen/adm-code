@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    queue.c
+
+    Implementation of a FIFO queue abstract data type.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,46 +19,62 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.NoSuchElementException;
-
-public final class Queue<T> {
-    static final class Link<T> {
-        final T value;
-        Link<T> next;
-        Link(T value) {
-            this.value = value;
-        }
+public class Queue {
+    public static final int QUEUESIZE = 1000;
+    public static class queue {
+        int[] q = new int[(QUEUESIZE + 1)]; /* body of queue */
+        int first = 0; /* position of first element */
+        int last = 0; /* position of last element */
+        int count = 0; /* number of queue elements */
     }
 
-    private Link<T> first;
-    private Link<T> last;
-    private int size;
-    public int size() {
-        return size;
+    public static void init_queue(Queue.queue q) {
+        q.first = 0;
+        q.last = (QUEUESIZE - 1);
+        q.count = 0;
     }
-    public boolean isEmpty() {
-        return size == 0;
-    }
-    public void add(T value) {
-        Link<T> node = new Link<>(value);
-        if (last == null) {
-            first = node;
+
+    public static void enqueue(Queue.queue q, int x) {
+        if ((q.count >= QUEUESIZE)) {
+            C.printf("Warning: queue overflow enqueue x=%d\n", x);
         } else {
-            last.next = node;
+            q.last = ((q.last + 1) % QUEUESIZE);
+            q.q[q.last] = x;
+            q.count = (q.count + 1);
         }
-        last = node;
-        size++;
     }
-    public T remove() {
-        if (first == null) {
-            throw new NoSuchElementException("empty queue");
+
+    public static int dequeue(Queue.queue q) {
+        int x = 0;
+        if ((q.count <= 0)) {
+            C.printf("Warning: empty queue dequeue.\n");
         }
-        T value = first.value;
-        first = first.next;
-        if (first == null) {
-            last = null;
-        }
-        size--;
-        return value;
+        x = q.q[q.first];
+        q.first = ((q.first + 1) % QUEUESIZE);
+        q.count = (q.count - 1);
+        return x;
     }
+
+    public static int headq(Queue.queue q) {
+        return q.q[q.first];
+    }
+
+    public static int empty_queue(Queue.queue q) {
+        if ((q.count <= 0)) {
+            return 1;
+        }
+        return 0;
+    }
+
+    public static void print_queue(Queue.queue q) {
+        int i = 0;
+        i = q.first;
+        while ((i != q.last)) {
+            C.printf("%d ", q.q[i]);
+            i = ((i + 1) % QUEUESIZE);
+        }
+        C.printf("%2d ", q.q[i]);
+        C.printf("\n");
+    }
+
 }

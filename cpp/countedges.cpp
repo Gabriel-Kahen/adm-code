@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	countedges.c
+
+	Count the edges in a graph.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,27 +16,42 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "graph.hpp"
+#include <stdio.h>
 
-namespace adm {
-std::size_t count_edges(const Graph &graph) {
-    return graph.edges().size();
-}
-} // namespace adm
+#include <stdbool.h>
+#include "bfs-dfs.hpp"
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto graph = read_graph(std::cin, false);
-        std::cout << count_edges(graph) << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
-    }
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
+
+extern bool finished; /* flag for early search cutoff */
+
+int nedges; /* counter for the number of edges */
+
+void process_vertex_early(int v) {}
+
+void process_vertex_late(int v) {}
+
+/* [[[ pedge2_cut */
+void process_edge(int x, int y) {
+    nedges = nedges + 1;
 }
-#endif
+/* ]]] */
+
+int main(void) {
+    graph g;
+
+    read_graph(&g, false);
+    print_graph(&g);
+
+    initialize_search(&g);
+    nedges = 0;
+    dfs(&g, 1);
+    printf("nedges = %d \n", nedges);
+
+    return 0;
+}

@@ -13,46 +13,66 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""prim.c translated to Python; indices start at zero."""
+"""Direct translation of prim.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-import heapq
+from ._c import *
+from . import _c
+from . import graph
+from . import wgraph
 
-from .graph import Graph
+MAXINT = c_div(LLONG_MAX, 4)
 
 
-def minimum_spanning_forest(graph: Graph) -> dict:
-    """Prim minimum spanning forest, O((V+E) log E)."""
-    graph.require_directed(False)
-    selected = []
-    visited = set()
-    for start in range(graph.n):
-        if start in visited:
-            continue
-        pending = [(0, -1, start, start)]
-        while pending:
-            weight, _, source, target = heapq.heappop(pending)
-            if target in visited:
-                continue
-            visited.add(target)
-            if source != target:
-                selected.append([source, target, weight])
-            for neighbor, edge_weight, identifier in graph.adjacency[target]:
-                if neighbor not in visited:
-                    heapq.heappush(pending, (edge_weight, identifier, target, neighbor))
-    return {"cost": sum(edge[2] for edge in selected), "edges": selected}
+def prim(g, start):
+    in_tree = [0 for _ in range((graph.MAXV + 1))]
+    # distance: cheapest known edge from the tree
+    distance = [0 for _ in range((graph.MAXV + 1))]
+    tree_weight = 0
+    i = 1
+    while (i <= g.nvertices):
+        in_tree[i] = False
+        distance[i] = MAXINT
+        wgraph.parent[i] = (-1)
+        i += 1
+    distance[start] = 0
+    vertex = start
+    # Grow the tree in start's connected component; other parents remain -1.
+    while (not in_tree[vertex]):
+        in_tree[vertex] = True
+        if (vertex != start):
+            printf("edge (%d,%d) in tree \n", wgraph.parent[vertex], vertex)
+            tree_weight = (tree_weight + next_distance)
+        edge = g.edges[vertex]
+        while (edge != None):
+            neighbor = edge.y
+            if ((distance[neighbor] > edge.weight) and (not in_tree[neighbor])):
+                distance[neighbor] = edge.weight
+                wgraph.parent[neighbor] = vertex
+            edge = edge.next
+        next_distance = MAXINT
+        i = 1
+        while (i <= g.nvertices):
+            if ((not in_tree[i]) and (next_distance > distance[i])):
+                next_distance = distance[i]
+                vertex = i
+            i += 1
+    return tree_weight
+
+
+def main():
+    g = graph.graph()
+    wgraph.read_graph(g, False)
+    weight = prim(g, 1)
+    printf("Out of Prim: weight = %lld \n", weight)
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    from .wgraph import read_weighted_graph
-
-    graph = read_weighted_graph(sys.stdin)
-    print(minimum_spanning_forest(graph))
+    exit(main())

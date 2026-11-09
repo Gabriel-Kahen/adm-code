@@ -13,45 +13,71 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""topsort1.c translated to Python; indices start at zero."""
+"""Direct translation of topsort1.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from .graph import Graph
+from ._c import *
+from . import _c
+from . import bfs_dfs
+from . import graph
+from . import stack
+
+# sorted: topological ordering of vertices
+sorted = stack.stack()
 
 
-def topological_sort(graph: Graph) -> list[int]:
-    """O(V+E) topological order; raise ValueError if any directed cycle exists."""
-    graph.require_directed(True)
-    result = []
-    state = [0] * graph.n
+# processed: which vertices have been processed
+# discovered: which vertices have been found
+# parent: discovery relation
+# entry_time: time of vertex entry
+# exit_time: time of vertex exit
+def process_vertex_early(v):
+    pass
 
-    def visit(vertex: int) -> None:
-        if state[vertex] == 1:
-            raise ValueError("directed cycle")
-        if state[vertex] == 2:
-            return
-        state[vertex] = 1
-        for neighbor, _, _ in graph.adjacency[vertex]:
-            visit(neighbor)
-        state[vertex] = 2
-        result.append(vertex)
 
-    for vertex in range(graph.n):
-        visit(vertex)
-    result.reverse()
-    return result
+def process_vertex_late(v):
+    stack.push(sorted, v)
+
+
+def process_edge(x, y):
+    # class: edge class
+    class_ = bfs_dfs.edge_classification(x, y)
+    if (class_ == graph.BACK):
+        printf("Warning: directed cycle found, not a DAG\n")
+
+
+def topsort(g):
+    # i: counter
+    stack.init_stack(sorted)
+    i = 1
+    while (i <= g.nvertices):
+        if (not bfs_dfs.discovered[i]):
+            bfs_dfs.dfs(g, i)
+        i += 1
+    # report topological order
+    stack.print_stack(sorted)
+
+
+def main():
+    # Bind this application's callbacks to the shared C-style backend.
+    graph.process_vertex_early = process_vertex_early
+    graph.process_vertex_late = process_vertex_late
+    graph.process_edge = process_edge
+    bfs_dfs.process_vertex_early = process_vertex_early
+    bfs_dfs.process_vertex_late = process_vertex_late
+    bfs_dfs.process_edge = process_edge
+    g = graph.graph()
+    graph.read_graph(g, True)
+    graph.print_graph(g)
+    topsort(g)
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    from .graph import read_graph
-
-    graph = read_graph(sys.stdin, directed=True)
-    print(topological_sort(graph))
+    exit(main())

@@ -1,4 +1,8 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	backtrack.c
+	A generic backtracking implementation
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,38 +15,36 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
 #include "backtrack.hpp"
 
-namespace adm {
-bool backtrack(std::vector<int> &prefix,
-               const std::function<bool(const std::vector<int> &)> &complete,
-               const Candidates &candidates, const std::function<void(int)> &make,
-               const std::function<void(int)> &undo,
-               const std::function<bool(const std::vector<int> &)> &visit) {
-    if (complete(prefix)) {
-        return visit(prefix);
-    }
-    for (int candidate : candidates(prefix)) {
-        make(candidate);
-        prefix.push_back(candidate);
-        bool stop;
-        try {
-            stop = backtrack(prefix, complete, candidates, make, undo, visit);
-        } catch (...) {
-            prefix.pop_back();
-            undo(candidate);
-            throw;
+/* [[[ backtrack_boolean_cut */
+int finished = 0; /* found all solutions yet? */
+/* ]]] */
+
+/* [[[ backtrack_cut */
+void backtrack(int a[], int k, data input) {
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int nc;               /* next position candidate count */
+    int i;                /* counter */
+
+    if (is_a_solution(a, k, input)) {
+        process_solution(a, k, input);
+    } else {
+        k = k + 1;
+        construct_candidates(a, k, input, c, &nc);
+        for (i = 0; i < nc; i++) {
+            a[k] = c[i];
+            make_move(a, k, input);
+            backtrack(a, k, input);
+            unmake_move(a, k, input);
+
+            if (finished) {
+                return; /* terminate early */
+            }
         }
-        prefix.pop_back();
-        undo(candidate);
-        if (stop) {
-            return true;
-        }
     }
-    return false;
 }
-} // namespace adm
+/* ]]] */

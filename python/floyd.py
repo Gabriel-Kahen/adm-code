@@ -13,45 +13,146 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""floyd.c translated to Python; indices start at zero."""
+"""Direct translation of floyd.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from .graph import Graph
+from ._c import *
+from . import _c
+
+# maximum number of vertices
+# maximum outdegree of a vertex
+class edge:
+    def __init__(self):
+        # v: neighboring vertex
+        self.v = 0
+        # weight: edge weight
+        self.weight = 0
+        # in: is the edge "in" the solution?
+        self.in_ = 0
 
 
-def floyd_warshall(graph: Graph) -> list[list[int | None]]:
-    """O(V³) all-pairs distances; negative cycles raise ValueError."""
-    distances: list[list[int | None]] = [[None] * graph.n for _ in range(graph.n)]
-    for vertex in range(graph.n):
-        distances[vertex][vertex] = 0
-        for neighbor, weight, _ in graph.adjacency[vertex]:
-            current = distances[vertex][neighbor]
-            distances[vertex][neighbor] = weight if current is None else min(current, weight)
-    for middle in range(graph.n):
-        for source in range(graph.n):
-            for target in range(graph.n):
-                first, second = distances[source][middle], distances[middle][target]
-                if first is None or second is None:
+class graph:
+    def __init__(self):
+        # edges: adjacency info
+        self.edges = [[edge() for _ in range(MAXDEGREE)] for _ in range((MAXV + 1))]
+        # degree: outdegree of each vertex
+        self.degree = [0 for _ in range((MAXV + 1))]
+        # nvertices: number of vertices in graph
+        self.nvertices = 0
+        # nedges: number of edges in the graph
+        self.nedges = 0
+
+
+class adjacency_matrix:
+    def __init__(self):
+        # weight: adjacency/weight info
+        self.weight = [[0 for _ in range((MAXV + 1))] for _ in range((MAXV + 1))]
+        # nvertices: number of vertices in graph
+        self.nvertices = 0
+
+
+MAXV = 100
+MAXDEGREE = 50
+MAXINT = c_div(LLONG_MAX, 4)
+
+
+def initialize_adjacency_matrix(g):
+    # j: counters
+    g.nvertices = 0
+    i = 1
+    while (i <= MAXV):
+        j = 1
+        while (j <= MAXV):
+            g.weight[i][j] = (0 if (i == j) else MAXINT)
+            j += 1
+        i += 1
+
+
+def read_adjacency_matrix(g, directed):
+    # i: counter
+    # m: number of edges
+    m = [0]
+    # w: placeholder for edge and weight
+    x = [0]
+    y = [0]
+    w = [0]
+    initialize_adjacency_matrix(g)
+    scanf("%d %d\n", address(g, 'nvertices'), m)
+    i = 1
+    while (i <= m[0]):
+        scanf("%d %d %d\n", x, y, w)
+        if (w[0] < g.weight[x[0]][y[0]]):
+            g.weight[x[0]][y[0]] = w[0]
+        if (not directed):
+            if (w[0] < g.weight[y[0]][x[0]]):
+                g.weight[y[0]][x[0]] = w[0]
+        i += 1
+
+
+def print_graph(g):
+    # j: counters
+    i = 1
+    while (i <= g.nvertices):
+        printf("%d: ", i)
+        j = 1
+        while (j <= g.nvertices):
+            if (g.weight[i][j] < MAXINT):
+                printf(" %d", j)
+            j += 1
+        printf("\n")
+        i += 1
+
+
+def print_adjacency_matrix(g):
+    # j: counters
+    i = 1
+    while (i <= g.nvertices):
+        printf("%3d: ", i)
+        j = 1
+        while (j <= g.nvertices):
+            printf(" %3lld", g.weight[i][j])
+            j += 1
+        printf("\n")
+        i += 1
+
+
+def floyd(g):
+    # j: dimension counters
+    # k: intermediate vertex counter
+    # through_k: distance through vertex k
+    # Phase k permits intermediate vertices 1..k on each shortest path.
+    k = 1
+    while (k <= g.nvertices):
+        i = 1
+        while (i <= g.nvertices):
+            j = 1
+            while (j <= g.nvertices):
+                # The sentinel represents no path and must never participate in addition.
+                if ((g.weight[i][k] == MAXINT) or (g.weight[k][j] == MAXINT)):
+                    j += 1
                     continue
-                candidate = first + second
-                current = distances[source][target]
-                if current is None or candidate < current:
-                    distances[source][target] = candidate
-    if any(distances[vertex][vertex] < 0 for vertex in range(graph.n)):
-        raise ValueError("negative cycle")
-    return distances
+                through_k = (g.weight[i][k] + g.weight[k][j])
+                if (through_k < g.weight[i][j]):
+                    g.weight[i][j] = through_k
+                j += 1
+            i += 1
+        k += 1
+
+
+def main():
+    g = adjacency_matrix()
+    read_adjacency_matrix(g, False)
+    print_graph(g)
+    floyd(g)
+    print_adjacency_matrix(g)
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    from .wgraph import read_weighted_graph
-
-    graph = read_weighted_graph(sys.stdin)
-    print(floyd_warshall(graph))
+    exit(main())

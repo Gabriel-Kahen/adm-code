@@ -13,44 +13,82 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""topsort.c translated to Python; indices start at zero."""
+"""Direct translation of topsort.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from collections import deque
+from ._c import *
+from . import _c
+from . import graph
+from . import queue
 
-from .graph import Graph
 
 
-def topological_sort(graph: Graph) -> list[int]:
-    """O(V+E) topological order; raise ValueError if any directed cycle exists."""
-    graph.require_directed(True)
-    result = []
-    degree = [0] * graph.n
-    for edge in graph.edges.values():
-        degree[edge.target] += 1
-    pending = deque(vertex for vertex in range(graph.n) if degree[vertex] == 0)
-    while pending:
-        vertex = pending.popleft()
-        result.append(vertex)
-        for neighbor, _, _ in graph.adjacency[vertex]:
-            degree[neighbor] -= 1
-            if degree[neighbor] == 0:
-                pending.append(neighbor)
-    if len(result) != graph.n:
-        raise ValueError("directed cycle")
-    return result
+def compute_indegrees(g, in_):
+    # i: counter
+    # p: temporary pointer
+    i = 1
+    while (i <= g.nvertices):
+        in_[i] = 0
+        i += 1
+    i = 1
+    while (i <= g.nvertices):
+        p = g.edges[i]
+        while (p != None):
+            in_[p.y] += 1
+            p = p.next
+        i += 1
+
+
+def topsort(g, sorted):
+    # indegree: indegree of each vertex
+    indegree = [0 for _ in range((graph.MAXV + 1))]
+    # zeroin: vertices of indegree 0
+    zeroin = queue.queue()
+    # y: current and next vertex
+    # j: counters
+    # p: temporary pointer
+    compute_indegrees(g, indegree)
+    queue.init_queue(zeroin)
+    i = 1
+    while (i <= g.nvertices):
+        if (indegree[i] == 0):
+            queue.enqueue(zeroin, i)
+        i += 1
+    j = 0
+    while (not queue.empty_queue(zeroin)):
+        j = (j + 1)
+        x = queue.dequeue(zeroin)
+        sorted[j] = x
+        p = g.edges[x]
+        while (p != None):
+            y = p.y
+            indegree[y] -= 1
+            if (indegree[y] == 0):
+                queue.enqueue(zeroin, y)
+            p = p.next
+    if (j != g.nvertices):
+        printf("Not a DAG -- only %d vertices found\n", j)
+
+
+def main():
+    g = graph.graph()
+    out = [0 for _ in range((graph.MAXV + 1))]
+    graph.read_graph(g, True)
+    graph.print_graph(g)
+    topsort(g, out)
+    i = 1
+    while (i <= g.nvertices):
+        printf(" %d", out[i])
+        i += 1
+    printf("\n")
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    from .graph import read_graph
-
-    graph = read_graph(sys.stdin, directed=True)
-    print(topological_sort(graph))
+    exit(main())

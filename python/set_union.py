@@ -13,43 +13,70 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""set_union.c translated to Python; indices start at zero."""
+"""Direct translation of set_union.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
+
+from ._c import *
+from . import _c
+
+class union_find:
+    def __init__(self):
+        # p: parent element
+        self.p = [0 for _ in range((SET_SIZE + 1))]
+        # size: number of elements in subtree i
+        self.size = [0 for _ in range((SET_SIZE + 1))]
+        # n: number of elements in set
+        self.n = 0
 
 
-class DisjointSet:
-    """Union by size and path compression; amortized inverse-Ackermann operations."""
+SET_SIZE = 1000
 
-    def __init__(self, size: int) -> None:
-        if size < 0:
-            raise ValueError("negative set size")
-        self.parent = list(range(size))
-        self.size = [1] * size
 
-    def find(self, value: int) -> int:
-        if not 0 <= value < len(self.parent):
-            raise ValueError("set index out of range")
-        root = value
-        while root != self.parent[root]:
-            root = self.parent[root]
-        while value != root:
-            previous_parent = self.parent[value]
-            self.parent[value] = root
-            value = previous_parent
-        return root
+def union_find_init(s, n):
+    # i: counter
+    i = 1
+    while (i <= n):
+        s.p[i] = i
+        s.size[i] = 1
+        i += 1
+    s.n = n
 
-    def union(self, first: int, second: int) -> bool:
-        first, second = self.find(first), self.find(second)
-        if first == second:
-            return False
-        if self.size[first] < self.size[second]:
-            first, second = second, first
-        self.parent[second] = first
-        self.size[first] += self.size[second]
-        return True
+
+def find(s, x):
+    if (s.p[x] == x):
+        return x
+    return find(s, s.p[x])
+
+
+def union_sets(s, s1, s2):
+    # r2: roots of sets
+    r1 = find(s, s1)
+    r2 = find(s, s2)
+    if (r1 == r2):
+        # return: already in same set
+        return
+    if (s.size[r1] >= s.size[r2]):
+        s.size[r1] = (s.size[r1] + s.size[r2])
+        s.p[r2] = r1
+    else:
+        s.size[r2] = (s.size[r1] + s.size[r2])
+        s.p[r1] = r2
+
+
+def same_component(s, s1, s2):
+    return (find(s, s1) == find(s, s2))
+
+
+def print_union_find(s):
+    # i: counter
+    i = 1
+    while (i <= s.n):
+        printf("%i  set=%d size=%d \n", i, s.p[i], s.size[i])
+        i += 1
+    printf("\n")

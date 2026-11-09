@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*	TSP priority_queue.h
+
+	Header file for queue implementation
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,33 +21,27 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
+#include "tsp-astar.hpp"
 
-#include "item.hpp"
+#define PQ_SIZE 400000
 
-namespace adm {
-template <class State, class Compare> class TourQueue {
-    std::priority_queue<State, std::vector<State>, Compare> values_;
+/* [[[ tsp_priority_queue_struct_cut */
+typedef struct {
+    tsp_solution q[PQ_SIZE + 1]; /* body of queue */
+    int n;                       /* number of queue elements */
+} priority_queue;
+/* ]]] */
 
-  public:
-    explicit TourQueue(Compare compare) : values_(compare) {}
-    bool empty() const {
-        return values_.empty();
-    }
-    std::size_t size() const {
-        return values_.size();
-    }
-    const State &top() const {
-        require(!empty(), "empty tour queue");
-        return values_.top();
-    }
-    void pop() {
-        require(!empty(), "empty tour queue");
-        values_.pop();
-    }
-    void push(State state) {
-        require(size() < 1000000, "TSP best-first frontier exhausted");
-        values_.push(std::move(state));
-    }
-};
-} // namespace adm
+void pq_init(priority_queue *q);
+int pq_parent(int n);
+int pq_young_child(int n);
+void pq_swap(priority_queue *q, int i, int j);
+void bubble_up(priority_queue *q, int p);
+void bubble_down(priority_queue *q, int p);
+void pq_insert(priority_queue *q, tsp_solution *x);
+tsp_solution extract_min(priority_queue *q);
+tsp_solution top_pq(priority_queue *q);
+int empty_pq(priority_queue *q);
+void print_pq(priority_queue *q);
+void make_heap(priority_queue *q, tsp_solution s[], int n);
+void make_heap1(priority_queue *q, tsp_solution s[], int n);

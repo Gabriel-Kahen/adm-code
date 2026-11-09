@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*	set_union.h
+
+	Header file for union-find data structure implementation
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,17 +21,19 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
+#include <stdbool.h>
 
-#include "item.hpp"
+#define SET_SIZE 1000
 
-namespace adm {
-class DisjointSet {
-    std::vector<int> parent_, size_;
+/* [[[ set_union_cut */
+typedef struct {
+    int p[SET_SIZE + 1];    /* parent element */
+    int size[SET_SIZE + 1]; /* number of elements in subtree i */
+    int n;                  /* number of elements in set */
+} union_find;
+/* ]]] */
 
-  public:
-    explicit DisjointSet(int n);
-    int find(int vertex);
-    bool unite(int a, int b);
-};
-} // namespace adm
+void union_find_init(union_find *s, int n);
+void union_sets(union_find *s, int s1, int s2);
+bool same_component(union_find *s, int s1, int s2);
+void print_union_find(union_find *s);

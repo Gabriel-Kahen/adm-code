@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    superman.c
+
+    Compute Superman's flight path -- geometry example
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,52 +19,70 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#define MAXN 100 /* maximum number of circles */
+
+#include <math.h>
+#include <stdio.h>
+#include <stdbool.h>
+
 #include "geometry.hpp"
 
-namespace adm {
-std::pair<double, double> superman(Point start, Point end, const std::vector<Circle> &circles) {
-    finite_point(start);
-    finite_point(end);
-    for (std::size_t i = 0; i < circles.size(); ++i) {
-        const auto &circle = circles[i];
-        finite_point(circle.center);
-        require(std::isfinite(circle.radius) && circle.radius > 0, "invalid obstacle radius");
-        require(point_distance(start, circle.center) >= circle.radius - epsilon &&
-                    point_distance(end, circle.center) >= circle.radius - epsilon,
-                "endpoint inside obstacle");
-        for (std::size_t j = 0; j < i; ++j) {
-            require(point_distance(circle.center, circles[j].center) >=
-                        circle.radius + circles[j].radius - epsilon,
-                    "overlapping circles outside model");
-        }
-    }
-    double direct = point_distance(start, end), through = 0, around = 0;
-    if (direct == 0) {
-        return {0, 0};
-    }
-    Line path = points_to_line(start, end);
-    for (const auto &circle : circles) {
-        Point closest = project(circle.center, path);
-        double away = point_distance(circle.center, closest);
-        if (away < circle.radius && in_box(closest, start, end)) {
-            through += 2 * std::sqrt(std::max(0.0, circle.radius * circle.radius - away * away));
-            around += 2 * circle.radius * std::acos(std::clamp(away / circle.radius, -1.0, 1.0));
-        }
-    }
-    return {through, direct - through + around};
-}
-} // namespace adm
+point s;            /* Superman's initial position */
+point t;            /* target position */
+int ncircles;       /* number of circles */
+circle c[MAXN + 1]; /* circles data structure */
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto result = superman({-3, 0}, {3, 0}, {{{0, 0}, 1}});
-        std::cout << result.first << " " << result.second << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
+void superman(void) {
+    line l;              /* line from start to target position */
+    point close;         /* closest point */
+    double d;            /* distance from circle-center */
+    double xray = 0.0;   /* length of intersection with circles */
+    double around = 0.0; /* length around circular arcs */
+    double angle;        /* angle subtended by arc */
+    double travel;       /* total travel distance */
+    int i;               /* counter */
+
+    points_to_line(s, t, &l);
+
+    for (i = 1; i <= ncircles; i++) {
+        closest_point(c[i].c, l, close);
+        d = distance(c[i].c, close);
+        if ((d >= 0) && (d < c[i].r) && point_in_box(close, s, t)) {
+            xray += 2 * sqrt(c[i].r * c[i].r - d * d);
+            angle = acos(d / c[i].r);
+            around += ((2 * angle) / (2 * PI)) * (2 * PI * c[i].r);
+            printf(
+                "circle %d (%7.3lf,%7.3lf,%7.3lf) is %7.3lf away from l, xray=%7.3lf around=%7.3lf angle=%7.3lf.\n",
+                i, c[i].c[X], c[i].c[Y], c[i].r, d, xray, around, angle);
+        }
+    }
+
+    travel = distance(s, t) - xray + around;
+    printf("Superman sees through %7.3lf units, and flies %7.3lf units\n", xray, travel);
+}
+
+int main(void) {
+    int i; /* counter */
+
+    scanf("%lf %lf", &s[X], &s[Y]);
+    scanf("%lf %lf", &t[X], &t[Y]);
+    scanf("%d", &ncircles);
+    if (ncircles < 0 || ncircles > MAXN) {
+        fprintf(stderr, "circle count exceeds capacity\n");
         return 1;
     }
+    for (i = 1; i <= ncircles; i++) {
+        scanf("%lf %lf %lf", &c[i].c[X], &c[i].c[Y], &c[i].r);
+    }
+
+    printf("%7.3lf %7.3lf\n", s[X], s[Y]);
+    printf("%7.3lf %7.3lf\n", t[X], t[Y]);
+    printf("%d\n", ncircles);
+    for (i = 1; i <= ncircles; i++) {
+        printf("%7.3lf %7.3lf %7.3lf\n", c[i].c[X], c[i].c[Y], c[i].r);
+    }
+
+    superman();
+
+    return 0;
 }
-#endif

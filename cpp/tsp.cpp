@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    tsp.c
+
+    Heuristics for solving TSP
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,47 +19,210 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "geometry.hpp"
-#include "tsp.hpp"
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
 #include "annealing.hpp"
+#include "random.hpp"
 
-namespace adm {
-double tour_cost(const std::vector<Point> &points, const std::vector<int> &tour) {
-    require(tour.size() == points.size(), "tour must include every city");
-    std::vector<bool> seen(points.size());
-    double cost = 0;
-    for (std::size_t i = 0; i < tour.size(); ++i) {
-        int vertex = tour[i];
-        require(vertex >= 0 && static_cast<std::size_t>(vertex) < points.size() && !seen[vertex],
-                "invalid tour permutation");
-        seen[vertex] = true;
-        int next = tour[(i + 1) % tour.size()];
-        require(next >= 0 && static_cast<std::size_t>(next) < points.size(), "invalid tour city");
-        cost += point_distance(points[vertex], points[next]);
-    }
-    require(std::isfinite(cost), "tour cost overflow");
-    return cost;
-}
+extern int solution_count;
 
-double swap_delta(const std::vector<Point> &points, const std::vector<int> &tour, int a, int b) {
-    require(a >= 0 && b >= 0 && static_cast<std::size_t>(a) < tour.size() &&
-                static_cast<std::size_t>(b) < tour.size(),
-            "swap index outside tour");
-    auto changed = tour;
-    std::swap(changed[a], changed[b]);
-    return tour_cost(points, changed) - tour_cost(points, tour);
-}
-} // namespace adm
+/**********************************************************************/
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        std::cout << traveling_salesperson({{0, 0}, {1, 0}, {1, 1}, {0, 1}}, "hill").cost << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+void read_tsp(tsp_instance *t) {
+    int i, j; /* counters */
+
+    scanf("%d\n", &(t->n));
+
+    for (i = 1; i <= (t->n); i++) {
+        scanf("%d %d %d\n", &j, &(t->p[i].x), &(t->p[i].y));
     }
 }
-#endif
+
+void print_tsp(tsp_instance *t) {
+    int i; /* counter */
+
+    for (i = 1; i <= (t->n); i++) {
+        printf("%d %d %d\n", i, (t->p[i].x), (t->p[i].y));
+    }
+}
+
+int sq(int x) {
+    return (x * x);
+}
+
+double distance(tsp_solution *s, int x, int y, tsp_instance *t) {
+    int i, j;
+
+    i = x;
+    j = y;
+
+    if (i == ((t->n) + 1)) {
+        i = 1;
+    }
+
+    if (j == ((t->n) + 1)) {
+        j = 1;
+    }
+
+    if (i == 0) {
+        i = (t->n);
+    }
+
+    if (j == 0) {
+        j = (t->n);
+    }
+
+    return hypot((double)t->p[s->p[i]].x - t->p[s->p[j]].x,
+                 (double)t->p[s->p[i]].y - t->p[s->p[j]].y);
+}
+
+/**********************************************************************/
+
+double solution_cost(tsp_solution *s, tsp_instance *t) {
+    int i;       /* counter */
+    double cost; /* cost of solution */
+
+    cost = distance(s, t->n, 1, t);
+    for (i = 1; i < (t->n); i++) {
+        cost = cost + distance(s, i, i + 1, t);
+    }
+
+    return (cost);
+}
+
+void initialize_solution(int n, tsp_solution *s) {
+    int i; /* counter */
+
+    s->n = n;
+    for (i = 1; i <= n; i++) {
+        s->p[i] = i;
+    }
+}
+
+void copy_solution(tsp_solution *s, tsp_solution *t) {
+    int i; /* counter */
+    t->n = s->n;
+    for (i = 1; i <= (s->n); i++) {
+        t->p[i] = s->p[i];
+    }
+}
+
+void print_solution(tsp_solution *s) {
+    int i; /* counter */
+
+    for (i = 1; i <= (s->n); i++) {
+        printf(" %d", s->p[i]);
+    }
+    printf("\n------------------------------------------------------\n");
+}
+
+void read_solution(tsp_solution *s) {
+    int i; /* counter */
+
+    scanf("%d\n", &(s->n));
+
+    for (i = 1; i <= (s->n); i++) {
+        scanf("%d", &(s->p[i]));
+    }
+}
+
+void random_solution(tsp_solution *s) {
+    random_permutation(&(s->p[1]), (s->n) - 1);
+}
+
+double transition(tsp_solution *s, tsp_instance *t, int i, int j) {
+    double was, willbe; /* before and after costs */
+    bool neighbors;     /* i,j neighboring tour positions? */
+
+    neighbors = false;
+
+    if (i == j) {
+        return (0.0);
+    }
+
+    if (i > j) {
+        return (transition(s, t, j, i));
+    }
+
+    if (i == (j - 1)) {
+        neighbors = true;
+    }
+
+    if ((i == 1) && (j == (s->n))) {
+        swap(&i, &j);
+        neighbors = true;
+    }
+
+    if (neighbors) {
+        was = distance(s, i - 1, i, t) + distance(s, j, j + 1, t);
+    } else {
+        was = distance(s, i - 1, i, t) + distance(s, i, i + 1, t) + distance(s, j - 1, j, t) +
+              distance(s, j, j + 1, t);
+    }
+
+    swap(&(s->p[i]), &(s->p[j]));
+
+    if (neighbors) {
+        willbe = distance(s, i - 1, i, t) + distance(s, j, j + 1, t);
+    } else {
+        willbe = distance(s, i - 1, i, t) + distance(s, i, i + 1, t) + distance(s, j - 1, j, t) +
+                 distance(s, j, j + 1, t);
+    }
+
+    return (willbe - was);
+}
+
+/**********************************************************************/
+
+int main(void) {
+    tsp_instance t; /* tsp points */
+    tsp_solution s; /* tsp solution */
+
+    read_tsp(&t);
+
+    read_solution(&s);
+    printf("OPTIMAL SOLUTION COST = %7.1f\n", solution_cost(&s, &t));
+    print_solution(&s);
+
+    //-----------------------------
+
+    initialize_solution(t.n, &s);
+    printf("solution_cost = %7.1f\n", solution_cost(&s, &t));
+    print_solution(&s);
+
+    solution_count = 0;
+    random_sampling(&t, 10000, &s);
+    printf("random_sampling %d iterations, cost = %7.1f\n", solution_count, solution_cost(&s, &t));
+    print_solution(&s);
+
+    //-----------------------------
+
+    initialize_solution(t.n, &s);
+    printf("solution_cost = %7.1f\n", solution_cost(&s, &t));
+    print_solution(&s);
+
+    solution_count = 0;
+    repeated_hill_climbing(&t, 40, &s);
+    printf("repeated hill_climbing %d iterations, cost = %7.1f\n", solution_count,
+           solution_cost(&s, &t));
+    print_solution(&s);
+
+    //-----------------------------
+
+    initialize_solution(t.n, &s);
+    printf("solution_cost = %7.1f\n", solution_cost(&s, &t));
+    print_solution(&s);
+
+    solution_count = 0;
+    repeated_annealing(&t, 3, &s);
+    printf("repeated annealing %d iterations, cost = %7.1f\n", solution_count,
+           solution_cost(&s, &t));
+    print_solution(&s);
+
+    //--------------------------------
+
+    return 0;
+}

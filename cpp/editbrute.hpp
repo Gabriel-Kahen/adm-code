@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*	editbrute.h
+
+	Header file for string comparison
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,10 +21,18 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
+#include "bool.hpp"
 
-#include "item.hpp"
+#define MAXLEN 101 /* longest possible string */
+#define MATCH 0    /* enumerated type symbol for match */
+#define INSERT 1   /* enumerated type symbol for insert */
+#define DELETE 2   /* enumerated type symbol for delete */
 
-namespace adm {
-Integer brute_edit_distance(const std::string &a, const std::string &b);
-} // namespace adm
+typedef struct {
+    int cost;   /* cost of reaching this cell */
+    int parent; /* parent cell */
+} cell;
+
+int string_compare(char *s, char *t, int i, int j);
+void reconstruct_path(char *s, char *t, int i, int j);
+void print_matrix(char *s, char *t, bool costQ);

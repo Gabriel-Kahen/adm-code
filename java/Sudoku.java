@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    suduku.c
+
+    A backtracking program to solve Seduku
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,103 +19,308 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-public final class Sudoku {
-    /** First Sudoku solution, or null for an unsatisfiable valid board. Contradictory givens are errors. */
-    public static String sudoku(String puzzle) {
-        return sudoku(puzzle, true);
+public class Sudoku {
+    public static final int BASED = 3; /* base dimension, 3*3 blocks */
+    public static final int DIMENSION = 9; /* 9*9 board */
+    public static final int NCELLS = DIMENSION *DIMENSION; /* 81 cells in 9-by-9-board */
+    public static final int MAXCANDIDATES = DIMENSION + 1; /* max digit choices per cell */
+    public static class point {
+        int x = 0; /* row and column coordinates of square */
+        int y = 0; /* row and column coordinates of square */
+    }
+    public static class boardtype {
+        int[][] m = new int[(DIMENSION + 1)][(DIMENSION + 1)]; /* board contents */
+        int freecount = 0; /* open square count */
+        Sudoku.point[] move = new Sudoku.point[(NCELLS + 1)]; /* which cells have we filled? */
+        {
+            for (int _i0 = 0; _i0 < (NCELLS + 1); _i0++) {
+                move[_i0] = new Sudoku.point();
+            }
+        }
+    }
+    public static boolean finished = false;
+    public static int steps = 0; /* how many total move insertions? */
+    public static boolean fast = false; /* fast or slow nextmove algorithm? */
+    public static boolean smart = false; /* quickly test for unfillable squares? */
+
+    public static void possible_values(Sudoku.point p, Sudoku.boardtype board, boolean[] possible) {
+        int x = 0; /* square to fill */
+        int y = 0;
+        int i = 0; /* counters */
+        int j = 0;
+        int xlow = 0; /* origin of box with (x,y) */
+        int ylow = 0;
+        boolean init = false;
+        x = p.x;
+        y = p.y;
+        if (((board.m[x][y] != 0) || ((x < 0) || (y < 0)))) {
+            init = false;
+        } else {
+            init = true;
+        }
+        possible[0] = false;
+        for (i = 1; (i <= DIMENSION); i++) {
+            possible[i] = init;
+        }
+        for (i = 0; (i < DIMENSION); i++) {
+            if ((board.m[x][i] != 0)) {
+                possible[board.m[x][i]] = false;
+            }
+        }
+        for (i = 0; (i < DIMENSION); i++) {
+            if ((board.m[i][y] != 0)) {
+                possible[board.m[i][y]] = false;
+            }
+        }
+        xlow = (BASED * (x / BASED));
+        ylow = (BASED * (y / BASED));
+        for (i = xlow; (i < (xlow + BASED)); i++) {
+            for (j = ylow; (j < (ylow + BASED)); j++) {
+                if ((board.m[i][j] != 0)) {
+                    possible[board.m[i][j]] = false;
+                }
+            }
+        }
     }
 
-    public static String sudoku(String puzzle, boolean mostConstrainedFirst) {
-        if (puzzle.length() != 81) {
-            throw new IllegalArgumentException("Sudoku requires 81 digits");
-        }
-        int[] board = new int[81];
-        int[] rows = new int[9];
-        int[] columns = new int[9];
-        int[] boxes = new int[9];
-        for (int cell = 0; cell < 81; cell++) {
-            char character = puzzle.charAt(cell);
-            if (character < '0' || character > '9') {
-                throw new IllegalArgumentException("Sudoku requires digits 0..9");
+    public static void print_possible(boolean[] possible) {
+        int i = 0; /* counter */
+        for (i = 1; (i <= DIMENSION); i++) {
+            if (possible[i]) {
+                C.printf(" %d", i);
             }
-            board[cell] = character - '0';
-            if (board[cell] == 0) {
-                continue;
-            }
-            int row = cell / 9;
-            int column = cell % 9;
-            int box = row / 3 * 3 + column / 3;
-            int mask = 1 << board[cell];
-            if (((rows[row] | columns[column] | boxes[box]) & mask) != 0) {
-                throw new IllegalArgumentException("contradictory Sudoku givens");
-            }
-            rows[row] |= mask;
-            columns[column] |= mask;
-            boxes[box] |= mask;
+            C.printf("\n");
         }
-        if (!sudokuVisit(board, rows, columns, boxes, mostConstrainedFirst)) {
-            return null;
-        }
-        StringBuilder result = new StringBuilder();
-        for (int value : board) {
-            result.append(value);
-        }
-        return result.toString();
     }
 
-    static boolean sudokuVisit(int[] board, int[] rows, int[] columns, int[] boxes, boolean smart) {
-        int bestCell = -1;
-        int bestMask = 0;
-        int bestCount = 10;
-        for (int cell = 0; cell < 81; cell++) {
-            if (board[cell] != 0) {
-                continue;
-            }
-            int row = cell / 9;
-            int column = cell % 9;
-            int mask = 0x3fe & ~(rows[row] | columns[column] | boxes[row / 3 * 3 + column / 3]);
-            int count = Integer.bitCount(mask);
-            if (count == 0) {
-                return false;
-            }
-            if (count < bestCount) {
-                bestCell = cell;
-                bestMask = mask;
-                bestCount = count;
-            }
-            if (!smart) {
-                break;
+    public static int possible_count(int x, int y, Sudoku.boardtype board) {
+        int i = 0; /* counter */
+        int cnt = 0; /* number of open squares */
+        boolean[] possible = new boolean[(DIMENSION + 1)]; /* what is possible for the square */
+        Sudoku.point p = new Sudoku.point();
+        p.x = x;
+        p.y = y;
+        possible_values(p, board, possible);
+        cnt = 0;
+        for (i = 1; (i <= DIMENSION); i++) {
+            if (possible[i]) {
+                cnt++;
             }
         }
-        if (bestCell == -1) {
-            return true;
+        return cnt;
+    }
+
+    public static void fill_square(Sudoku.point p, int v, Sudoku.boardtype board) {
+        if ((board.m[p.x][p.y] == 0)) {
+            board.freecount = (board.freecount - 1);
+        } else {
+            C.printf("Warning: filling already filled square (%d,%d)\n", p.x, p.y);
         }
-        int row = bestCell / 9;
-        int column = bestCell % 9;
-        int box = row / 3 * 3 + column / 3;
-        for (int remaining = bestMask; remaining != 0; remaining &= remaining - 1) {
-            int bit = Integer.lowestOneBit(remaining);
-            board[bestCell] = Integer.numberOfTrailingZeros(bit);
-            rows[row] |= bit;
-            columns[column] |= bit;
-            boxes[box] |= bit;
-            if (sudokuVisit(board, rows, columns, boxes, smart)) {
-                return true;
+        board.m[p.x][p.y] = v;
+    }
+
+    public static void free_square(Sudoku.point p, Sudoku.boardtype board) {
+        if ((board.m[p.x][p.y] != 0)) {
+            board.freecount = (board.freecount + 1);
+        } else {
+            C.printf("Warning: freeing already empty square (%d,%d)\n", p.x, p.y);
+        }
+        board.m[p.x][p.y] = 0;
+    }
+
+    public static void next_square(Sudoku.point p, Sudoku.boardtype board) {
+        int i = 0; /* counters */
+        int j = 0;
+        int bestcnt = 0;
+        int newcnt = 0;
+        boolean doomed = false;
+        bestcnt = (DIMENSION + 1);
+        doomed = false;
+        p.x = (p.y = (-1)); /* initialize to non-position */
+        for (i = 0; (i < DIMENSION); i++) {
+            for (j = 0; (j < DIMENSION); j++) {
+                newcnt = possible_count(i, j, board);
+                if (((newcnt == 0) && (board.m[i][j] == 0))) {
+                    doomed = true;
+                }
+                if (fast) {
+                    if ((((board.m[i][j] == 0) && (newcnt < bestcnt)) && (newcnt >= 1))) {
+                        bestcnt = newcnt; /* the best and latest square counts */
+                        p.x = i;
+                        p.y = j;
+                    }
+                } else {
+                    if (((newcnt >= 1) && (board.m[i][j] == 0))) {
+                        p.x = i;
+                        p.y = j;
+                    }
+                }
             }
-            board[bestCell] = 0;
-            rows[row] ^= bit;
-            columns[column] ^= bit;
-            boxes[box] ^= bit;
         }
-        return false;
+        if ((doomed && smart)) {
+            p.x = (p.y = (-1));
+        }
+    }
+
+    public static void print_board(Sudoku.boardtype board) {
+        int i = 0; /* counters */
+        int j = 0;
+        C.printf("\nThere are %d free board positions.\n", board.freecount);
+        for (i = 0; (i < DIMENSION); i++) {
+            for (j = 0; (j < DIMENSION); j++) {
+                if ((board.m[i][j] == 0)) {
+                    C.printf(" ");
+                } else {
+                    C.printf("%c", ('0' + board.m[i][j]));
+                }
+                if ((((j + 1) % BASED) == 0)) {
+                    C.printf("|");
+                }
+            }
+            C.printf("\n");
+            if ((((i + 1) % BASED) == 0)) {
+                for (j = 0; (j < ((DIMENSION + BASED) - 1)); j++) {
+                    C.printf("-");
+                }
+                C.printf("\n");
+            }
+        }
+    }
+
+    public static void init_board(Sudoku.boardtype board) {
+        int i = 0; /* counters */
+        int j = 0;
+        for (i = 0; (i < DIMENSION); i++) {
+            for (j = 0; (j < DIMENSION); j++) {
+                board.m[i][j] = 0;
+            }
+            board.freecount = (DIMENSION * DIMENSION);
+        }
+    }
+
+    public static void read_board(Sudoku.boardtype board) {
+        int i = 0; /* counters */
+        int j = 0;
+        char c = '\000';
+        int value = 0;
+        Sudoku.point p = new Sudoku.point();
+        init_board(board);
+        for (i = 0; (i < DIMENSION); i++) {
+            for (j = 0; (j < DIMENSION); j++) {
+                int _read0 = C.scan("%c");
+                if (_read0 > 0) c = (char)C.scanInt(0);
+                value = (c - '0');
+                if ((value != 0)) {
+                    p.x = i;
+                    p.y = j;
+                    fill_square(p, value, board);
+                }
+            }
+            int _read1 = C.scan("\n");
+        }
+    }
+
+    public static void copy_board(Sudoku.boardtype a, Sudoku.boardtype b) {
+        int i = 0;
+        int j = 0;
+        b.freecount = a.freecount;
+        for (i = 0; (i < DIMENSION); i++) {
+            for (j = 0; (j < DIMENSION); j++) {
+                b.m[i][j] = a.m[i][j];
+            }
+        }
+    }
+
+    public static void process_solution(int[] a, int k, Sudoku.boardtype board) {
+        finished = true;
+        C.printf("process solution\n");
+        print_board(board);
+    }
+
+    public static boolean is_a_solution(int[] a, int k, Sudoku.boardtype board) {
+        steps = (steps + 1); /* count steps for results table */
+        return (board.freecount == 0);
+    }
+
+    public static void make_move(int[] a, int k, Sudoku.boardtype board) {
+        fill_square(board.move[k], a[k], board);
+    }
+
+    public static void unmake_move(int[] a, int k, Sudoku.boardtype board) {
+        free_square(board.move[k], board);
+    }
+
+    public static void construct_candidates(int[] a, int k, Sudoku.boardtype board, int[] c, int[] nc) {
+        int i = 0; /* counter */
+        boolean[] possible = new boolean[(DIMENSION + 1)]; /* which digits fit in this square */
+        next_square(board.move[k], board); /* pick square to fill next */
+        nc[0] = 0;
+        if (((board.move[k].x < 0) && (board.move[k].y < 0))) {
+            return; /* error condition, no moves possible */
+        }
+        possible_values(board.move[k], board, possible);
+        for (i = 1; (i <= DIMENSION); i++) {
+            if (possible[i]) {
+                c[nc[0]] = i;
+                nc[0] = (nc[0] + 1);
+            }
+        }
+    }
+
+    public static void backtrack(int[] a, int k, Sudoku.boardtype input) {
+        int[] c = new int[MAXCANDIDATES]; /* candidates for next position */
+        int[] ncandidates = new int[]{0}; /* next position candidate count */
+        int i = 0; /* counter */
+        if (is_a_solution(a, k, input)) {
+            process_solution(a, k, input);
+        } else {
+            k = (k + 1);
+            construct_candidates(a, k, input, c, ncandidates);
+            for (i = 0; (i < ncandidates[0]); i++) {
+                a[k] = c[i];
+                make_move(a, k, input);
+                backtrack(a, k, input);
+                unmake_move(a, k, input);
+                if (finished) {
+                    return; /* terminate early */
+                }
+            }
+        }
+    }
+
+    public static void solve_problem(Sudoku.boardtype board) {
+        int[] a = new int[((DIMENSION * DIMENSION) + 1)];
+        Sudoku.boardtype temp = new Sudoku.boardtype();
+        C.printf("----------------------------------\n");
+        steps = 0;
+        copy_board(board, temp);
+        finished = false;
+        backtrack(a, 0, temp);
+        C.printf("It took %d steps to find this solution ", steps);
+        C.printf("for fast=%d  smart=%d\n", fast, smart);
+    }
+
+    public static int main() {
+        Sudoku.boardtype board = new Sudoku.boardtype(); /* Sudoku board structure */
+        read_board(board);
+        print_board(board);
+        fast = true;
+        smart = true;
+        solve_problem(board);
+        fast = true;
+        smart = false;
+        solve_problem(board);
+        fast = false;
+        smart = true;
+        solve_problem(board);
+        fast = false;
+        smart = false;
+        solve_problem(board);
+        return 0;
     }
 
     public static void main(String[] args) {
-        java.util.Scanner in = new java.util.Scanner(System.in);
-        String puzzle =
-            in.hasNext()
-                ? in.next()
-                : "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
-        System.out.println(sudoku(puzzle));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

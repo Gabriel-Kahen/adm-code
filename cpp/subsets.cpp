@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    subsets.c
+
+    Construct all subsets via backtracking.
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,41 +19,82 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "graph.hpp"
+#include <stdio.h>
+#include <stdbool.h>
 
-namespace adm {
-Groups subsets(int n) {
-    require(n >= 0 && n <= 20, "subset enumeration requires 0 <= n <= 20");
-    Groups result{{}};
-    for (int value = 0; value < n; ++value) {
-        auto size = result.size();
-        for (std::size_t i = 0; i < size; ++i) {
-            auto next = result[i];
-            next.push_back(value);
-            result.push_back(std::move(next));
+bool finished = false;
+#define MAXCANDIDATES 100 /* max possible next extensions */
+#define NMAX 100          /* maximum solution size */
+
+/* [[[ process_solution_cut */
+void process_solution(int a[], int k, int input) {
+    int i; /* counter */
+
+    printf("{");
+    for (i = 1; i <= k; i++) {
+        if (a[i] == true) {
+            printf(" %d", i);
         }
     }
-    std::sort(result.begin(), result.end());
-    return result;
-}
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        int n = 3;
-        std::cin >> n;
-        for (auto row : subsets(n)) {
-            for (auto value : row) {
-                std::cout << value << " ";
+    printf(" }\n");
+}
+/* ]]] */
+
+void make_move(int a[], int k, int n) {}
+
+void unmake_move(int a[], int k, int n) {}
+
+/*    What are possible elements of the next slot in the permutation?  */
+
+/* [[[ subset_part_cut */
+/* [[[ is_a_solution_cut */
+int is_a_solution(int a[], int k, int n) {
+    return (k == n);
+}
+/* ]]] */
+
+/* [[[ construct_candidates_cut */
+void construct_candidates(int a[], int k, int n, int c[], int *nc) {
+    c[0] = true;
+    c[1] = false;
+    *nc = 2;
+}
+/* ]]] */
+/* ]]] */
+
+void backtrack(int a[], int k, int input) {
+    int c[MAXCANDIDATES]; /* candidates for next position */
+    int ncandidates;      /* next position candidate count */
+    int i;                /* counter */
+
+    if (is_a_solution(a, k, input)) {
+        process_solution(a, k, input);
+    } else {
+        k = k + 1;
+        construct_candidates(a, k, input, c, &ncandidates);
+        for (i = 0; i < ncandidates; i++) {
+            a[k] = c[i];
+            make_move(a, k, input);
+            backtrack(a, k, input);
+            unmake_move(a, k, input);
+
+            if (finished) {
+                return; /* terminate early */
             }
-            std::cout << "\n";
         }
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
     }
 }
-#endif
+
+/* [[[ generate_subsets_cut */
+void generate_subsets(int n) {
+    int a[NMAX + 1]; /* solution vector */
+
+    backtrack(a, 0, n);
+}
+/* ]]] */
+
+int main(void) {
+    generate_subsets(3);
+    return 0;
+}

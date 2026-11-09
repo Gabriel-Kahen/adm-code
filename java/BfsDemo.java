@@ -1,4 +1,8 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	bfs-demo.c
+	Driver program demonstrating breadth-first search
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,18 +15,53 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.util.Arrays;
+public class BfsDemo {
+    public static final int TREE = 0;
+    public static final int BACK = 1;
+    public static final int CROSS = 2;
+    public static final int FORWARD = 3;
+    public static final int MAXV = 100;
 
-public final class BfsDemo {
-
-    public static Graph read(java.util.Scanner input) {
-        return Graph.read(input, false, false);
+    /* discovery relation */
+    public static void process_vertex_early(int v) {
+        C.printf("processed vertex %d\n", v);
     }
+
+    public static void process_vertex_late(int v) {
+    }
+
+    public static void process_edge(int x, int y) {
+        C.printf("processed edge (%d,%d)\n", x, y);
+    }
+
+    public static int main() {
+        BfsDfs.callbacks = new BfsDfs.Callbacks() {
+            public void process_vertex_early(int v) { BfsDemo.process_vertex_early(v); }
+            public void process_vertex_late(int v) { BfsDemo.process_vertex_late(v); }
+            public void process_edge(int x, int y) { BfsDemo.process_edge(x, y); }
+        };
+        Graph.graph g = new Graph.graph();
+        int i = 0;
+        Graph.read_graph(g, false);
+        Graph.print_graph(g);
+        BfsDfs.initialize_search(g);
+        BfsDfs.bfs(g, 1);
+        for (i = 1; (i <= g.nvertices); i++) {
+            C.printf(" %d", BfsDfs.parent[i]);
+        }
+        C.printf("\n");
+        for (i = 1; (i <= g.nvertices); i++) {
+            BfsDfs.find_path(1, i, BfsDfs.parent);
+        }
+        C.printf("\n");
+        return 0;
+    }
+
     public static void main(String[] args) {
-        Graph graph = Graph.read(new java.util.Scanner(System.in), false, false);
-        System.out.println(Arrays.toString(BfsDfs.breadthFirst(graph, 0).distances()));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

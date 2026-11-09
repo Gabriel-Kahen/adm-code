@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*	tree.h
+
+	Header file for binary search tree implementation
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,25 +21,13 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
-
 #include "item.hpp"
 
-namespace adm {
-class BinarySearchTree {
-    struct Node {
-        Integer value;
-        std::unique_ptr<Node> left, right;
-        explicit Node(Integer value) : value(value) {}
-    };
-    std::unique_ptr<Node> root_;
-    static bool erase_node(std::unique_ptr<Node> &node, Integer value);
-
-  public:
-    // Set semantics: duplicate inserts do nothing.
-    void insert(Integer value);
-    bool contains(Integer value) const;
-    bool erase(Integer value);
-    Integers values() const;
-};
-} // namespace adm
+/* [[[ struct_tree_cut */
+typedef struct tree {
+    item_type item;      /* data item */
+    struct tree *parent; /* pointer to parent */
+    struct tree *left;   /* pointer to left child */
+    struct tree *right;  /* pointer to right child */
+} tree;
+/* ]]] */

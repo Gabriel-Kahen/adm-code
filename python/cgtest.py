@@ -11,21 +11,51 @@
 # "Programming Challenges: The Programming Contest Training Manual"
 # by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 # See our website www.programming-challenges.com for additional information,
-# or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+# or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+
+"""Direct translation of cgtest.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-"""cgtest.c translated to Python; indices start at zero."""
+from ._c import *
+from . import _c
+from . import geometry
 
 
-from .geometry import segments_intersect
+
+def main():
+    p1 = [0.0 for _ in range(geometry.DIMENSION)]
+    p2 = [0.0 for _ in range(geometry.DIMENSION)]
+    q1 = [0.0 for _ in range(geometry.DIMENSION)]
+    q2 = [0.0 for _ in range(geometry.DIMENSION)]
+    i = [0.0 for _ in range(geometry.DIMENSION)]
+    l1 = geometry.line()
+    l2 = geometry.line()
+    s1 = geometry.segment()
+    s2 = geometry.segment()
+    while (scanf("%lf %lf", address(p1, geometry.X), address(p1, geometry.Y)) != EOF):
+        scanf("%lf %lf", address(p2, geometry.X), address(p2, geometry.Y))
+        scanf("%lf %lf", address(q1, geometry.X), address(q1, geometry.Y))
+        scanf("%lf %lf", address(q2, geometry.X), address(q2, geometry.Y))
+        geometry.points_to_segment(p1, p2, s1)
+        geometry.points_to_segment(q1, q2, s2)
+        geometry.points_to_line(p1, p2, l1)
+        geometry.points_to_line(q1, q2, l2)
+        geometry.print_segment(s1)
+        geometry.print_segment(s2)
+        printf("segments_intersect test\n")
+        printf("%d\n", geometry.segments_intersect(s1, s2))
+        printf("intersection point\n")
+        geometry.intersection_point(l1, l2, i)
+        geometry.print_point(i)
+        printf("--------------------------------\n")
+    return 0
+
 
 if __name__ == "__main__":
-    import sys
-
-    print(segments_intersect((0, 0), (2, 2), (0, 2), (2, 0)))
+    exit(main())

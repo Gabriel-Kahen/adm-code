@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*	random.h
+
+	Header file for random numbers
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,23 +21,7 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
-
-#include "item.hpp"
-
-namespace adm {
-class Random {
-    std::mt19937_64 engine_;
-
-  public:
-    explicit Random(std::uint64_t seed) : engine_(seed) {}
-    Integer integer(Integer low, Integer high);
-    double real(double low, double high);
-    template <class T> void shuffle(std::vector<T> &values) {
-        for (std::size_t remaining = values.size(); remaining > 1; --remaining) {
-            auto choice = static_cast<std::size_t>(integer(0, static_cast<Integer>(remaining - 1)));
-            std::swap(values[remaining - 1], values[choice]);
-        }
-    }
-};
-} // namespace adm
+void swap(int *a, int *b);
+int random_int(int low, int high);
+void random_permutation(int a[], int n);
+double random_float(int low, int high);

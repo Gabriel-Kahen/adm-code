@@ -13,30 +13,58 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""findcycle.c translated to Python; indices start at zero."""
+"""Direct translation of findcycle.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from .graph import Graph
-from .set_union import DisjointSet
+from ._c import *
+from . import _c
+from . import bfs_dfs
+from . import graph
 
 
-def has_undirected_cycle(graph: Graph) -> bool:
-    """O(E α(V)); loops and a second parallel edge are cycles."""
-    graph.require_directed(False)
-    sets = DisjointSet(graph.n)
-    return any(not sets.union(edge.source, edge.target) for edge in graph.edges.values())
+
+# processed: which vertices have been processed
+# discovered: which vertices have been found
+# parent: discovery relation
+# finished: flag for early search cutoff
+def process_vertex_early(v):
+    pass
+
+
+def process_vertex_late(v):
+    pass
+
+
+def process_edge(x, y):
+    # found back edge!
+    if (bfs_dfs.parent[y] != x):
+        printf("Cycle from %d to %d:", y, x)
+        bfs_dfs.find_path(y, x, bfs_dfs.parent)
+        bfs_dfs.finished = True
+
+
+def main():
+    # Bind this application's callbacks to the shared C-style backend.
+    graph.process_vertex_early = process_vertex_early
+    graph.process_vertex_late = process_vertex_late
+    graph.process_edge = process_edge
+    bfs_dfs.process_vertex_early = process_vertex_early
+    bfs_dfs.process_vertex_late = process_vertex_late
+    bfs_dfs.process_edge = process_edge
+    g = graph.graph()
+    graph.read_graph(g, False)
+    graph.print_graph(g)
+    bfs_dfs.initialize_search(g)
+    bfs_dfs.dfs(g, 1)
+    printf("\n")
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    from .graph import read_graph
-
-    graph = read_graph(sys.stdin, directed=False)
-    print(has_undirected_cycle(graph))
+    exit(main())

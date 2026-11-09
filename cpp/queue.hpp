@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*	queue.h
+
+	Header file for queue implementation
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,29 +21,20 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
-
 #include "item.hpp"
 
-namespace adm {
-template <class T> class Queue {
-    std::deque<T> values_;
+#define QUEUESIZE 1000
 
-  public:
-    void push(T value) {
-        values_.push_back(std::move(value));
-    }
-    T pop() {
-        require(!empty(), "empty queue");
-        T value = std::move(values_.front());
-        values_.pop_front();
-        return value;
-    }
-    bool empty() const {
-        return values_.empty();
-    }
-    std::size_t size() const {
-        return values_.size();
-    }
-};
-} // namespace adm
+typedef struct {
+    item_type q[QUEUESIZE + 1]; /* body of queue */
+    int first;                  /* position of first element */
+    int last;                   /* position of last element */
+    int count;                  /* number of queue elements */
+} queue;
+
+void init_queue(queue *q);
+void enqueue(queue *q, item_type x);
+item_type dequeue(queue *q);
+item_type headq(queue *q);
+int empty_queue(queue *q);
+void print_queue(queue *q);

@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	gcd.c
+
+	Compute the greatest common divisor of two integers
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,36 +19,67 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-import java.math.BigInteger;
-import java.util.Arrays;
+public class Gcd {
 
-public final class Gcd {
-    /** Returns [g,x,y], g>=0 and a*x+b*y=g, including signed/zero operands. */
-    public static BigInteger[] extendedGcd(BigInteger a, BigInteger b) {
-        BigInteger oldR = a.abs();
-        BigInteger r = b.abs();
-        BigInteger oldX = BigInteger.ONE;
-        BigInteger x = BigInteger.ZERO;
-        BigInteger oldY = BigInteger.ZERO;
-        BigInteger y = BigInteger.ONE;
-        while (!r.equals(BigInteger.ZERO)) {
-            BigInteger quotient = oldR.divide(r);
-            BigInteger nextR = oldR.subtract(quotient.multiply(r));
-            oldR = r;
-            r = nextR;
-            BigInteger nextX = oldX.subtract(quotient.multiply(x));
-            oldX = x;
-            x = nextX;
-            BigInteger nextY = oldY.subtract(quotient.multiply(y));
-            oldY = y;
-            y = nextY;
+    /* integers to compute the GCD of */
+    public static long gcd1(long p, long q) {
+        if ((q > p)) {
+            return gcd1(q, p);
         }
-        return new BigInteger[] {oldR, a.signum() < 0 ? oldX.negate() : oldX,
-                                 b.signum() < 0 ? oldY.negate() : oldY};
+        if ((q == 0)) {
+            return p;
+        }
+        C.printf(" gcd(%ld,%ld) &=& gcd(%ld \\mod %ld, %ld) = gcd(%ld,%ld) \n", p, q, p, q, q, q, (p % q));
+        return gcd1(q, (p % q));
+    }
+
+    /*	Find the gcd(p,q) and x,y such that p*x + q*y = gcd(p,q)	*/
+    public static long gcd(long p, long q, long[] x, long[] y) {
+        long[] x1 = new long[]{0}; /* previous coefficients */
+        long[] y1 = new long[]{0};
+        long g = 0; /* value of gcd(p,q) */
+        if ((q > p)) {
+            return gcd(q, p, y, x);
+        }
+        if ((q == 0)) {
+            x[0] = 1;
+            y[0] = 0;
+            return p;
+        }
+        g = gcd(q, (p % q), x1, y1);
+        x[0] = y1[0];
+        y[0] = (x1[0] - ((p / q) * y1[0]));
+        return g;
+    }
+
+    public static int main() {
+        long p = 0;
+        long q = 0;
+        long[] x = new long[]{0};
+        long[] y = new long[]{0};
+        long g1 = 0;
+        long g2 = 0;
+        while (true) {
+            int _read0 = C.scan("%ld %ld");
+            if (_read0 > 0) p = C.scanLong(0);
+            if (_read0 > 1) q = C.scanLong(1);
+            if (!((_read0 != -1))) break;
+            g1 = gcd1(p, q);
+            g2 = gcd(p, q, x, y);
+            C.printf("gcd of p=%ld and q=%ld = %ld\n", p, q, g1);
+            C.printf(" %ld*%ld + %ld*%ld = %ld\n", p, x[0], q, y[0], g2);
+            if ((g1 != g2)) {
+                C.printf("ERROR: GCD\n");
+            }
+            if ((((p * x[0]) + (q * y[0])) != g1)) {
+                C.printf("ERROR: DIOPHONINE SOLUTION WRONG!\n");
+            }
+        }
+        return 0;
     }
 
     public static void main(String[] args) {
-        System.out.println(
-            Arrays.toString(extendedGcd(BigInteger.valueOf(252), BigInteger.valueOf(198))));
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

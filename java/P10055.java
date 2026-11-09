@@ -1,32 +1,28 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
-Permission is granted for use in non-commerical applications
-provided this copyright notice remains intact and unchanged.
+/* Direct translation of 10055.c */
 
-These programs appear in my books:
+public class P10055 {
 
-"The Algorithm Design Manual" by Steven Skiena, second edition, Springer,
-London 2008.  See out website www.algorist.com for additional information
-or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
-
-"Programming Challenges: The Programming Contest Training Manual"
-by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
-See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
-*/
-
-import java.math.BigInteger;
-
-public final class P10055 {
-    public static BigInteger absoluteDifference(BigInteger a, BigInteger b) {
-        return a.subtract(b).abs();
+    public static int main() {
+        long p = 0;
+        long q = 0;
+        long r = 0;
+        while (true) {
+            int _read0 = C.scan("%ld %ld");
+            if (_read0 > 0) p = C.scanLong(0);
+            if (_read0 > 1) q = C.scanLong(1);
+            if (!((_read0 != -1))) break;
+            if ((q > p)) {
+                r = (q - p);
+            } else {
+                r = (p - q);
+            }
+            C.printf("%ld\n", r);
+        }
+        return 0;
     }
 
     public static void main(String[] args) {
-        java.util.Scanner in = new java.util.Scanner(System.in);
-        while (in.hasNextBigInteger()) {
-            BigInteger first = in.nextBigInteger();
-            BigInteger second = in.nextBigInteger();
-            System.out.println(absoluteDifference(first, second));
-        }
+        int status = main();
+        if (status != 0) System.exit(status);
     }
 }

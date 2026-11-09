@@ -13,32 +13,54 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""sentinel.c translated to Python; indices start at zero."""
+"""Direct translation of sentinel.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from typing import TypeVar
+from ._c import *
+from . import _c
 
-T = TypeVar("T")
+MAXINT = 1000000
+a = [0 for _ in range(100)]
 
 
-def sentinel_insert(values: list[T], value: T) -> list[T]:
-    """Insert into a sorted array using value itself as a sentinel."""
-    result = [value, *values, value]
-    hole = len(result) - 1
-    while value < result[hole - 1]:
-        result[hole] = result[hole - 1]
-        hole -= 1
-    result[hole] = value
-    return result[1:]
+def main():
+    i = 1
+    while (i <= 20):
+        a[i] = i
+        i += 1
+    n = 20
+    x = (-1)
+    i = n
+    while ((a[i] >= x) and (i >= 1)):
+        a[(i + 1)] = a[i]
+        i = (i - 1)
+    a[(i + 1)] = x
+    printf("without sentinel, i=%d a[1]=%d\n", i, a[1])
+    i = 1
+    while (i <= 25):
+        printf("%d ", a[i])
+        i += 1
+    x = (-2)
+    n = 21
+    i = n
+    a[0] = (-MAXINT)
+    while (a[i] >= x):
+        a[(i + 1)] = a[i]
+        i = (i - 1)
+    a[(i + 1)] = x
+    printf("\nwith sentinel, i=%d a[1]=%d\n", i, a[1])
+    i = 1
+    while (i <= 25):
+        printf("%d ", a[i])
+        i += 1
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    print(sentinel_insert([1, 2, 3], -1))
+    exit(main())

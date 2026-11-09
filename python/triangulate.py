@@ -13,115 +13,130 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""triangulate.c translated to Python; indices start at zero."""
+"""Direct translation of triangulate.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from .geometry import (
-    EPSILON,
-    Point,
-    _points,
-    cross,
-    distance,
-    orientation,
-    point_in_box,
-    polygon_area,
-    segments_intersect,
-    signed_polygon_area,
-    triangle_area,
-)
+from ._c import *
+from . import _c
+from . import geometry
 
 
-def validate_polygon(points: list[Point]) -> None:
-    """Require a simple boundary, distinct vertices, and nonzero signed area; O(n²)."""
-    _points(points)
-    if len(points) < 3 or len(set(points)) != len(points) or polygon_area(points) <= EPSILON:
-        raise ValueError("polygon is degenerate")
-    size = len(points)
-    for first in range(size):
-        for second in range(first + 1, size):
-            if second == first + 1 or (first == 0 and second == size - 1):
-                continue
-            if segments_intersect(
-                points[first],
-                points[(first + 1) % size],
-                points[second],
-                points[(second + 1) % size],
-            ):
-                raise ValueError("polygon boundary intersects itself")
-    for index in range(size):
-        previous, current, following = points[index - 1], points[index], points[(index + 1) % size]
-        if orientation(previous, current, following) == 0 and not point_in_box(
-            current, previous, following
-        ):
-            raise ValueError("adjacent polygon edges overlap")
+
+def add_triangle(t, i, j, k, p):
+    # n: number of triangles in t
+    n = t.n
+    t.t[n][0] = i
+    t.t[n][1] = j
+    t.t[n][2] = k
+    t.n = (n + 1)
 
 
-def triangulate(points: list[Point]) -> list[list[int]]:
-    """Ear clipping of a simple polygon, either winding; O(n³), n-2 index triangles."""
-    validate_polygon(points)
-    remaining = list(range(len(points)))
-    if signed_polygon_area(points) < 0:
-        remaining.reverse()
-    result = []
-    while len(remaining) > 3:
-        for position, current in enumerate(remaining):
-            previous = remaining[position - 1]
-            following = remaining[(position + 1) % len(remaining)]
-            a, b, c = points[previous], points[current], points[following]
-            if orientation(a, b, c) <= 0:
-                continue
-            occupied = False
-            for other in remaining:
-                if other in (previous, current, following):
-                    continue
-                point = points[other]
-                if min(cross(a, b, point), cross(b, c, point), cross(c, a, point)) >= -EPSILON:
-                    occupied = True
-                    break
-            if not occupied:
-                result.append([previous, current, following])
-                remaining.pop(position)
-                break
-        else:
-            raise ValueError("polygon cannot be triangulated at this tolerance")
-    if triangle_area(*(points[index] for index in remaining)) <= EPSILON:
-        raise ValueError("degenerate final triangle")
-    result.append(remaining)
-    return result
+def point_in_triangle(p, t):
+    # i: counter
+    i = 0
+    while (i < 3):
+        if geometry.cw(t[i], t[c_mod((i + 1), 3)], p):
+            return False
+        i += 1
+    return True
 
 
-def minimum_weight_triangulation(points: list[Point]) -> float:
-    """Minimum sum of triangle perimeters for a strictly convex polygon, O(n³)."""
-    validate_polygon(points)
-    signs = [
-        orientation(points[index - 1], points[index], points[(index + 1) % len(points)])
-        for index in range(len(points))
-    ]
-    if 0 in signs or len(set(signs)) != 1:
-        raise ValueError("minimum-weight triangulation requires strict convexity")
-    size = len(points)
-    costs = [[0.0] * size for _ in range(size)]
-    for gap in range(2, size):
-        for first in range(size - gap):
-            last = first + gap
-            costs[first][last] = min(
-                costs[first][middle]
-                + costs[middle][last]
-                + distance(points[first], points[middle])
-                + distance(points[middle], points[last])
-                + distance(points[last], points[first])
-                for middle in range(first + 1, last)
-            )
-    return costs[0][-1]
+def ear_Q(i, j, k, p):
+    # t: coordinates for points i,j,k
+    t = [[0.0 for _ in range(geometry.DIMENSION)] for _ in range(3)]
+    # m: counter
+    geometry.copy_point(p.p[i], t[0])
+    geometry.copy_point(p.p[j], t[1])
+    geometry.copy_point(p.p[k], t[2])
+    if geometry.cw(t[0], t[1], t[2]):
+        return False
+    m = 0
+    while (m < p.n):
+        if (((m != i) and (m != j)) and (m != k)):
+            if point_in_triangle(p.p[m], t):
+                return False
+        m += 1
+    return True
+
+
+def triangulate(p, t):
+    # l: left/right neighbor indices
+    l = [0 for _ in range(geometry.MAXPOLY)]
+    r = [0 for _ in range(geometry.MAXPOLY)]
+    # i: counter
+    # initialization
+    i = 0
+    while (i < p.n):
+        l[i] = c_mod(((i - 1) + p.n), p.n)
+        r[i] = c_mod(((i + 1) + p.n), p.n)
+        i += 1
+    t.n = 0
+    i = (p.n - 1)
+    while (t.n < (p.n - 2)):
+        i = r[i]
+        if ear_Q(l[i], i, r[i], p):
+            add_triangle(t, l[i], i, r[i], p)
+            l[r[i]] = l[i]
+            r[l[i]] = r[i]
+
+
+def area_triangulation(p):
+    # t: output triangulation
+    t = geometry.triangulation()
+    # total area so far
+    total = 0.0
+    # i: counter
+    triangulate(p, t)
+    i = 0
+    while (i < t.n):
+        total += geometry.triangle_area(p.p[t.t[i][0]], p.p[t.t[i][1]], p.p[t.t[i][2]])
+        i += 1
+    return total
+
+
+def area(p):
+    # total area so far
+    total = 0.0
+    # j: counters
+    i = 0
+    while (i < p.n):
+        j = c_mod((i + 1), p.n)
+        total += ((p.p[i][geometry.X] * p.p[j][geometry.Y]) - (p.p[j][geometry.X] * p.p[i][geometry.Y]))
+        i += 1
+    return (total / 2.0)
+
+
+def main():
+    # p: input polygon
+    p = geometry.polygon()
+    # i: counter
+    scanf("%d", address(p, 'n'))
+    i = 0
+    while (i < p.n):
+        scanf("%lf %lf", address(p.p[i], geometry.X), address(p.p[i], geometry.Y))
+        i += 1
+    printf(" area via triangulation = %f\n", area_triangulation(p))
+    printf(" area slick = %f\n", area(p))
+    return 0
+
+
+def print_triangulation(t):
+    # j: counters
+    i = 0
+    while (i < t.n):
+        j = 0
+        while (j < 3):
+            printf(" %d ", t.t[i][j])
+            j += 1
+        printf("\n")
+        i += 1
 
 
 if __name__ == "__main__":
-    import sys
-
-    print(triangulate([(0, 0), (1, 0), (1, 1), (0, 1)]))
+    exit(main())

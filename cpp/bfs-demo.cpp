@@ -1,4 +1,8 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*	bfs-demo.c
+	Driver program demonstrating breadth-first search
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -11,33 +15,52 @@ or https://www.amazon.com/exec/obidos/ASIN/1848000693/thealgorith01-20
 "Programming Challenges: The Programming Contest Training Manual"
 by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 See our website www.programming-challenges.com for additional information,
-or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
-#include "graph.hpp"
+#include <stdio.h>
+#include <stdbool.h>
+
 #include "bfs-dfs.hpp"
-#include "distance.hpp"
 
-namespace adm {} // namespace adm
+extern bool processed[];  /* which vertices have been processed */
+extern bool discovered[]; /* which vertices have been found */
+extern int parent[];      /* discovery relation */
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        auto graph = read_graph(std::cin);
-        for (auto value : bfs(graph, 0).distance) {
-            if (value) {
-                std::cout << *value;
-            } else {
-                std::cout << "unreachable";
-            }
-            std::cout << " ";
-        }
-        std::cout << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
-    }
+/* [[[ pvearly_cut */
+void process_vertex_early(int v) {
+    printf("processed vertex %d\n", v);
 }
-#endif
+/* ]]] */
+
+/* [[[ pvlate_cut */
+void process_vertex_late(int v) {}
+/* ]]] */
+
+/* [[[ pedge_cut */
+void process_edge(int x, int y) {
+    printf("processed edge (%d,%d)\n", x, y);
+}
+/* ]]] */
+
+int main(void) {
+    graph g;
+    int i;
+
+    read_graph(&g, false);
+    print_graph(&g);
+    initialize_search(&g);
+    bfs(&g, 1);
+
+    for (i = 1; i <= g.nvertices; i++) {
+        printf(" %d", parent[i]);
+    }
+    printf("\n");
+
+    for (i = 1; i <= g.nvertices; i++) {
+        find_path(1, i, parent);
+    }
+    printf("\n");
+
+    return 0;
+}

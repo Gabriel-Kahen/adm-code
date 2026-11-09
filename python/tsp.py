@@ -13,47 +13,201 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""tsp.c translated to Python; indices start at zero."""
+"""Direct translation of tsp.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-import math
+from ._c import *
+from . import _c
+from . import annealing
+from . import random
 
-from .geometry import Point, distance
-
-
-def tour_cost(points: list[Point], tour: list[int]) -> float:
-    """Closed tour length; require each city exactly once. O(n)."""
-    if sorted(tour) != list(range(len(points))):
-        raise ValueError("tour must be a permutation of city indices")
-    for point in points:
-        distance(point, point)
-    result = sum(
-        distance(points[tour[index - 1]], points[tour[index]]) for index in range(len(tour))
-    )
-    if not math.isfinite(result):
-        raise ValueError("tour cost exceeds floating-point range")
-    return result
+# maximum number of points
+class point:
+    def __init__(self):
+        # y: x and y coordinates of point
+        self.x = 0
+        self.y = 0
 
 
-def swap_delta(points: list[Point], tour: list[int], first: int, second: int) -> float:
-    """Recomputed swap-cost difference, O(n), including adjacent/cyclic edge cases."""
-    if not 0 <= first < len(tour) or not 0 <= second < len(tour):
-        raise ValueError("swap index out of range")
-    previous = tour_cost(points, tour)
-    changed = list(tour)
-    changed[first], changed[second] = changed[second], changed[first]
-    return tour_cost(points, changed) - previous
+class tsp_instance:
+    def __init__(self):
+        # n: how many points in problem?
+        self.n = 0
+        # p: array of points
+        self.p = [point() for _ in range((NMAX + 1))]
+
+
+class tsp_solution:
+    def __init__(self):
+        # cost: lower bound on full cost solution
+        self.cost = 0.0
+        # n: how many elements in permutation?
+        self.n = 0
+        # p: array of indices
+        self.p = [0 for _ in range((NMAX + 1))]
+
+
+NMAX = 1001
+
+
+def read_tsp(t):
+    # j: counters
+    j = [0]
+    scanf("%d\n", address(t, 'n'))
+    i = 1
+    while (i <= t.n):
+        scanf("%d %d %d\n", j, address(t.p[i], 'x'), address(t.p[i], 'y'))
+        i += 1
+
+
+def print_tsp(t):
+    # i: counter
+    i = 1
+    while (i <= t.n):
+        printf("%d %d %d\n", i, t.p[i].x, t.p[i].y)
+        i += 1
+
+
+def sq(x):
+    return (x * x)
+
+
+def distance(s, x, y, t):
+    i = x
+    j = y
+    if (i == (t.n + 1)):
+        i = 1
+    if (j == (t.n + 1)):
+        j = 1
+    if (i == 0):
+        i = t.n
+    if (j == 0):
+        j = t.n
+    return hypot((float(t.p[s.p[i]].x) - t.p[s.p[j]].x), (float(t.p[s.p[i]].y) - t.p[s.p[j]].y))
+
+
+def solution_cost(s, t):
+    # i: counter
+    # cost: cost of solution
+    cost = distance(s, t.n, 1, t)
+    i = 1
+    while (i < t.n):
+        cost = (cost + distance(s, i, (i + 1), t))
+        i += 1
+    return cost
+
+
+def initialize_solution(n, s):
+    # i: counter
+    s.n = n
+    i = 1
+    while (i <= n):
+        s.p[i] = i
+        i += 1
+
+
+def copy_solution(s, t):
+    # i: counter
+    t.n = s.n
+    i = 1
+    while (i <= s.n):
+        t.p[i] = s.p[i]
+        i += 1
+
+
+def print_solution(s):
+    # i: counter
+    i = 1
+    while (i <= s.n):
+        printf(" %d", s.p[i])
+        i += 1
+    printf("\n------------------------------------------------------\n")
+
+
+def read_solution(s):
+    # i: counter
+    scanf("%d\n", address(s, 'n'))
+    i = 1
+    while (i <= s.n):
+        scanf("%d", address(s.p, i))
+        i += 1
+
+
+def random_solution(s):
+    random.random_permutation(offset(s.p, 1), (s.n - 1))
+
+
+def transition(s, t, i, j):
+    i = [i]
+    j = [j]
+    # willbe: before and after costs
+    # neighbors: i,j neighboring tour positions?
+    neighbors = False
+    if (i[0] == j[0]):
+        return 0.0
+    if (i[0] > j[0]):
+        return transition(s, t, j[0], i[0])
+    if (i[0] == (j[0] - 1)):
+        neighbors = True
+    if ((i[0] == 1) and (j[0] == s.n)):
+        random.swap(i, j)
+        neighbors = True
+    if neighbors:
+        was = (distance(s, (i[0] - 1), i[0], t) + distance(s, j[0], (j[0] + 1), t))
+    else:
+        was = (((distance(s, (i[0] - 1), i[0], t) + distance(s, i[0], (i[0] + 1), t)) + distance(s, (j[0] - 1), j[0], t)) + distance(s, j[0], (j[0] + 1), t))
+    random.swap(address(s.p, i[0]), address(s.p, j[0]))
+    if neighbors:
+        willbe = (distance(s, (i[0] - 1), i[0], t) + distance(s, j[0], (j[0] + 1), t))
+    else:
+        willbe = (((distance(s, (i[0] - 1), i[0], t) + distance(s, i[0], (i[0] + 1), t)) + distance(s, (j[0] - 1), j[0], t)) + distance(s, j[0], (j[0] + 1), t))
+    return (willbe - was)
+
+
+def main():
+    # Bind this application's callbacks to the shared C-style backend.
+    annealing.solution_cost = solution_cost
+    annealing.initialize_solution = initialize_solution
+    annealing.copy_solution = copy_solution
+    annealing.random_solution = random_solution
+    annealing.transition = transition
+    # t: tsp points
+    t = tsp_instance()
+    # s: tsp solution
+    s = tsp_solution()
+    read_tsp(t)
+    read_solution(s)
+    printf("OPTIMAL SOLUTION COST = %7.1f\n", solution_cost(s, t))
+    print_solution(s)
+    initialize_solution(t.n, s)
+    printf("solution_cost = %7.1f\n", solution_cost(s, t))
+    print_solution(s)
+    annealing.solution_count = 0
+    annealing.random_sampling(t, 10000, s)
+    printf("random_sampling %d iterations, cost = %7.1f\n", annealing.solution_count, solution_cost(s, t))
+    print_solution(s)
+    initialize_solution(t.n, s)
+    printf("solution_cost = %7.1f\n", solution_cost(s, t))
+    print_solution(s)
+    annealing.solution_count = 0
+    annealing.repeated_hill_climbing(t, 40, s)
+    printf("repeated hill_climbing %d iterations, cost = %7.1f\n", annealing.solution_count, solution_cost(s, t))
+    print_solution(s)
+    initialize_solution(t.n, s)
+    printf("solution_cost = %7.1f\n", solution_cost(s, t))
+    print_solution(s)
+    annealing.solution_count = 0
+    annealing.repeated_annealing(t, 3, s)
+    printf("repeated annealing %d iterations, cost = %7.1f\n", annealing.solution_count, solution_cost(s, t))
+    print_solution(s)
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    from .annealing import traveling_salesperson
-
-    print(traveling_salesperson([(0, 0), (1, 0), (1, 1), (0, 1)], "hill"))
+    exit(main())

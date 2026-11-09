@@ -11,51 +11,46 @@
 # "Programming Challenges: The Programming Contest Training Manual"
 # by Steven Skiena and Miguel Revilla, Springer-Verlag, New York 2003.
 # See our website www.programming-challenges.com for additional information,
-# or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
+# or http://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""backtrack.c translated to Python; indices start at zero."""
+"""Direct translation of backtrack.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
 
-from collections.abc import Callable, Iterable
-from typing import TypeVar
+from ._c import *
+from . import _c
 
-T = TypeVar("T")
+# maximum extensions of one prefix
+MAXCANDIDATES = 100
+# maximum solution length
+NMAX = 100
+# found all solutions yet?
+finished = 0
 
 
-def backtrack(
-    prefix: list[T],
-    is_solution: Callable[[list[T]], bool],
-    candidates: Callable[[list[T]], Iterable[T]],
-    process: Callable[[list[T]], bool],
-    make_move: Callable[[list[T]], None] = lambda _: None,
-    unmake_move: Callable[[list[T]], None] = lambda _: None,
-) -> bool:
-    """Generic DFS: process returns False to stop; every made move is undone.
-
-    Callbacks see the current prefix including its latest move. The caller's
-    prefix is copied. Undo runs even when recursive callbacks raise exceptions.
-    Returns True on exhaustive completion and False on requested early stop.
-    """
-    current = list(prefix)
-
-    def visit() -> bool:
-        if is_solution(current):
-            return process(current)
-        for candidate in candidates(current):
-            current.append(candidate)
-            make_move(current)
-            try:
-                if not visit():
-                    return False
-            finally:
-                unmake_move(current)
-                current.pop()
-        return True
-
-    return visit()
+def backtrack(a, k, input):
+    # c: candidates for next position
+    c = [0 for _ in range(MAXCANDIDATES)]
+    # nc: next position candidate count
+    nc = [0]
+    # i: counter
+    if is_a_solution(a, k, input):
+        process_solution(a, k, input)
+    else:
+        k = (k + 1)
+        construct_candidates(a, k, input, c, nc)
+        i = 0
+        while (i < nc[0]):
+            a[k] = c[i]
+            make_move(a, k, input)
+            backtrack(a, k, input)
+            unmake_move(a, k, input)
+            if finished:
+                # return: terminate early
+                return
+            i += 1

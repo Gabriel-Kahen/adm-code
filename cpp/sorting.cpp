@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    sorting.c
+
+    Implementations of primary sorting algorithms
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,127 +19,266 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 #include "priority_queue.hpp"
+#include "queue.hpp"
+#include "random.hpp"
 
-namespace adm {
-void quick_sort(Integers &values, std::size_t begin, std::size_t end) {
-    // Three-way partition keeps duplicate-heavy inputs linear per level.
-    while (end > begin + 1) {
-        Integer pivot = values[begin + (end - begin) / 2];
-        std::size_t less = begin, current = begin, greater = end;
-        while (current < greater) {
-            if (values[current] < pivot) {
-                std::swap(values[less++], values[current++]);
-            } else if (values[current] > pivot) {
-                std::swap(values[current], values[--greater]);
-            } else {
-                ++current;
-            }
-        }
-        // Recurse on the smaller partition, bounding stack usage by O(log n).
-        if (less - begin < end - greater) {
-            quick_sort(values, begin, less);
-            begin = greater;
-        } else {
-            quick_sort(values, greater, end);
-            end = less;
-        }
+#define NELEM 100 /* size of test arrays */
+#define LESS_THAN -1
+#define EQUAL_TO 0
+#define GREATER_THAN 1
+
+int compare(item_type a, item_type b) {
+    if (a < b) {
+        return (LESS_THAN);
     }
+
+    if (a > b) {
+        return (GREATER_THAN);
+    }
+
+    return (EQUAL_TO);
 }
 
-void merge_sort(Integers &values, Integers &buffer, std::size_t begin, std::size_t end) {
-    if (end <= begin + 1) {
-        return;
-    }
-    auto middle = begin + (end - begin) / 2;
-    merge_sort(values, buffer, begin, middle);
-    merge_sort(values, buffer, middle, end);
-    std::size_t left = begin, right = middle;
-    for (auto i = begin; i < end; ++i) {
-        if (right == end || (left < middle && values[left] <= values[right])) {
-            buffer[i] = values[left++];
-        } else {
-            buffer[i] = values[right++];
-        }
-    }
-    std::copy(buffer.begin() + static_cast<std::ptrdiff_t>(begin),
-              buffer.begin() + static_cast<std::ptrdiff_t>(end),
-              values.begin() + static_cast<std::ptrdiff_t>(begin));
+/*    Swap the ith and jth elements of array s.    */
+
+void newswap(item_type s[], int i, int j) {
+    item_type tmp; /* placeholder */
+
+    tmp = s[i];
+    s[i] = s[j];
+    s[j] = tmp;
 }
 
-// namespace
-Integers sort(const std::string &method, Integers values) {
-    if (method == "insertion") {
-        for (std::size_t i = 1; i < values.size(); ++i) {
-            Integer item = values[i];
-            std::size_t j = i;
-            while (j > 0 && values[j - 1] > item) {
-                values[j] = values[j - 1];
-                --j;
+/* [[[ insertion_cut */
+void insertion_sort(item_type s[], int n) {
+    int i, j; /* counters */
+
+    /* [[[ insertion_inner_cut */
+    for (i = 1; i < n; i++) {
+        j = i;
+        while ((j > 0) && (s[j] < s[j - 1])) {
+            swap(&s[j], &s[j - 1]);
+            j = j - 1;
+        }
+    }
+    /* ]]] */
+}
+/* ]]] */
+
+/* [[[ selection_cut */
+void selection_sort(item_type s[], int n) {
+    int i, j; /* counters */
+    int min;  /* index of minimum */
+
+    for (i = 0; i < n; i++) {
+        min = i;
+        for (j = i + 1; j < n; j++) {
+            if (s[j] < s[min]) {
+                min = j;
             }
-            values[j] = item;
         }
-    } else if (method == "selection") {
-        for (std::size_t i = 0; i < values.size(); ++i) {
-            std::size_t smallest = i;
-            for (std::size_t j = i + 1; j < values.size(); ++j) {
-                if (values[j] < values[smallest]) {
-                    smallest = j;
-                }
-            }
-            std::swap(values[i], values[smallest]);
+        swap(&s[i], &s[min]);
+    }
+}
+/* ]]] */
+
+/* [[[ partition_cut */
+int partition(item_type s[], int l, int h) {
+    int i;         /* counter */
+    int p;         /* pivot element index */
+    int firsthigh; /* divider position for pivot element */
+
+    p = h; /* select last element as pivot */
+    firsthigh = l;
+    for (i = l; i < h; i++) {
+        if (s[i] < s[p]) {
+            swap(&s[i], &s[firsthigh]);
+            firsthigh++;
         }
-    } else if (method == "quick") {
-        quick_sort(values, 0, values.size());
-    } else if (method == "heap") {
-        MinHeap heap;
-        for (Integer value : values) {
-            heap.push(value);
-        }
-        for (auto &value : values) {
-            value = heap.pop();
-        }
-    } else if (method == "merge") {
-        Integers buffer(values.size());
-        merge_sort(values, buffer, 0, values.size());
+    }
+    swap(&s[p], &s[firsthigh]);
+
+    return (firsthigh);
+}
+/* ]]] */
+
+/*    quicksort array s from the index l to index h.    */
+/* [[[ quicksort_cut */
+void quicksort(item_type s[], int l, int h) {
+    int p; /* index of partition */
+
+    if (l < h) {
+        p = partition(s, l, h);
+        quicksort(s, l, p - 1);
+        quicksort(s, p + 1, h);
+    }
+}
+/* ]]] */
+
+/* [[[ heapsort_cut */
+void heapsort_(item_type s[], int n) {
+    int i;            /* counters */
+    priority_queue q; /* heap for heapsort */
+
+    make_heap(&q, s, n);
+
+    for (i = 0; i < n; i++) {
+        s[i] = extract_min(&q);
+    }
+}
+/* ]]] */
+
+/* [[[ binary_search_cut */
+int binary_search(item_type s[], item_type key, int low, int high) {
+    int middle; /* index of middle element */
+
+    if (low > high) {
+        return (-1); /* key not found */
+    }
+
+    middle = (low + high) / 2;
+
+    if (s[middle] == key) {
+        return (middle);
+    }
+
+    if (s[middle] > key) {
+        return (binary_search(s, key, low, middle - 1));
     } else {
-        throw std::invalid_argument("unknown sorting method");
+        return (binary_search(s, key, middle + 1, high));
     }
-    return values;
 }
+/* ]]] */
 
-int binary_search(const Integers &values, Integer target) {
-    require(std::is_sorted(values.begin(), values.end()), "binary search requires sorted input");
-    std::size_t left = 0, right = values.size();
-    while (left < right) {
-        std::size_t middle = left + (right - left) / 2;
-        if (values[middle] < target) {
-            left = middle + 1;
+/* [[[ merge_cut */
+void merge(item_type s[], int low, int middle, int high) {
+    int i;                  /* counter */
+    queue buffer1, buffer2; /* buffers to hold elements for merging */
+
+    init_queue(&buffer1);
+    init_queue(&buffer2);
+
+    for (i = low; i <= middle; i++)
+        enqueue(&buffer1, s[i]);
+    for (i = middle + 1; i <= high; i++)
+        enqueue(&buffer2, s[i]);
+
+    i = low;
+    while (!(empty_queue(&buffer1) || empty_queue(&buffer2))) {
+        if (headq(&buffer1) <= headq(&buffer2)) {
+            s[i++] = dequeue(&buffer1);
         } else {
-            right = middle;
+            s[i++] = dequeue(&buffer2);
         }
     }
-    return left < values.size() && values[left] == target ? static_cast<int>(left) : -1;
-}
-} // namespace adm
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        Integers values;
-        Integer value;
-        while (std::cin >> value) {
-            values.push_back(value);
-        }
-        for (auto sorted : sort("merge", values)) {
-            std::cout << sorted << " ";
-        }
-        std::cout << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
-        return 1;
+    while (!empty_queue(&buffer1)) {
+        s[i++] = dequeue(&buffer1);
+    }
+
+    while (!empty_queue(&buffer2)) {
+        s[i++] = dequeue(&buffer2);
     }
 }
-#endif
+/* ]]] */
+
+/* [[[ mergesort_cut */
+void merge_sort(item_type s[], int low, int high) {
+    int middle; /* index of middle element */
+
+    if (low < high) {
+        middle = (low + high) / 2;
+        merge_sort(s, low, middle);
+        merge_sort(s, middle + 1, high);
+
+        merge(s, low, middle, high);
+    }
+}
+/* ]]] */
+
+int main(void) {
+    int s[NELEM + 2];
+    int i; /* counter */
+
+    for (i = 0; i < NELEM; i++) {
+        s[i] = NELEM - i;
+    }
+    random_permutation(s, NELEM);
+
+    insertion_sort(s, NELEM);
+
+    printf("\n\nInsertion sort: \n");
+    for (i = 0; i < NELEM; i++) {
+        printf("%d ", s[i]);
+    }
+
+    for (i = 0; i < NELEM; i++) {
+        s[i] = NELEM - i;
+    }
+    random_permutation(s, NELEM);
+
+    selection_sort(s, NELEM);
+
+    printf("\n\nSelection sort: \n");
+    for (i = 0; i < NELEM; i++) {
+        printf("%d ", s[i]);
+    }
+
+    for (i = 0; i < NELEM; i++) {
+        s[i] = NELEM - i;
+    }
+    random_permutation(s, NELEM);
+
+    quicksort(s, 0, NELEM - 1);
+
+    printf("\n\nQuicksort: \n");
+    for (i = 0; i < NELEM; i++) {
+        printf("%d ", s[i]);
+    }
+
+    for (i = 0; i < NELEM; i++) {
+        s[i] = NELEM - i;
+    }
+    random_permutation(s, NELEM);
+
+    heapsort_(s, NELEM);
+
+    printf("\n\nHeapsort sort: \n");
+    for (i = 0; i < NELEM; i++) {
+        printf("%d ", s[i]);
+    }
+
+    for (i = 0; i < NELEM; i++) {
+        s[i] = NELEM - i;
+    }
+    random_permutation(s, NELEM);
+
+    merge_sort(s, 0, NELEM - 1);
+    printf("\n\nMergesort: \n");
+    for (i = 0; i < NELEM; i++) {
+        printf("%d ", s[i]);
+    }
+    printf("\n");
+
+    printf("\n");
+
+    // /* test binary search */
+    printf("Binary Search: \n");
+    for (i = 0; i < NELEM; i++) {
+        s[i] = 2 * (NELEM - i);
+    }
+    random_permutation(s, NELEM);
+
+    heapsort_(s, NELEM);
+    for (i = 2; i < 2 * NELEM + 1; i += 2) {
+        printf("%d found in %d\n", i, binary_search(s, i, 0, NELEM - 1));
+    }
+
+    return 0;
+}

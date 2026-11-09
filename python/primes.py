@@ -13,33 +13,45 @@
 # See our website www.programming-challenges.com for additional information,
 # or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 
-"""primes.c translated to Python; indices start at zero."""
+"""Direct translation of primes.c; data structures and indexing match C."""
 
 if __name__ == "__main__" and not __package__:
     import sys
     from pathlib import Path
-
     sys.path[0] = str(Path(__file__).resolve().parent.parent)
     __package__ = "python"
+    sys.modules[__package__ + "." + Path(__file__).stem] = sys.modules[__name__]
+
+from ._c import *
+from . import _c
 
 
-def prime_factors(value: int) -> list[int]:
-    """Trial division in O(sqrt(n)); 1 has an empty factorization."""
-    if value < 1:
-        raise ValueError("factorization requires a positive integer")
-    factors = []
-    divisor = 2
-    while divisor <= value // divisor:
-        while value % divisor == 0:
-            factors.append(divisor)
-            value //= divisor
-        divisor = 3 if divisor == 2 else divisor + 2
-    if value > 1:
-        factors.append(value)
-    return factors
+
+def prime_factorization(x):
+    # i: counter
+    # c: remaining product to factor
+    c = x
+    while (c_mod(c, 2) == 0):
+        printf("%d\n", 2)
+        c = c_div(c, 2)
+    i = 3
+    while (i <= (sqrt(c) + 1)):
+        if (c_mod(c, i) == 0):
+            printf("%ld\n", i)
+            c = c_div(c, i)
+        else:
+            i = (i + 2)
+    if (c > 1):
+        printf("%ld\n", c)
+
+
+def main():
+    p = [0]
+    while (scanf("%ld", p) != EOF):
+        printf("prime factorization of p=%ld \n", p[0])
+        prime_factorization(p[0])
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
-    print(prime_factors(int(sys.stdin.read().strip() or "360")))
+    exit(main())

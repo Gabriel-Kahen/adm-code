@@ -1,4 +1,11 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+#pragma once
+
+/*    wgraph.h
+
+    Header file for pointer-less weighted graph type from Skiena-Revilla
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,14 +21,18 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#pragma once
+#define MAXV 100     /* maximum number of vertices */
+#define MAXDEGREE 50 /* maximum outdegree of a vertex */
 
-#include "graph.hpp"
+typedef struct {
+    int v;      /* neighboring vertex */
+    int weight; /* edge weight */
+} edge;
 
-namespace adm {
-struct SpanningForest {
-    Integer cost = 0;
-    std::vector<Edge> edges;
-};
-Graph read_weighted_graph(std::istream &input, bool directed = false);
-} // namespace adm
+typedef struct {
+    edge edges[MAXV + 1][MAXDEGREE]; /* adjacency info */
+    int degree[MAXV + 1];            /* outdegree of each vertex */
+    int nvertices;                   /* number of vertices in the graph */
+    int nedges;                      /* number of edges in the graph */
+    int directed;                    /* is the graph directed? */
+} graph;

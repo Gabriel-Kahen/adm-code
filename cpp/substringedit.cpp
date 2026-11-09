@@ -1,4 +1,9 @@
-/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved. 
+/*    substringedit.c
+
+    Approximately match one string as a substring of another, where is s in t?
+*/
+
+/* Copyright 2003-2020 by Steven S. Skiena; all rights reserved.
 Permission is granted for use in non-commerical applications
 provided this copyright notice remains intact and unchanged.
 
@@ -14,34 +19,104 @@ See our website www.programming-challenges.com for additional information,
 or https://www.amazon.com/exec/obidos/ASIN/0387001638/thealgorithmrepo/
 */
 
-#include "item.hpp"
+#include <stdio.h>
+#include <string.h>
+#include "editinput.hpp"
 
-namespace adm {
-Integer substring_edit_distance(const std::string &pattern, const std::string &text) {
-    // Every text prefix is free: the first row represents all possible starts.
-    Integers previous(text.size() + 1), current(text.size() + 1);
-    for (std::size_t i = 1; i <= pattern.size(); ++i) {
-        current[0] = static_cast<Integer>(i);
-        for (std::size_t j = 1; j <= text.size(); ++j) {
-            current[j] = std::min({previous[j - 1] + (pattern[i - 1] != text[j - 1]),
-                                   previous[j] + 1, current[j - 1] + 1});
+#include <stdbool.h>
+#include "editdistance.hpp"
+
+cell m[MAXLEN + 1][MAXLEN + 1]; /* dynamic programming table */
+
+/******************************************************************/
+
+/*    For normal edit distance computation  */
+/* [[[ goal_cell_288_cut */
+void goal_cell(char *s, char *t, int *i, int *j) {
+    int k; /* counter */
+
+    *i = strlen(s) - 1;
+    *j = 0;
+
+    for (k = 1; k < strlen(t); k++) {
+        if (m[*i][k].cost < m[*i][*j].cost) {
+            *j = k;
         }
-        previous.swap(current);
     }
-    return *std::min_element(previous.begin(), previous.end());
 }
-} // namespace adm
+/* ]]] */
 
-#ifdef ADM_DEMO
-int main() {
-    using namespace adm;
-    try {
-        std::string a = "cat", b = "xxcatyy";
-        std::cin >> a >> b;
-        std::cout << substring_edit_distance(a, b) << "\n";
-    } catch (const std::exception &error) {
-        std::cerr << error.what() << "\n";
+/* [[[ match_288_cut */
+int match(char c, char d) {
+    if (c == d) {
+        return (0);
+    }
+    return (1);
+}
+/* ]]] */
+
+int indel(char c) {
+    return (1);
+}
+
+/* [[[ row_init_288_cut */
+void row_init(int i, cell m[MAXLEN + 1][MAXLEN + 1]) {
+    m[0][i].cost = 0;    /* NOTE CHANGE */
+    m[0][i].parent = -1; /* NOTE CHANGE */
+}
+/* ]]] */
+
+void column_init(int i, cell m[MAXLEN + 1][MAXLEN + 1]) { /* what is m[i][0]? */
+    m[i][0].cost = i;
+    if (i > 0) {
+        m[i][0].parent = DELETE;
+    } else {
+        m[0][i].parent = -1;
+    }
+}
+
+/**********************************************************************/
+
+void match_out(char *s, char *t, int i, int j) {
+    if (s[i] == t[j]) {
+        printf("M");
+    } else {
+        printf("S");
+    }
+}
+
+void insert_out(char *t, int j) {
+    printf("I");
+}
+
+void delete_out(char *s, int i) {
+    printf("D");
+}
+
+/**********************************************************************/
+
+int main(void) {
+    int i, j;
+    char s[MAXLEN + 2], t[MAXLEN + 2]; /* input strings */
+
+    s[0] = t[0] = ' ';
+    if (!read_edit_string(s, MAXLEN) || !read_edit_string(t, MAXLEN)) {
+        fprintf(stderr, "expected two strings of at most %d characters\n", MAXLEN);
         return 1;
     }
+
+    printf("matching cost = %d \n", string_compare(s, t, m));
+
+    print_matrix(s, t, true, m);
+    printf("\n");
+    print_matrix(s, t, false, m);
+
+    goal_cell(s, t, &i, &j);
+
+    printf("%d %d\n", i, j);
+
+    reconstruct_path(s, t, i, j, m);
+    printf("\n");
+
+    return 0;
 }
-#endif
